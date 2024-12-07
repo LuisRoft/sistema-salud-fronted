@@ -7,7 +7,6 @@ export default function TableSkeleton({
   rows: number;
   columns: number;
 }) {
-  console.log(rows, columns);
   return (
     <div className='w-full space-y-3'>
       {Array.from({ length: rows }).map((_, rowIndex) => (

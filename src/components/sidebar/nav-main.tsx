@@ -33,8 +33,8 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
+      <SidebarMenu className='gap-2'>
         {items.map((item) => (
           <Collapsible
             key={item.title}

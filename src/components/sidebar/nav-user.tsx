@@ -36,17 +36,15 @@ export function NavUser() {
               <Avatar className='h-8 w-8 rounded-lg'>
                 <AvatarImage
                   src='https://github.com/luisroftaa.png'
-                  alt={`${session?.user.name} - ${session?.user.role.name_role}`}
+                  alt={`${session?.user.fullName} - ${session?.user.role}`}
                 />
                 <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>
-                  {`${session?.user.name}`}
+                  {`${session?.user.fullName}`}
                 </span>
-                <span className='truncate text-xs'>
-                  {session?.user.role.name_role}
-                </span>
+                <span className='truncate text-xs'>{session?.user.role}</span>
               </div>
               <ChevronsUpDown className='ml-auto size-4' />
             </SidebarMenuButton>
@@ -62,17 +60,15 @@ export function NavUser() {
                 <Avatar className='h-8 w-8 rounded-lg'>
                   <AvatarImage
                     src='https://github.com/luisroftaa.png'
-                    alt={`${session?.user.name} - ${session?.user.role.name_role}`}
+                    alt={`${session?.user.fullName} - ${session?.user.role}`}
                   />
                   <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-left text-sm leading-tight'>
                   <span className='truncate font-semibold'>
-                    {`${session?.user.name}`}
+                    {`${session?.user.fullName}`}
                   </span>
-                  <span className='truncate text-xs'>
-                    {session?.user.role.name_role}
-                  </span>
+                  <span className='truncate text-xs'>{session?.user.role}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
