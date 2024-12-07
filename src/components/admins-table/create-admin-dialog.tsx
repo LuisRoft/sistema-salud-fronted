@@ -11,21 +11,21 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import CreateUserForm from './create-user-form';
+import CreateUserForm from './create-admin-form';
 
-export default function CreateUserDialog() {
+export default function CreateAdminDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline'>Agregar usuario</Button>
+        <Button variant='outline'>Agregar administrador</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-xl'>
         <DialogHeader>
-          <DialogTitle>Crear Usuario</DialogTitle>
+          <DialogTitle>Crear Administrador</DialogTitle>
           <DialogDescription>
-            Formulario para crear un nuevo usuario
+            Formulario para crear un nuevo administrador
           </DialogDescription>
         </DialogHeader>
         <CreateUserForm onClose={() => setIsOpen(false)} />
