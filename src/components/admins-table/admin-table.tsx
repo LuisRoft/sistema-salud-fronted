@@ -18,18 +18,18 @@ export default function AdminTable() {
       const session = await getSession();
       const token = session?.user.access_token;
 
-      if (!token) return { data: [], totalPages: 0 };
+      if (!token) return { admins: [], total: 0 };
       const res = await getAdmins(token, {
         page: pageIndex + 1,
         limit: pageSize,
       });
+
       return res;
     },
     staleTime: 60000,
   });
 
   if (isError) return <div>Error loading admins</div>;
-  console.log(data);
 
   return (
     <div>
@@ -38,12 +38,12 @@ export default function AdminTable() {
       ) : (
         <DataTable
           columns={columns}
-          data={data || []}
+          data={data?.admins || []}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          totalPages={Math.ceil(data?.length / pageSize)}
+          totalPages={data?.total || 0}
         />
       )}
     </div>

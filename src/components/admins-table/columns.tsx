@@ -7,11 +7,13 @@ import { DataTableColumnHeader } from '@/components/ui/data-table-header';
 import ActionsCells from '../actions-cells';
 import EditAdminDialog from './edit-admin-dialog';
 import DeleteAdminDialog from './delete-admin-dialog';
+import { Badge } from '../ui/badge';
 
 export const adminSchema = z.object({
   id: z.string(),
   document: z.string().min(1, 'La identificación es requerida'),
-  fullName: z.string().min(1, 'El nombre completo es requerido'),
+  name: z.string().min(1, 'El nombre es requerido'),
+  lastName: z.string().min(1, 'El apellido es requerido'),
   email: z.string().email('Debe ser un correo electrónico válido'),
 });
 
@@ -25,13 +27,23 @@ export const columns: ColumnDef<Admin>[] = [
     ),
   },
   {
-    accessorKey: 'fullName',
+    accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Nombre Completo' />
+      <DataTableColumnHeader column={column} title='Nombre' />
     ),
     cell: ({ row }) => {
-      const fullName = row.original.fullName.toLowerCase();
+      const fullName = row.original.name.toLowerCase();
       return <div className='text-sm capitalize'>{fullName}</div>;
+    },
+  },
+  {
+    accessorKey: 'lastName',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Apellido' />
+    ),
+    cell: ({ row }) => {
+      const lastName = row.original.lastName.toLowerCase();
+      return <div className='text-sm capitalize'>{lastName}</div>;
     },
   },
   {
@@ -46,11 +58,7 @@ export const columns: ColumnDef<Admin>[] = [
       <DataTableColumnHeader column={column} title='Rol' />
     ),
     cell: () => {
-      return (
-        <div className='w-fit rounded-md bg-blue-200 px-2 py-1 text-center text-sm'>
-          Administrador
-        </div>
-      );
+      return <Badge>Administrador</Badge>;
     },
   },
   {

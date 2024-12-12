@@ -1,5 +1,6 @@
 export interface UpdateAdmin {
   document: string;
-  fullName: string;
+  name: string;
+  lastName: string;
   email: string;
 }

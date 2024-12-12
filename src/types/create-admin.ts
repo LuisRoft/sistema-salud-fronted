@@ -1,6 +1,7 @@
 export interface CreateAdmin {
   document: string;
-  fullName: string;
+  name: string;
+  lastName: string;
   password: string;
   email: string;
 }
