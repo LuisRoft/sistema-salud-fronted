@@ -27,8 +27,11 @@ const formSchema = z.object({
   document: z.string().min(10, {
     message: 'Numero de identificacion es requerido.',
   }),
-  fullName: z.string().min(1, {
-    message: 'Nombre completo es requerido.',
+  name: z.string().min(1, {
+    message: 'Nombre es requerido.',
+  }),
+  lastName: z.string().min(1, {
+    message: 'Apellido es requerido.',
   }),
   password: z.string().min(8, {
     message: 'Contraseña no debe ser menor a 8 caracteres.',
@@ -109,7 +112,7 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
 
           <FormField
             control={form.control}
-            name='fullName'
+            name='name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-[#575756]'>Nombre</FormLabel>
@@ -121,6 +124,25 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
                   />
                 </FormControl>
                 <FormDescription>Este es su nombre.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='lastName'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='text-[#575756]'>Apellido</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='Doe'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
+                </FormControl>
+                <FormDescription>Este es su apellido.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -192,7 +214,7 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
 
         <Button
           type='submit'
-          className='mt-4 justify-center bg-[#164284] font-bold hover:bg-[#164284] hover:bg-opacity-85'
+          className='mt-4 justify-center font-bold'
           disabled={mutation.isPending}
         >
           {mutation.isPending ? (

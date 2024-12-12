@@ -1,6 +1,7 @@
 import { CreateAdmin } from '@/types/create-admin';
 import { del, get, patch, post } from './requestHandler';
 import { UpdateAdmin } from '@/types/update-admin';
+import { ResponseUsers } from '@/types/get-users';
 
 interface GetAdminsParams {
   page?: number;
@@ -18,7 +19,10 @@ export const createAdmin = async (data: CreateAdmin, token: string) => {
   return res.data;
 };
 
-export const getAdmins = async (token: string, params?: GetAdminsParams) => {
+export const getAdmins = async (
+  token: string,
+  params?: GetAdminsParams
+): Promise<ResponseUsers> => {
   const queryParams = new URLSearchParams();
 
   if (params?.page) queryParams.append('page', params.page.toString());
