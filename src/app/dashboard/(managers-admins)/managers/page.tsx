@@ -1,14 +1,14 @@
+import CreateManagerDialog from '@/components/managers-table/create-manager-dialog';
+import ManagerTable from '@/components/managers-table/manager-table';
+
 export default function ManagersPage() {
   return (
-    <div className='flex flex-1 flex-col gap-4'>
-      <div className='grid auto-rows-min gap-4 md:grid-cols-3'>
-        <div className='aspect-video rounded-xl bg-muted/50'>
-          <p>hola managers</p>
-        </div>
-        <div className='aspect-video rounded-xl bg-muted/50' />
-        <div className='aspect-video rounded-xl bg-muted/50' />
+    <div>
+      <div className="flex items-center justify-between">
+        <h1 className="py-6 text-xl font-bold">Manejo de Gestores</h1>
+        <CreateManagerDialog />
       </div>
-      <div className='min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min' />
+      <ManagerTable />
     </div>
   );
 }
