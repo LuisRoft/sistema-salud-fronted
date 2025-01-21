@@ -36,13 +36,13 @@ export function NavUser() {
               <Avatar className='h-8 w-8 rounded-lg'>
                 <AvatarImage
                   src='https://github.com/luisroftaa.png'
-                  alt={`${session?.user.fullName} - ${session?.user.role}`}
+                  alt={`${session?.user.lastName} - ${session?.user.role}`}
                 />
                 <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>
-                  {`${session?.user.fullName}`}
+                  {`${session?.user.lastName}`}
                 </span>
                 <span className='truncate text-xs'>{session?.user.role}</span>
               </div>
@@ -60,13 +60,13 @@ export function NavUser() {
                 <Avatar className='h-8 w-8 rounded-lg'>
                   <AvatarImage
                     src='https://github.com/luisroftaa.png'
-                    alt={`${session?.user.fullName} - ${session?.user.role}`}
+                    alt={`${session?.user.lastName} - ${session?.user.role}`}
                   />
                   <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-left text-sm leading-tight'>
                   <span className='truncate font-semibold'>
-                    {`${session?.user.fullName}`}
+                    {`${session?.user.lastName}`}
                   </span>
                   <span className='truncate text-xs'>{session?.user.role}</span>
                 </div>
