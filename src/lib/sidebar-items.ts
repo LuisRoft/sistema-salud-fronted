@@ -42,10 +42,6 @@ export const sidebarItems = {
       icon: Users,
       items: [
         {
-          title: 'Manejar Grupos de Trabajo',
-          url: '/dashboard/groups',
-        },
-        {
           title: 'Manejar Equipos',
           url: '/dashboard/teams',
         },
