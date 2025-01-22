@@ -3,7 +3,8 @@ import 'next-auth';
 declare module 'next-auth' {
   interface User {
     document: string;
-    fullName: string;
+    name: string;
+    lastName: string;
     role: string;
     token?: string;
   }
