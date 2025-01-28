@@ -101,7 +101,7 @@ export default function LoginForm() {
           name='identification'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-[#575756]'>
+              <FormLabel className='dark:text-white text-[#575756]'>
                 Número de Identificación
               </FormLabel>
               <FormControl>
@@ -124,7 +124,7 @@ export default function LoginForm() {
           name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-[#575756]'>Contraseña</FormLabel>
+              <FormLabel className='dark:text-white text-[#575756]'>Contraseña</FormLabel>
               <FormControl>
                 <div className='relative'>
                   <Input
