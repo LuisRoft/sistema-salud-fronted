@@ -18,9 +18,8 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        console.log(credentials);
         try {
-          const res = await fetch('http://localhost:3000/auth/login', {
+          const res = await fetch('http://localhost:3000/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -31,9 +30,15 @@ export const authOptions: NextAuthOptions = {
 
           const data = await res.json();
 
-          if (res.ok && data.access_token && data.user) {
-            const { access_token, user } = data;
-            return { ...user, token: access_token };
+          if (res.ok && data.token) {
+            return {
+              id: data.document,
+              document: data.document,
+              name: data.name,
+              lastName: data.lastName,
+              role: data.role,
+              token: data.token,
+            };
           } else {
             throw new Error(
               data.message || 'Authorization failed: Invalid credentials.'
@@ -54,7 +59,10 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
-          ...user,
+          document: user.document,
+          name: user.name,
+          lastName: user.lastName,
+          role: user.role,
           access_token: user.token,
         };
       }
@@ -62,11 +70,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.user = {
-        id: token.id as number,
-        name: token.name as string,
+        id: token.document as string,
         document: token.document as string,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        role: token.role as any,
+        name: token.name as string,
+        lastName: token.lastName as string,
+        role: token.role as string,
         access_token: token.access_token as string,
       };
       return session;

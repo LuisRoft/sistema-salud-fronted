@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 import {
   Dialog,
   DialogContent,
@@ -10,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import CreateUserForm from './create-user-form';
 
 export default function CreateUserDialog() {
@@ -19,13 +18,13 @@ export default function CreateUserDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline'>Agregar usuario</Button>
+        <Button variant='outline'>Agregar Usuario</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-xl'>
         <DialogHeader>
           <DialogTitle>Crear Usuario</DialogTitle>
           <DialogDescription>
-            Formulario para crear un nuevo usuario
+            Complete el formulario para agregar un nuevo usuario.
           </DialogDescription>
         </DialogHeader>
         <CreateUserForm onClose={() => setIsOpen(false)} />

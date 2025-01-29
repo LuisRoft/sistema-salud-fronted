@@ -1,10 +1,7 @@
-export interface CreateUser {
+export interface CreateAdmin {
   document: string;
   name: string;
   lastName: string;
   password: string;
-  status: boolean;
-  role: string;
-  direction: string;
   email: string;
 }

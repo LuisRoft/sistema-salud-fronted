@@ -1,111 +1,127 @@
 'use client';
 
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createUser, updateUser } from '@/services/userService';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createUser } from '@/services/patientService';
+import { getCaregivers } from '@/services/caregiverService';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
+import { Loader2Icon } from 'lucide-react';
 
+// Esquema de validación
 const formSchema = z.object({
-  id: z.number().optional(),
-  document: z.string().min(10, {
-    message: 'Numero de identificacion es requerido.',
+  document: z.string().min(10, 'Número de identificación inválido.'),
+  name: z.string().min(1, 'Nombre es requerido.'),
+  lastName: z.string().min(1, 'Apellido es requerido.'),
+  gender: z.enum(['male', 'female'], {
+    errorMap: () => ({ message: 'Género es requerido.' }),
   }),
-  name: z.string().min(1, {
-    message: 'Nombre es requerido.',
-  }),
-  lastName: z.string().min(1, {
-    message: 'Apellido es requerido.',
-  }),
-  password: z.string().min(8, {
-    message: 'Contraseña no debe ser menor a 8 caracteres.',
-  }),
-  direction: z.string().min(1, {
-    message: 'Direccion es requerida.',
-  }),
-  email: z.string().email({
-    message: 'Correo electronico no valido.',
-  }),
-  role: z.string().min(1, {
-    message: 'Rol es requerido.',
-  }),
+  birthday: z.string().min(1, 'Fecha de nacimiento es requerida.'),
+  typeBeneficiary: z.string().min(1, 'Tipo de beneficiario es requerido.'),
+  typeDisability: z.string().min(1, 'Tipo de discapacidad es requerido.'),
+  percentageDisability: z
+    .number()
+    .min(0)
+    .max(100, 'Porcentaje debe estar entre 0 y 100.'),
+  zone: z.string().min(1, 'Zona es requerida.'),
+  caregiverId: z.string().min(1, 'Debe seleccionar un cuidador.'),
 });
 
-export default function CreateUserForm({
-  onClose,
-  defaultValues,
-  isEditMode,
-}: {
-  onClose: () => void;
-  defaultValues?: z.infer<typeof formSchema>;
-  isEditMode?: boolean;
-}) {
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+type FormSchema = z.infer<typeof formSchema>;
 
-  const queryClient = useQueryClient();
-
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
+export default function CreateUserForm({ onClose }: { onClose: () => void }) {
   const { toast } = useToast();
+  const [caregivers, setCaregivers] = useState<
+    { id: string; name: string; lastName: string }[]
+  >([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  // Inicialización del formulario
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ...defaultValues,
-      role: 'admin',
+      document: '',
+      name: '',
+      lastName: '',
+      gender: undefined,
+      birthday: '',
+      typeBeneficiary: '',
+      typeDisability: '',
+      percentageDisability: 0,
+      zone: '',
+      caregiverId: '',
+    },
+  });
+  const queryClient = useQueryClient();
+
+  // Obtener caregivers
+  useQuery({
+    queryKey: ['caregivers'],
+    queryFn: async () => {
+      const session = await getSession();
+      const token = session?.user.access_token;
+      if (token) {
+        const res = await getCaregivers(token, 20, 1); // Ajustar los parámetros de paginación según sea necesario
+        setCaregivers(res.caregivers || []);
+        return res.caregivers || [];
+      }
     },
   });
 
+  // Mutación para crear el usuario
   const mutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
-      if (isEditMode) {
-        const session = await getSession();
-        const token = session?.user.access_token;
-        if (defaultValues?.id !== undefined) {
-          await updateUser(
-            { ...values, status: true },
-            defaultValues.id.toString(),
-            token as string
-          );
-        }
-      } else {
-        await createUser({ ...values, status: true });
-      }
+    mutationFn: async (values: FormSchema) => {
+      const session = await getSession();
+      const token = session?.user.access_token;
+      await createUser(
+        {
+          ...values,
+          birthday: new Date(values.birthday).toISOString().split('T')[0],
+          isActive: true,
+        },
+        token as string
+      );
     },
     onSuccess: () => {
       toast({
-        title: isEditMode ? 'Actualización Exitosa' : 'Creación Exitosa',
-        description: `Usuario ${isEditMode ? 'actualizado' : 'creado'} exitosamente.`,
+        title: 'Usuario Creado',
+        description: 'El usuario fue creado exitosamente.',
       });
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
       onClose();
     },
     onError: (error: unknown) => {
       toast({
-        title: 'Oh no! Algo está mal',
+        title: 'Error',
         description: (error as Error).message,
         variant: 'destructive',
       });
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: FormSchema) {
+    console.log(values);
     mutation.mutate(values);
   }
 
@@ -113,163 +129,181 @@ export default function CreateUserForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='grid w-full grid-cols-2 gap-x-10 gap-y-6'
+        className='flex flex-col gap-6'
       >
-        <FormField
-          control={form.control}
-          name='document'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>
-                Número de Identificación
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='1312172818'
-                  {...field}
-                  className='h-10 text-[#575756]'
-                />
-              </FormControl>
-              <FormDescription>
-                Este es su número de identificación.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>Nombre</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='John'
-                  {...field}
-                  className='h-10 text-[#575756]'
-                />
-              </FormControl>
-              <FormDescription>Este es su nombre.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='lastName'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>Apellido</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Doe'
-                  {...field}
-                  className='h-10 text-[#575756]'
-                />
-              </FormControl>
-              <FormDescription>Este es su apellido.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>
-                Correo Electrónico
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id='email'
-                  {...field}
-                  placeholder='test@pucesm.edu.ec'
-                  className='h-10 text-[#575756]'
-                />
-              </FormControl>
-              <FormDescription>Este es su correo electrónico.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='direction'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>Dirección</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Calle 123 # 45-67'
-                  {...field}
-                  className='h-10 text-[#575756]'
-                />
-              </FormControl>
-              <FormDescription>Esta es su dirección.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='password'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-[#575756]'>Contraseña</FormLabel>
-              <FormControl>
-                <div className='relative'>
-                  <Input
-                    id='password'
-                    className='h-10 pe-9 text-[#575756]'
-                    placeholder='********'
-                    type={isVisible ? 'text' : 'password'}
-                    {...field}
-                  />
-                  <button
-                    className='absolute inset-y-px end-px flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 ring-offset-background transition-shadow hover:text-foreground focus-visible:border focus-visible:border-ring focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50'
-                    type='button'
-                    onClick={toggleVisibility}
-                    aria-label={isVisible ? 'Hide password' : 'Show password'}
-                    aria-pressed={isVisible}
-                    aria-controls='password'
+        <div className='grid w-full grid-cols-2 gap-x-5 gap-y-4'>
+          <FormField
+            control={form.control}
+            name='document'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Número de Identificación</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='1234567890' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Juan' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='lastName'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apellido</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Pérez' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='gender'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Género</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
                   >
-                    {isVisible ? (
-                      <EyeOff size={16} strokeWidth={2} aria-hidden='true' />
-                    ) : (
-                      <Eye size={16} strokeWidth={2} aria-hidden='true' />
-                    )}
-                  </button>
-                </div>
-              </FormControl>
-              <FormDescription>
-                Esta es su contraseña de acceso.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button
-          type='submit'
-          className='mt-4 justify-center bg-[#164284] font-bold hover:bg-[#164284] hover:bg-opacity-85'
-          disabled={mutation.isPending}
-        >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Seleccionar Género' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='male'>Hombre</SelectItem>
+                      <SelectItem value='female'>Mujer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='birthday'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fecha de Nacimiento</FormLabel>
+                <FormControl>
+                  <Input {...field} type='date' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='typeBeneficiary'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Beneficiario</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Ejemplo: Directo' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='typeDisability'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Discapacidad</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Física, Auditiva, etc.' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='percentageDisability'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Porcentaje de Discapacidad</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type='number'
+                    placeholder='50'
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(
+                        value === '' ? undefined : parseFloat(value)
+                      );
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='zone'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Zona</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder='Urbana' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='caregiverId'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cuidador</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Seleccionar Cuidador' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {caregivers.map((caregiver) => (
+                        <SelectItem key={caregiver.id} value={caregiver.id}>
+                          {`${caregiver.name} ${caregiver.lastName}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type='submit' disabled={mutation.isPending}>
           {mutation.isPending ? (
-            <div className='flex items-center justify-center gap-2'>
-              <span>
-                {isEditMode ? 'Actualizando Usuario' : 'Creando Usuario'}
-              </span>
-              <Loader2 className='animate-spin' size={16} strokeWidth={2} />
+            <div className='flex items-center gap-2'>
+              <Loader2Icon className='animate-spin' />
+              Creando Usuario
             </div>
-          ) : isEditMode ? (
-            'Guardar Cambios'
           ) : (
             'Crear Usuario'
           )}

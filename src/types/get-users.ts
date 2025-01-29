@@ -1,28 +1,12 @@
 export interface ResponseUsers {
-  UserPaginated: UserPaginated;
-  totalCount: number;
+  admins: Admin[];
+  total: number;
 }
 
-export interface UserPaginated {
-  data: Datum[];
-  totalCount: number;
-  userPerPage: number;
-  totalPages: number;
-}
-
-export interface Datum {
-  id: number;
-  email: string;
-  role: Role;
-  status: boolean;
+export interface Admin {
+  id: string;
   document: string;
-  direction: string;
-  createdAt: Date;
-}
-
-export interface Role {
-  id: number;
-  name_role: string;
-  createdAt: Date;
-  updatedAt: Date;
+  email: string;
+  name: string;
+  lastName: string;
 }
