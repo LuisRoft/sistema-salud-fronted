@@ -65,7 +65,6 @@ export default function LoginForm() {
         router.replace('/dashboard');
       }
     } catch (error: unknown) {
-      console.log(error);
       if (
         (error as Error).message ===
         'Authorization error: Authorization failed: Invalid credentials.'

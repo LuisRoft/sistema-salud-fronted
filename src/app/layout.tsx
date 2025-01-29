@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import Provider from '@/providers/SessionProvider';
 import { Toaster } from '@/components/ui/toaster';
 import QueryProvider from '@/providers/QueryProvider';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const roboto = Roboto({
   weight: ['300', '400', '500', '700', '900'],
@@ -23,12 +24,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body className={`${roboto.className} min-h-screen w-full antialiased`}>
-        <Provider>
-          <QueryProvider>{children}</QueryProvider>
-          <Toaster />
-        </Provider>
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Provider>
+            <QueryProvider>{children}</QueryProvider>
+            <Toaster />
+          </Provider>
+        </ThemeProvider>
       </body>
     </html>
   );
