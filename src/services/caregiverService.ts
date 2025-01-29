@@ -1,4 +1,4 @@
-import { get, post, put, del } from './requestHandler';
+import { get, post, patch, del } from './requestHandler';
 
 interface GetCaregiver {
   id: string;
@@ -38,7 +38,7 @@ interface CaregiverResponse {
 
 export const createCaregiver = async (data: Caregiver, token: string) => {
   console.log(data);
-  return post('/caregivers', data, {
+  return post('/api/caregivers', data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -65,17 +65,21 @@ export const getCaregivers = async (
 };
 
 export const updateCaregiver = async (data: Caregiver, id: string, token: string) => {
-  return await put(`/caregivers/${id}`, data, {
+  const response = await patch(`/caregivers/${id}`, data, {
+
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  return response.data;
 };
 
 export const deleteCaregiver = async (id: string, token: string) => {
-  return await del(`/caregivers/${id}`, {
+  const response = await del(`/caregivers/${id}`, {
+
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  return response.data;
 };
