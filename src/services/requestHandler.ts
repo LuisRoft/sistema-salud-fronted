@@ -31,6 +31,14 @@ export const patch = async (
   return instance.patch(url, data, config);
 };
 
+export const put = async (
+  url: string,
+  data: any,
+  config?: AxiosRequestConfig
+): Promise<AxiosResponse> => {
+  return instance.put(url, data, config);
+};
+
 export const del = async (
   url: string,
   config?: AxiosRequestConfig

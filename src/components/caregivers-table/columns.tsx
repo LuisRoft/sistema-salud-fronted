@@ -4,7 +4,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
-// import ActionsCells from '../actions-cells';
+import ActionsCells from '../actions-cells';
+import DeleteCaregiverDialog from './delete-caregiver-dialog';
+import EditCaregiverDialog from './edit-caregiver-dialog';
 
 export const caregiverSchema = z.object({
   id: z.string(),
@@ -155,15 +157,14 @@ export const columns: ColumnDef<Caregiver>[] = [
       return <div className='text-sm capitalize'>{zoneType}</div>;
     },
   },
-
-  //   {
-  //     id: 'actions',
-  //     cell: ({ row }) => (
-  //       <ActionsCells<Caregiver>
-  //         data={row.original}
-  //         DeleteDialog={DeleteCaregiverDialog}
-  //         EditDialog={EditCaregiverDialog}
-  //       />
-  //     ),
-  //   },
+  {
+    id: 'actions',
+    cell: ({ row }) => (
+      <ActionsCells<Caregiver>
+        data={row.original}
+        DeleteDialog={DeleteCaregiverDialog}
+        EditDialog={EditCaregiverDialog}
+      />
+    ),
+  },
 ];
