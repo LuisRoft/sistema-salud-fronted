@@ -36,3 +36,15 @@ export const getGroups = async (
   console.log(response.data);
   return response.data;
 };
+
+export const updateGroup = async (
+  data: createGroup,
+  token: string,
+  groupId: number
+) => {
+  return post(`/groups/${groupId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

@@ -1,5 +1,5 @@
 'use client';
-
+import { Plus, Trash, Edit } from "lucide-react";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -31,6 +31,7 @@ import { getGroups } from '@/services/groupsService';
 import { useState } from 'react';
 import CreateGroupDialog from './create-group-dialog';
 import { getPatients } from '@/services/patientService';
+import EditGroupDialog from "./EditGroupDialog";
 
 const formSchema = z.object({
   teamName: z.string().min(10, {
@@ -46,6 +47,8 @@ const formSchema = z.object({
 
 export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  const [editGroupOpen, setEditGroupOpen] = useState(false);
+  const [dataGroup, setDataGroups] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -56,7 +59,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       return await getGroups(token as string);
-    },
+    }, 
   });
 
   // Obtener datos de pacientes
@@ -150,7 +153,11 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   <div className='flex items-center gap-4'>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(id) => {
+                          const group = dataGroups?.groups.find((g) => g.id === id); // Encuentra el objeto completo
+                          setDataGroups(group); // Almacena el objeto en el estado
+                          field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
+                        }}
                         defaultValue={field.value}
                       >
                         <SelectTrigger>
@@ -177,13 +184,26 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() => setCreateGroupOpen(true)}
-                    >
-                      Crear Grupo
-                    </Button>
+                    <div className='flex gap-3'>
+                      <Button 
+                        type='button'
+                        variant='default'
+                        onClick={() => setCreateGroupOpen(true)} >
+                        <Plus  />
+                      </Button >
+                      <Button 
+                        type='button' 
+                        variant='secondary'
+                        onClick={() => (setEditGroupOpen(true))} >
+                        <Edit  />
+                      </Button>
+                      <Button 
+                        type='button' 
+                        variant='destructive' 
+                        onClick={() => setCreateGroupOpen(true)}>
+                        <Trash  />
+                      </Button>
+                    </div>
                   </div>
                   <FormDescription>
                     Selecciona o crea un grupo para el equipo.
@@ -261,7 +281,12 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       {/* Diálogo para crear un grupo */}
       <CreateGroupDialog
         isOpen={createGroupOpen}
-        setIsOpen={setCreateGroupOpen}
+        setIsOpen={setCreateGroupOpen}   
+      />
+      <EditGroupDialog
+        isOpen={editGroupOpen}
+        setIsOpen={setEditGroupOpen}   
+        dataGroup={dataGroup}
       />
     </>
   );
