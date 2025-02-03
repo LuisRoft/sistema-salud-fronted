@@ -1,4 +1,4 @@
-import { get, post } from './requestHandler';
+import { del, get, patch, post } from './requestHandler';
 
 interface createGroup {
   groupName: string;
@@ -33,18 +33,28 @@ export const getGroups = async (
     },
   });
 
-  console.log(response.data);
   return response.data;
 };
 
 export const updateGroup = async (
   data: createGroup,
   token: string,
-  groupId: number
+  groupId: string
 ) => {
-  return post(`/groups/${groupId}`, data, {
+  const response = await patch(`/groups/${groupId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+}
+
+export const deleteGroup = async (groupId: string, token: string) => {
+  return del(`/groups/${groupId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 }
+

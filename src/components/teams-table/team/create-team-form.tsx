@@ -26,12 +26,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '../../ui/select';
 import { getGroups } from '@/services/groupsService';
-import { useState } from 'react';
-import CreateGroupDialog from './create-group-dialog';
+import { useEffect, useState } from 'react';
+import CreateGroupDialog from '../group/create-group-dialog';
 import { getPatients } from '@/services/patientService';
-import EditGroupDialog from "./EditGroupDialog";
+import EditGroupDialog from "../group/EditGroupDialog";
+import DeleteGroupDialog from "../group/DeleteGroupDialog";
 
 const formSchema = z.object({
   teamName: z.string().min(10, {
@@ -48,7 +49,8 @@ const formSchema = z.object({
 export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [editGroupOpen, setEditGroupOpen] = useState(false);
-  const [dataGroup, setDataGroups] = useState<any>(null);
+  const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
+  const [dataGroupItem, setDataGroupItem] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -99,7 +101,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) { 
     if (values.groupId === 'no-grupos' || values.patientId === 'no-pacientes') {
       toast({
         title: 'Error',
@@ -109,6 +111,30 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       return;
     }
     mutation.mutate(values);
+  }
+
+  const handleEditGroup = () => {
+    if (!dataGroupItem) {
+      toast({
+        title: 'Error',
+        description: 'Por favor, selecciona un grupo primero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setEditGroupOpen(true);
+  };
+
+  const handleDeleteGroup = () => {
+    if (!dataGroupItem) {
+      toast({
+        title: 'Error',
+        description: 'Por favor, selecciona un grupo primero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setDeleteGroupOpen(true);
   }
 
   return (
@@ -155,10 +181,10 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                       <Select
                         onValueChange={(id) => {
                           const group = dataGroups?.groups.find((g) => g.id === id); // Encuentra el objeto completo
-                          setDataGroups(group); // Almacena el objeto en el estado
+                          setDataGroupItem(group); // Almacena el objeto en el estado
                           field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
                         }}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <SelectTrigger>
                           <SelectValue
@@ -194,13 +220,13 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                       <Button 
                         type='button' 
                         variant='secondary'
-                        onClick={() => (setEditGroupOpen(true))} >
+                        onClick={() => handleEditGroup()} >
                         <Edit  />
                       </Button>
                       <Button 
                         type='button' 
-                        variant='destructive' 
-                        onClick={() => setCreateGroupOpen(true)}>
+                        variant='destructive'
+                        onClick={() => handleDeleteGroup()}>
                         <Trash  />
                       </Button>
                     </div>
@@ -225,7 +251,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <SelectTrigger>
                         <SelectValue
@@ -283,11 +309,25 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
         isOpen={createGroupOpen}
         setIsOpen={setCreateGroupOpen}   
       />
-      <EditGroupDialog
+
+      { editGroupOpen ?
+        <EditGroupDialog
         isOpen={editGroupOpen}
         setIsOpen={setEditGroupOpen}   
-        dataGroup={dataGroup}
-      />
+        dataGroup={dataGroupItem}
+        setDataGroup={setDataGroupItem}/> : null 
+        }
+
+      { deleteGroupOpen ? 
+          <DeleteGroupDialog
+          isOpen={deleteGroupOpen}
+          setIsOpen={setDeleteGroupOpen}
+          groupId={dataGroupItem?.id}
+          onDeleteSuccess={() => {
+            setDataGroupItem(null);  // Limpia el estado
+            form.setValue('groupId', '');  // Limpia el valor del select
+          }}
+          />: null}
     </>
   );
 }

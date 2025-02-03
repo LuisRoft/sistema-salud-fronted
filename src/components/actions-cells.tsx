@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 interface ActionsCellsProps<T> {
   data: T;
-  DeleteDialog: React.ComponentType<{ id: string }>;
+  DeleteDialog: React.ComponentType<{ id: string; onClose: () => void }>;
   EditDialog: React.ComponentType<{ data: T; onClose: () => void }>;
 }
 
@@ -24,6 +24,7 @@ export default function ActionsCells<T>({
   DeleteDialog,
   EditDialog,
 }: ActionsCellsProps<T>) {
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   return (
@@ -52,7 +53,7 @@ export default function ActionsCells<T>({
           </DropdownMenuContent>
         </DropdownMenu>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <DeleteDialog id={(data as any).id} />
+        <DeleteDialog id={(data as any).id } onClose={() => setOpenDeleteDialog(false)} />
         <EditDialog data={data} onClose={() => setOpenEditDialog(false)} />
       </AlertDialog>
     </Dialog>

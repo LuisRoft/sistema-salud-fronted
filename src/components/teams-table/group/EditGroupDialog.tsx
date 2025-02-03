@@ -17,6 +17,8 @@ import { getSession } from 'next-auth/react';
 import { updateGroup } from '@/services/groupsService';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { group } from 'console';
 
 const editGroupSchema = z.object({
   groupName: z.string().min(1, 'El nombre del grupo no puede estar vacío.'),
@@ -25,32 +27,40 @@ const editGroupSchema = z.object({
 type EditGroupFormValues = z.infer<typeof editGroupSchema>;
 
 type dataGroup = {
-    id: number;
+    id: string;
     groupName: string;
     };
-    
+  
+interface EditGroupDialogProps {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dataGroup: dataGroup;
+  setDataGroup: (dataGroup: any) => void;
+}
+
 export default function EditGroupDialog({
   isOpen,
   setIsOpen,
   dataGroup,
-}: {
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  dataGroup: dataGroup;
-}) {
+  setDataGroup
+}: EditGroupDialogProps) {
 
+ 
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
+  console.log("VALOR DEL DATA GROUP: ", dataGroup);
   const form = useForm<EditGroupFormValues>({
     resolver: zodResolver(editGroupSchema),
+    defaultValues: { groupName: dataGroup ? dataGroup.groupName : '' },
   });
 
   const mutation = useMutation({
+    
     mutationFn: async (data: EditGroupFormValues) => {
       const session = await getSession();
       const token = session?.user.access_token;
       await updateGroup(data, token as string, dataGroup.id);
+      setDataGroup({ ...dataGroup, groupName: data.groupName });
     },
     onSuccess: () => {
       toast({

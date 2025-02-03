@@ -4,6 +4,10 @@ import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
+import ActionsCells from '../actions-cells';
+import DeleteTeamDialog from './team/DeleteTeamDialog';
+import { Button } from '../ui/button';
+import { Edit, Trash } from 'lucide-react';
 
 export const teamSchema = z.object({
   id: z.string(),
@@ -57,6 +61,7 @@ export const columns: ColumnDef<Team>[] = [
       return <div className='text-sm capitalize'>{group.groupName}</div>;
     },
   },
+  
 
   //   {
   //     id: 'actions',
