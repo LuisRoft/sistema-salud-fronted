@@ -20,17 +20,20 @@ export function NavUser() {
   return (
     <SidebarMenu>
       {/* Botón para cerrar sesión */}
-      <SidebarMenuItem>
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={() => signOut()}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 dark:text-black dark:bg-red-400 dark:hover:bg-red-500"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </SidebarMenuItem>
+<SidebarMenuItem>
+  <div className="flex justify-center mb-4 px-0">
+    <button
+      onClick={() => signOut()}
+      className="w-full max-w-[320px] flex items-center justify-start gap-2 px-3 py-3 
+                 text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 
+                 dark:text-white dark:bg-red-400 dark:hover:bg-red-500 shadow-md"
+    >
+      <LogOut className="w-4 h-4" />
+      Cerrar Sesión
+    </button>
+  </div>
+</SidebarMenuItem>
+
 
       {/* Información del usuario */}
       <SidebarMenuItem>
