@@ -3,7 +3,7 @@
 import { MoreHorizontal } from 'lucide-react';
 import { AlertDialog, AlertDialogTrigger } from './ui/alert-dialog';
 import { Button } from './ui/button';
-import { Dialog } from './ui/dialog';
+import {  DialogHeader } from './ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +12,21 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useState } from 'react';
+import { editTeam } from '@/services/teamsService';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Team } from './teams-table/columns';
+
 
 interface ActionsCellsProps<T> {
-  data: T;
-  DeleteDialog: React.ComponentType<{ id: string; onClose: () => void }>;
-  EditDialog: React.ComponentType<{ data: T; onClose: () => void }>;
+  data: Team;
+  DeleteDialog: React.ComponentType<{ id: string; open: boolean; onClose: () => void }>;
+  EditDialog: React.ComponentType<{ data: editTeam; onClose: () => void }>;
 }
 
 export default function ActionsCells<T>({
@@ -45,7 +55,9 @@ export default function ActionsCells<T>({
             >
               Editar
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+            onClick={() => setOpenDeleteDialog(true)}
+            className='w-full cursor-pointer text-start'>
               <AlertDialogTrigger className='w-full text-start'>
                 Eliminar
               </AlertDialogTrigger>
@@ -53,8 +65,27 @@ export default function ActionsCells<T>({
           </DropdownMenuContent>
         </DropdownMenu>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        <DeleteDialog id={(data as any).id } onClose={() => setOpenDeleteDialog(false)} />
-        <EditDialog data={data} onClose={() => setOpenEditDialog(false)} />
+        <DeleteDialog
+          id={(data as any).id}
+          open={openDeleteDialog}
+          onClose={() => setOpenDeleteDialog(false)}
+        />
+
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+            <DialogTrigger asChild>
+            </DialogTrigger>
+            <DialogContent className='sm:max-w-xl'>
+              <DialogHeader>
+                <DialogTitle>Editar Team</DialogTitle>
+                <DialogDescription>
+                  Formulario para editar un team
+                </DialogDescription>
+              </DialogHeader>
+              <EditDialog data={data} onClose={() => setOpenEditDialog(false)}
+        />
+            </DialogContent>
+        </Dialog>        
+
       </AlertDialog>
     </Dialog>
   );

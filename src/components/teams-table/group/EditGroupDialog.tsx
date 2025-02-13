@@ -48,7 +48,6 @@ export default function EditGroupDialog({
  
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  console.log("VALOR DEL DATA GROUP: ", dataGroup);
   const form = useForm<EditGroupFormValues>({
     resolver: zodResolver(editGroupSchema),
     defaultValues: { groupName: dataGroup ? dataGroup.groupName : '' },

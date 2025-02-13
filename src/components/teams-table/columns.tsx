@@ -6,8 +6,7 @@ import { z } from 'zod';
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
 import ActionsCells from '../actions-cells';
 import DeleteTeamDialog from './team/DeleteTeamDialog';
-import { Button } from '../ui/button';
-import { Edit, Trash } from 'lucide-react';
+import  EditTeamDialog from './team/EditTeamDialog';
 
 export const teamSchema = z.object({
   id: z.string(),
@@ -60,6 +59,19 @@ export const columns: ColumnDef<Team>[] = [
       const group = row.original.group;
       return <div className='text-sm capitalize'>{group.groupName}</div>;
     },
+  },
+  {
+    id: 'actions',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Acciones' />
+    ),
+    cell: ({ row }) => (
+      <ActionsCells<Team>
+        data={row.original}
+        DeleteDialog={DeleteTeamDialog}
+        EditDialog={EditTeamDialog}
+      />
+    ),
   },
   
 

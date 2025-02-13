@@ -1,76 +1,90 @@
-
-
-'use client';
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTeam } from "@/services/teamsService"; // Asegúrate de tener esta función en tu servicio de equipos.
-import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
-import { getSession } from "next-auth/react";
+import React from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Loader2 } from 'lucide-react';
+import { deleteTeam } from '@/services/teamsService';
+import { getSession } from 'next-auth/react';
+import { toast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface DeleteTeamDialogProps {
-    teamId: string;
-    setOpenDeleteDialog: (open: boolean) => void;
+  id: string;
+  open: boolean;
+  onClose: () => void;
 }
-
-export default function DeleteTeamDialog({ teamId, setOpenDeleteDialog }: DeleteTeamDialogProps) {
+const DeleteTeamDialog = ({ id, open, onClose }: DeleteTeamDialogProps) => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!teamId) throw new Error("No hay equipo seleccionado");
-        
       const session = await getSession();
       const token = session?.user.access_token;
-      await deleteTeam(teamId, token as string);
+      
+      if (!token) {
+        throw new Error('No se encontró el token de autenticación');
+      }
+
+      await deleteTeam(id, token);
     },
     onSuccess: () => {
       toast({
-        title: "Equipo eliminado",
-        description: "El equipo ha sido eliminado exitosamente.",
+        title: 'Equipo eliminado exitosamente',
+        variant: 'default',
+        description: 'El equipo ha sido eliminado exitosamente',
       });
-
-      // ✅ Invalida la caché de equipos en lugar de grupos
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      onClose();
     },
     onError: (error: unknown) => {
       toast({
-        title: "Error",
+        title: 'Oh no! Algo está mal',
         description: (error as Error).message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
 
+  const handleDelete = async () => {
+    await mutation.mutateAsync();
+  };
+
   return (
-    <Dialog open={true} onOpenChange={setOpenDeleteDialog}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Eliminar Equipo</DialogTitle>
+          <DialogTitle>Eliminar equipo</DialogTitle>
           <DialogDescription>
-            ¿Estás seguro de que deseas eliminar este equipo? Esta acción no se puede deshacer.
+            ¿Estás seguro que deseas eliminar este equipo? Esta acción no se puede deshacer.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setOpenDeleteDialog(false)}>
+        
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={mutation.isPending}
+          >
             Cancelar
           </Button>
           <Button
             variant="destructive"
-            onClick={() => mutation.mutate()}
+            onClick={handleDelete}
             disabled={mutation.isPending}
           >
             {mutation.isPending ? (
-              <Loader2 className="animate-spin" size={16} strokeWidth={2} />
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Eliminando
+              </>
             ) : (
-              "Eliminar"
+              'Eliminar'
             )}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default DeleteTeamDialog;

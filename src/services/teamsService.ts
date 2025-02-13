@@ -20,6 +20,21 @@ export interface Team {
   group: Group;
 }
 
+export interface editTeam {
+    id: string;
+   teamName: string;
+    patient: {
+       id: string;
+       document: string;
+       name: string;
+       lastName: string;
+     };
+     group: {
+       id: string;
+       groupName: string;
+     };
+}
+
 export const createTeam = async (data: createTeam, token: string) => {
   return post('/teams', data, {
     headers: {
