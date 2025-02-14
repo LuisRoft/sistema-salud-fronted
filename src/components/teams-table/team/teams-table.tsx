@@ -1,12 +1,12 @@
 'use client';
 
-import { DataTable } from '../ui/data-table';
-import { columns } from './columns';
+import { DataTable } from '../../ui/data-table';
+import { columns } from '../columns';
 import { useState } from 'react';
 import { getTeams } from '@/services/teamsService';
 import { getSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
-import TableSkeleton from '../table-skeleton';
+import TableSkeleton from '../../table-skeleton';
 
 export default function TeamsTable() {
   const [pageIndex, setPageIndex] = useState(0);

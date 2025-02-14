@@ -1,6 +1,6 @@
 import { Group } from './groupsService';
 import { Patient } from './patientService';
-import { post, get } from './requestHandler';
+import { post, get, patch, del } from './requestHandler';
 
 interface createTeam {
   teamName: string;
@@ -18,6 +18,21 @@ export interface Team {
   teamName: string;
   patient: Patient;
   group: Group;
+}
+
+export interface editTeam {
+    id: string;
+   teamName: string;
+    patient: {
+       id: string;
+       document: string;
+       name: string;
+       lastName: string;
+     };
+     group: {
+       id: string;
+       groupName: string;
+     };
 }
 
 export const createTeam = async (data: createTeam, token: string) => {
@@ -40,3 +55,25 @@ export const getTeams = async (
 
   return response.data;
 };
+
+export const updateTeam = async (
+  data: createTeam,
+  token: string,
+  teamId: string
+) => {
+  const response = await patch(`/teams/${teamId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+}
+
+export const deleteTeam = async (teamId: string, token: string) => {
+  return del(`/teams/${teamId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

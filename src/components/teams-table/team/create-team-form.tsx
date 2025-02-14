@@ -1,5 +1,5 @@
 'use client';
-
+import { Plus, Trash, Edit } from "lucide-react";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -26,11 +26,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '../../ui/select';
 import { getGroups } from '@/services/groupsService';
-import { useState } from 'react';
-import CreateGroupDialog from './create-group-dialog';
+import { useEffect, useState } from 'react';
+import CreateGroupDialog from '../group/create-group-dialog';
 import { getPatients } from '@/services/patientService';
+import EditGroupDialog from "../group/EditGroupDialog";
+import DeleteGroupDialog from "../group/DeleteGroupDialog";
 
 const formSchema = z.object({
   teamName: z.string().min(10, {
@@ -46,6 +48,9 @@ const formSchema = z.object({
 
 export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
+  const [editGroupOpen, setEditGroupOpen] = useState(false);
+  const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
+  const [dataGroupItem, setDataGroupItem] = useState<any>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -56,7 +61,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       return await getGroups(token as string);
-    },
+    }, 
   });
 
   // Obtener datos de pacientes
@@ -96,7 +101,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) { 
     if (values.groupId === 'no-grupos' || values.patientId === 'no-pacientes') {
       toast({
         title: 'Error',
@@ -106,6 +111,30 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       return;
     }
     mutation.mutate(values);
+  }
+
+  const handleEditGroup = () => {
+    if (!dataGroupItem) {
+      toast({
+        title: 'Error',
+        description: 'Por favor, selecciona un grupo primero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setEditGroupOpen(true);
+  };
+
+  const handleDeleteGroup = () => {
+    if (!dataGroupItem) {
+      toast({
+        title: 'Error',
+        description: 'Por favor, selecciona un grupo primero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setDeleteGroupOpen(true);
   }
 
   return (
@@ -150,8 +179,12 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   <div className='flex items-center gap-4'>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(id) => {
+                          const group = dataGroups?.groups.find((g) => g.id === id); // Encuentra el objeto completo
+                          setDataGroupItem(group); // Almacena el objeto en el estado
+                          field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
+                        }}
+                        value={field.value}
                       >
                         <SelectTrigger>
                           <SelectValue
@@ -177,13 +210,26 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() => setCreateGroupOpen(true)}
-                    >
-                      Crear Grupo
-                    </Button>
+                    <div className='flex gap-3'>
+                      <Button 
+                        type='button'
+                        variant='default'
+                        onClick={() => setCreateGroupOpen(true)} >
+                        <Plus  />
+                      </Button >
+                      <Button 
+                        type='button' 
+                        variant='secondary'
+                        onClick={() => handleEditGroup()} >
+                        <Edit  />
+                      </Button>
+                      <Button 
+                        type='button' 
+                        variant='destructive'
+                        onClick={() => handleDeleteGroup()}>
+                        <Trash  />
+                      </Button>
+                    </div>
                   </div>
                   <FormDescription>
                     Selecciona o crea un grupo para el equipo.
@@ -205,7 +251,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <SelectTrigger>
                         <SelectValue
@@ -261,8 +307,27 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       {/* Diálogo para crear un grupo */}
       <CreateGroupDialog
         isOpen={createGroupOpen}
-        setIsOpen={setCreateGroupOpen}
+        setIsOpen={setCreateGroupOpen}   
       />
+
+      { editGroupOpen ?
+        <EditGroupDialog
+        isOpen={editGroupOpen}
+        setIsOpen={setEditGroupOpen}   
+        dataGroup={dataGroupItem}
+        setDataGroup={setDataGroupItem}/> : null 
+        }
+
+      { deleteGroupOpen ? 
+          <DeleteGroupDialog
+          isOpen={deleteGroupOpen}
+          setIsOpen={setDeleteGroupOpen}
+          groupId={dataGroupItem?.id}
+          onDeleteSuccess={() => {
+            setDataGroupItem(null);  // Limpia el estado
+            form.setValue('groupId', '');  // Limpia el valor del select
+          }}
+          />: null}
     </>
   );
 }
