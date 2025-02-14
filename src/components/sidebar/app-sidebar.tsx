@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-
+import { useSession } from 'next-auth/react'; // Importar useSession
 import { NavMain } from '@/components/sidebar/nav-main';
 import { NavUser } from '@/components/sidebar/nav-user';
 import {
@@ -19,6 +19,19 @@ import { sidebarItems } from '@/lib/sidebar-items';
 import { ModeToggle } from '../ui/mode-toggle';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Obtener la sesión del usuario
+  const { data: session } = useSession();
+
+  // Función para obtener los sidebarItems según el rol
+  const getSidebarItems = () => {
+    if (session?.user.role === 'admin') {
+      return sidebarItems.admin;
+    } else if (session?.user.role === 'user') {
+      return sidebarItems.user;
+    }
+    return [];
+  };
+
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
@@ -42,7 +55,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems.navMain} />
+        {/* Pasar los sidebarItems correspondientes a NavMain */}
+        <NavMain items={getSidebarItems()} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

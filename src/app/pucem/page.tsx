@@ -1,31 +1,26 @@
 'use client';
-
-import { LoaderIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { LoaderIcon } from 'lucide-react';
 
-export default function Page() {
-  const { data: session, status } = useSession();
+export default function PucemPage() {
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session || session.user.role !== 'admin') {
-      router.push('/unauthorized');
+    if (status === 'unauthenticated') {
+      router.push('/login');
     }
-  }, [session, status, router]);
+  }, [status, router]);
 
-  if (status === 'loading') {
+  if (status === 'loading')
     return (
       <div className='flex h-full items-center justify-center'>
         <LoaderIcon className='h-10 w-10 animate-spin' />
       </div>
     );
-  }
-
   return (
     <div className='flex h-full items-center justify-center'>
       <Image
