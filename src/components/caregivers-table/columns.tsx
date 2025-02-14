@@ -156,14 +156,14 @@ export const columns: ColumnDef<Caregiver>[] = [
     },
   },
 
-  //   {
-  //     id: 'actions',
-  //     cell: ({ row }) => (
-  //       <ActionsCells<Caregiver>
-  //         data={row.original}
-  //         DeleteDialog={DeleteCaregiverDialog}
-  //         EditDialog={EditCaregiverDialog}
-  //       />
-  //     ),
-  //   },
+  // {
+  //   id: 'actions',
+  //   cell: ({ row }) => (
+  //     <ActionsCells<Caregiver>
+  //       data={row.original}
+  //       DeleteDialog={DeleteCaregiverDialog}
+  //       EditDialog={EditCaregiverDialog}
+  //     />
+  //   ),
+  // },
 ];
