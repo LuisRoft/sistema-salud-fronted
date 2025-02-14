@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/dialog';
 import CreateUserForm from './create-team-form';
 import React, { useState } from 'react';
-import { Button } from '../ui/button';
-import { DialogHeader } from '../ui/dialog';
+import { Button } from '../../ui/button';
+import { DialogHeader } from '../../ui/dialog';
 
 export default function CreateTeamDialog() {
   const [isOpen, setIsOpen] = useState(false);

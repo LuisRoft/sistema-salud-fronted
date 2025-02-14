@@ -1,5 +1,5 @@
-import CreateTeamDialog from '@/components/teams-table/create-team-dialog';
-import TeamsTable from '@/components/teams-table/teams-table';
+import CreateTeamDialog from '@/components/teams-table/team/create-team-dialog';
+import TeamsTable from '@/components/teams-table/team/teams-table';
 
 export default function TeamsPage() {
   return (
