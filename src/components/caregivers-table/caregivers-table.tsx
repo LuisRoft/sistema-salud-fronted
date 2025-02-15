@@ -28,20 +28,22 @@ export default function CaregiverTable() {
   if (isError) return <div>Error cargando la lista de cuidadores</div>;
 
   return (
-    <div>
-      {isLoading ? (
-        <TableSkeleton rows={pageSize} columns={columns.length} />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={data?.caregivers || []}
-          pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          totalPages={Math.ceil((data?.total || 0) / pageSize)}
-        />
-      )}
+    <div className="w-full overflow-x-auto">
+      <div className="max-w-6xl mx-auto">
+        {isLoading ? (
+          <TableSkeleton rows={pageSize} columns={columns.length} />
+        ) : (
+          <DataTable
+            columns={columns}
+            data={data?.caregivers || []}
+            pageIndex={pageIndex}
+            setPageIndex={setPageIndex}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            totalPages={Math.ceil((data?.total || 0) / pageSize)}
+          />
+        )}
+      </div>
     </div>
   );
 }
