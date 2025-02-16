@@ -2,6 +2,7 @@ import { Group } from './groupsService';
 import { Patient } from './patientService';
 import { post, get, patch, del } from './requestHandler';
 
+
 interface createTeam {
   teamName: string;
   groupId: string;
@@ -61,13 +62,23 @@ export const updateTeam = async (
   token: string,
   teamId: string
 ) => {
-  const response = await patch(`/teams/${teamId}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
+  try {
+    const response = await patch(`/teams/${teamId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    // Capturamos el mensaje de error específico del backend
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      throw new Error(error.message);
+    } else {
+      throw new Error('Error inesperado al actualizar el equipo');
+    }
+  }
 }
 
 export const deleteTeam = async (teamId: string, token: string) => {
