@@ -4,4 +4,5 @@ export interface CreateAdmin {
   lastName: string;
   password: string;
   email: string;
+  career: string;
 }

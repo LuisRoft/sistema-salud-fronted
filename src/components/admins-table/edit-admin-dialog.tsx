@@ -15,15 +15,23 @@ export default function EditAdminDialog({
   onClose: () => void;
 }) {
   return (
-    <DialogContent className='sm:max-w-lg'>
+    <DialogContent className="sm:max-w-lg">
       <DialogHeader>
         <DialogTitle>Editar Administrador</DialogTitle>
         <DialogDescription>
-          Realiza cambios en la información del administrador y guarda cuando
-          hayas terminado.
+          Realiza cambios en la información del administrador y guarda cuando hayas terminado.
         </DialogDescription>
       </DialogHeader>
-      <EditAdminForm onClose={onClose} id={data.id} defaultValues={data} />
+      <EditAdminForm
+        onClose={onClose}
+        id={data.id}
+        defaultValues={{
+          ...data,
+          career: typeof data.career === 'string'
+            ? { id: data.career, careerName: '' } // 🔹 Si `career` es string, lo convertimos a objeto
+            : data.career ?? undefined, // 🔹 Si ya es objeto, lo dejamos igual; si es null, lo hacemos `undefined`
+        }}
+      />
     </DialogContent>
   );
 }
