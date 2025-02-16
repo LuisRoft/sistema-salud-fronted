@@ -9,223 +9,202 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAdmin } from '@/services/adminService';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
+import { CareerDialog } from './carreer-dialog';
 
+// Esquema de validación con carrera como objeto
 const formSchema = z.object({
-  document: z.string().min(10, {
-    message: 'Numero de identificacion es requerido.',
-  }),
-  name: z.string().min(1, {
-    message: 'Nombre es requerido.',
-  }),
-  lastName: z.string().min(1, {
-    message: 'Apellido es requerido.',
-  }),
-  password: z.string().min(8, {
-    message: 'Contraseña no debe ser menor a 8 caracteres.',
-  }),
-  email: z.string().email({
-    message: 'Correo electronico no valido.',
-  }),
+  document: z.string().min(10, { message: 'Número de identificación es requerido.' }),
+  name: z.string().min(1, { message: 'Nombre es requerido.' }),
+  lastName: z.string().min(1, { message: 'Apellido es requerido.' }),
+  password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres.' }),
+  email: z.string().email({ message: 'Correo electrónico no válido.' }),
+  career: z
+    .object({
+      id: z.string(),
+      careerName: z.string(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-
+  const [isCareerDialogOpen, setIsCareerDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      career: null,
+    },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      await createAdmin({ ...values }, token as string);
+      if (!token) throw new Error('Token no encontrado.');
+      await createAdmin(
+        {
+          ...values,
+          career: values.career?.id || null, // Solo enviamos el ID de la carrera
+        },
+        token
+      );
     },
     onSuccess: () => {
-      toast({
-        title: 'Creación Exitosa',
-        description: 'Usuario creado exitosamente.',
-      });
+      toast({ title: 'Creación Exitosa', description: 'Administrador creado exitosamente.' });
       queryClient.invalidateQueries({ queryKey: ['admins'] });
       onClose();
     },
     onError: (error: unknown) => {
-      toast({
-        title: 'Oh no! Algo está mal',
-        description: (error as Error).message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     mutation.mutate(values);
-  }
+  };
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='flex w-full flex-col'
-      >
-        <div className='grid w-full grid-cols-2 gap-x-10 gap-y-6'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name='document'
+            name="document"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-[#575756]'>
-                  Número de Identificación
-                </FormLabel>
+                <FormLabel>Número de Identificación</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='1312172818'
-                    {...field}
-                    className='h-10 text-[#575756]'
-                  />
+                  <Input {...field} placeholder="Ingrese el número de identificación" />
                 </FormControl>
-                <FormDescription>
-                  Este es su número de identificación.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
-            name='name'
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-[#575756]'>Nombre</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='John'
-                    {...field}
-                    className='h-10 text-[#575756]'
-                  />
+                  <Input {...field} placeholder="Ingrese el nombre" />
                 </FormControl>
-                <FormDescription>Este es su nombre.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
-            name='lastName'
+            name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-[#575756]'>Apellido</FormLabel>
+                <FormLabel>Apellido</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='Doe'
-                    {...field}
-                    className='h-10 text-[#575756]'
-                  />
+                  <Input {...field} placeholder="Ingrese el apellido" />
                 </FormControl>
-                <FormDescription>Este es su apellido.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
-            name='email'
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-[#575756]'>
-                  Correo Electrónico
-                </FormLabel>
+                <FormLabel>Correo Electrónico</FormLabel>
                 <FormControl>
-                  <Input
-                    id='email'
-                    {...field}
-                    placeholder='test@pucesm.edu.ec'
-                    className='h-10 text-[#575756]'
-                  />
+                  <Input {...field} placeholder="Ingrese el correo electrónico" />
                 </FormControl>
-                <FormDescription>
-                  Este es su correo electrónico.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
-            name='password'
-            render={({ field }) => (
+            name="password"
+            render={({ field }) => {
+              const [showPassword, setShowPassword] = useState(false);
+              return (
+                <FormItem>
+                  <FormLabel>Contraseña</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Ingrese la contraseña"
+                      />
+                      <Button
+                        type="button"
+                        className="absolute inset-y-0 right-0 px-3 bg-transparent hover:bg-gray-200"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          <FormField
+            control={form.control}
+            name="career"
+            render={() => (
               <FormItem>
-                <FormLabel className='text-[#575756]'>Contraseña</FormLabel>
+                <FormLabel>Carrera</FormLabel>
                 <FormControl>
-                  <div className='relative'>
-                    <Input
-                      id='password'
-                      className='h-10 pe-9 text-[#575756]'
-                      placeholder='********'
-                      type={isVisible ? 'text' : 'password'}
-                      {...field}
-                    />
-                    <button
-                      className='absolute inset-y-px end-px flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 ring-offset-background transition-shadow hover:text-foreground focus-visible:border focus-visible:border-ring focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50'
-                      type='button'
-                      onClick={toggleVisibility}
-                      aria-label={isVisible ? 'Hide password' : 'Show password'}
-                      aria-pressed={isVisible}
-                      aria-controls='password'
-                    >
-                      {isVisible ? (
-                        <EyeOff size={16} strokeWidth={2} aria-hidden='true' />
-                      ) : (
-                        <Eye size={16} strokeWidth={2} aria-hidden='true' />
-                      )}
-                    </button>
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => setIsCareerDialogOpen(true)}
+                    className="w-full justify-center"
+                  >
+                    {form.getValues('career')?.careerName || 'Seleccionar Carrera'}
+                  </Button>
                 </FormControl>
-                <FormDescription>
-                  Esta es su contraseña de acceso.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
 
-        <Button
-          type='submit'
-          className='mt-4 justify-center font-bold'
-          disabled={mutation.isPending}
-        >
+        <Button type="submit" className="w-full" disabled={mutation.isPending}>
           {mutation.isPending ? (
-            <div className='flex items-center justify-center gap-2'>
-              <span>Creando Usuario</span>
-              <Loader2 className='animate-spin' size={16} strokeWidth={2} />
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="animate-spin" size={16} strokeWidth={2} />
+              <span>Creando Administrador</span>
             </div>
           ) : (
-            'Crear Usuario'
+            'Crear Administrador'
           )}
         </Button>
+
+        <CareerDialog
+          isOpen={isCareerDialogOpen}
+          onClose={() => setIsCareerDialogOpen(false)}
+          onSelect={(career) => {
+            form.setValue('career', {
+              id: career.id,
+              careerName: career.careerName,
+            });
+            setIsCareerDialogOpen(false);
+          }}
+        />
       </form>
     </Form>
   );

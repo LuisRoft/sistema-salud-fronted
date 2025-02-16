@@ -3,4 +3,5 @@ export interface UpdateAdmin {
   name: string;
   lastName: string;
   email: string;
+  career: string;
 }
