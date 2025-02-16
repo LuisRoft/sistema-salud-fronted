@@ -81,7 +81,7 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      await updateTeam( values as any , token as string, data.id);
+      return await updateTeam(values as any, token as string, data.id);
     },
     onSuccess: () => {
       toast({
@@ -91,10 +91,10 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
       queryClient.invalidateQueries({ queryKey: ['teams'] });
       onClose();
     },
-    onError: (error: unknown) => {
+    onError: (error: any) => {
       toast({
-        title: 'Oh no! Algo está mal',
-        description: (error as Error).message,
+        title: 'Error al editar equipo',
+        description: error.message,
         variant: 'destructive',
       });
     },
