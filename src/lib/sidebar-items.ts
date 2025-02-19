@@ -87,9 +87,15 @@ export const sidebarItems = {
       ],
     },
     {
-      title: 'Emfermería',
+      title: 'Enfermería',
       icon: SyringeIcon,
       isActive: true,
+      items: [
+        {
+          title: 'Formulario de Enfermería',
+          url: '/pucem/nursing',
+        },
+      ],
     },
   ],
 };
