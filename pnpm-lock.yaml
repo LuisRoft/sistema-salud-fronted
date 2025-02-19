@@ -98,6 +98,12 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.16)
+      toastify:
+        specifier: ^2.0.1
+        version: 2.0.1
+      tostify:
+        specifier: ^0.0.1
+        version: 0.0.1
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -2313,6 +2319,12 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
+
+  toastify@2.0.1:
+    resolution: {integrity: sha512-Me/O93yAlwiHYwqX0su60Wv+X9ngzIT6nBLbNAFED095gMSjCBYKdu+faBxV6SE8CiQjUTBLrz8LwoXMtGz+yw==}
+
+  tostify@0.0.1:
+    resolution: {integrity: sha512-x/SckO051Chyh+94OIRz67Q6QTfRAXTxC2hCPqQLqoz+41eXZIxxFrLi5B4XdnU3Rn7LlMMQH+GpRnlLN7mP+g==}
 
   ts-api-utils@1.4.3:
     resolution: {integrity: sha512-i3eMG77UTMD0hZhgRS562pv83RC6ukSAC2GMNWc+9dieh/+jDM5u5YG+NHX6VNDRHQcHwmsTHctP9LhbC3WxVw==}
@@ -4623,6 +4635,7 @@ snapshots:
       react-hook-form: 7.54.0(react@18.3.1)
       tailwind-merge: 2.5.5
       tailwindcss-animate: 1.0.7(tailwindcss@3.4.16)
+      tostify: 0.0.1
       zod: 3.23.8
     transitivePeerDependencies:
       - '@auth/core'
@@ -4784,6 +4797,10 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
+
+  toastify@2.0.1: {}
+
+  tostify@0.0.1: {}
 
   ts-api-utils@1.4.3(typescript@5.7.2):
     dependencies:
