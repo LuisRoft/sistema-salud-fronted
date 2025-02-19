@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
 
           if (res.ok && data.token) {
+            console.log(data);
             return {
               id: data.document,
               document: data.document,
@@ -38,6 +39,7 @@ export const authOptions: NextAuthOptions = {
               lastName: data.lastName,
               role: data.role,
               token: data.token,
+              team: data.team,
             };
           } else {
             throw new Error(
@@ -57,6 +59,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log(user);
         return {
           ...token,
           document: user.document,
@@ -64,11 +67,13 @@ export const authOptions: NextAuthOptions = {
           lastName: user.lastName,
           role: user.role,
           access_token: user.token,
+          team: user.team,
         };
       }
       return token;
     },
     async session({ session, token }) {
+      console.log(token);
       session.user = {
         id: token.document as string,
         document: token.document as string,
@@ -76,6 +81,7 @@ export const authOptions: NextAuthOptions = {
         lastName: token.lastName as string,
         role: token.role as string,
         access_token: token.access_token as string,
+        team: token.team as string,
       };
       return session;
     },
