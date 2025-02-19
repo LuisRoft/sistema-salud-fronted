@@ -39,6 +39,8 @@ interface CreateUser {
   isActive?: boolean;
 }
 
+
+
 export const getPatients = async (
   token: string,
   params?: GetPatientsParams
@@ -68,3 +70,5 @@ export const createUser = async (data: CreateUser, token: string) => {
     },
   });
 };
+
+
