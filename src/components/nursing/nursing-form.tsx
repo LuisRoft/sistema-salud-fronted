@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -41,13 +42,29 @@ const nursingFormSchema = z.object({
 type NursingFormValues = z.infer<typeof nursingFormSchema>;
 
 export default function NursingForm() {
+  const [currentDate, setCurrentDate] = useState('');
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const now = new Date();
+    setCurrentDate(now.toISOString().split('T')[0]); // Formato YYYY-MM-DD
+    setCurrentTime(now.toTimeString().split(' ')[0]); // Formato HH:MM:SS
+  }, []);
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<NursingFormValues>({
     resolver: zodResolver(nursingFormSchema),
   });
+
+  useEffect(() => {
+    setValue('fecha', currentDate);
+    setValue('cvaFecha', currentDate);
+    setValue('cvaHora', currentTime);
+  }, [currentDate, currentTime, setValue]);
 
   const onSubmit = (data: NursingFormValues) => {
     console.log(data);
@@ -71,7 +88,7 @@ export default function NursingForm() {
             <TableBody>
               <TableRow>
                 <TableCell>
-                  <Input type='date' {...register('fecha')} />
+                  <Input type='date' {...register('fecha')} value={currentDate} disabled />
                   {errors.fecha && <span className='text-sm text-red-500'>{errors.fecha.message}</span>}
                 </TableCell>
                 <TableCell>
@@ -83,21 +100,6 @@ export default function NursingForm() {
           </Table>
         </section>
 
-        {/* B. Antecedentes */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>B. Antecedentes</h3>
-          <Label>Antecedentes Patológicos Personales</Label>
-          <Input {...register('antecedentesPatologicosPersonales.0')} />
-          <Input {...register('antecedentesPatologicosPersonales.1')} />
-          <Label>Descripción</Label>
-          <Input {...register('antecedentesPatologicosPersonalesDesc')} />
-          <Label>Antecedentes Patológicos Familiares</Label>
-          <Input {...register('antecedentesPatologicosFamiliares.0')} />
-          <Input {...register('antecedentesPatologicosFamiliares.1')} />
-          <Label>Descripción</Label>
-          <Input {...register('antecedentesPatologicosFamiliaresDesc')} />
-        </section>
-
         {/* C. Enfermedad Actual */}
         <section className='mb-4'>
           <h3 className='mb-4 text-xl font-semibold'>C. Enfermedad Actual</h3>
@@ -107,9 +109,15 @@ export default function NursingForm() {
         {/* D. Signos Vitales */}
         <section className='mb-4'>
           <h3 className='mb-4 text-xl font-semibold'>D. Signos Vitales</h3>
+          <div>
+            <Label>Fecha</Label>
+            <Input type='date' {...register('cvaFecha')} value={currentDate} disabled />
+          </div>
+          <div>
+            <Label>Hora</Label>
+            <Input type='time' {...register('cvaHora')} value={currentTime} disabled />
+          </div>
           {[
-            'Fecha',
-            'Hora',
             'Temperatura',
             'Presión Arterial',
             'Pulso',
@@ -127,21 +135,6 @@ export default function NursingForm() {
               <Input {...register(`cva${field.replace(/\s+/g, '')}` as keyof NursingFormValues)} />
             </div>
           ))}
-        </section>
-
-        {/* E. Exámenes y Diagnóstico */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>E. Exámenes y Diagnóstico</h3>
-          <Label>Órganos y Sistemas Patológicos</Label>
-          <Input {...register('organosSistemasPatologia.0')} />
-          <Input {...register('organosSistemasPatologiaDesc.0')} />
-          <Label>Examen Físico Patológico</Label>
-          <Input {...register('examenFisicoPatologia.0')} />
-          <Input {...register('examenFisicoPatologiaDesc.0')} />
-          <Label>Diagnóstico</Label>
-          <Input {...register('diagnosticosDesc.0')} />
-          <Label>Código CIE-10</Label>
-          <Input {...register('diagnosticosCie.0')} />
         </section>
 
         {/* F. Plan de Tratamiento */}
