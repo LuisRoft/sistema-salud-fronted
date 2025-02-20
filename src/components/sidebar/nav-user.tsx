@@ -40,7 +40,7 @@ export function NavUser() {
 
       {/* Información del usuario */}
       <SidebarMenuItem>
-        <div className='flex items-center gap-3 rounded-md bg-gray-100 p-3 dark:bg-gray-800'>
+        <div className='flex items-center gap-3 rounded-md bg-gray-200 p-3 dark:bg-gray-800'>
           <Avatar className='h-8 w-8 rounded-lg'>
             <AvatarImage
               src={session?.user.image || ''}

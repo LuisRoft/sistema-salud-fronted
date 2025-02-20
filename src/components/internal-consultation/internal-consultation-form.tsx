@@ -82,252 +82,260 @@ export default function InterConsultForm() {
   };
 
   return (
-    <div className='space-y-6 p-4'>
-      <h2 className='text-2xl font-bold'>Formulario de Interconsulta 007</h2>
+    <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
+      <div className='space-y-6 p-4'>
+        <h2 className='text-2xl font-bold'>Formulario de Interconsulta 007</h2>
 
-      {/* Sección A: Datos del Establecimiento y Paciente */}
-      <section>
-        <h3 className='mb-4 text-xl font-semibold'>
-          A. Datos del Establecimiento y Paciente
-        </h3>
-        <Table className='mb-4'>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Institución</TableHead>
-              <TableHead>Unicódigo</TableHead>
-              <TableHead>Establecimiento</TableHead>
-              <TableHead>N° Historia Clínica</TableHead>
-              <TableHead>N° Archivo</TableHead>
-              <TableHead>No. Hoja</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              {[
-                'institucionSistema',
-                'unicodigo',
-                'establecimientoSalud',
-                'numeroHistoriaClinica',
-                'numeroArchivo',
-                'hoja',
-              ].map((field) => (
-                <TableCell key={field}>
-                  <Input {...register(field as keyof InterconsultFormValues)} />
-                  {errors[field as keyof typeof errors] && (
-                    <span className='text-sm text-red-500'>
-                      {errors[field as keyof typeof errors]?.message}
-                    </span>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableBody>
-        </Table>
+        {/* Sección A: Datos del Establecimiento y Paciente */}
+        <section>
+          <h3 className='mb-4 text-xl font-semibold'>
+            A. Datos del Establecimiento y Paciente
+          </h3>
+          <Table className='mb-4'>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Institución</TableHead>
+                <TableHead>Unicódigo</TableHead>
+                <TableHead>Establecimiento</TableHead>
+                <TableHead>N° Historia Clínica</TableHead>
+                <TableHead>N° Archivo</TableHead>
+                <TableHead>No. Hoja</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                {[
+                  'institucionSistema',
+                  'unicodigo',
+                  'establecimientoSalud',
+                  'numeroHistoriaClinica',
+                  'numeroArchivo',
+                  'hoja',
+                ].map((field) => (
+                  <TableCell key={field}>
+                    <Input
+                      {...register(field as keyof InterconsultFormValues)}
+                    />
+                    {errors[field as keyof typeof errors] && (
+                      <span className='text-sm text-red-500'>
+                        {errors[field as keyof typeof errors]?.message}
+                      </span>
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
 
-        <div className='mb-4 grid grid-cols-2 gap-4'>
-          <div>
-            <Label>Primer Apellido</Label>
-            <Input {...register('paciente.primerApellido')} />
-            {errors.paciente?.primerApellido && (
-              <span className='text-sm text-red-500'>
-                {errors.paciente.primerApellido.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Segundo Apellido</Label>
-            <Input {...register('paciente.segundoApellido')} />
-          </div>
-          <div>
-            <Label>Primer Nombre</Label>
-            <Input {...register('paciente.primerNombre')} />
-            {errors.paciente?.primerNombre && (
-              <span className='text-sm text-red-500'>
-                {errors.paciente.primerNombre.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Segundo Nombre</Label>
-            <Input {...register('paciente.segundoNombre')} />
-          </div>
-          <div>
-            <Label>Sexo</Label>
-            <select
-              {...register('paciente.sexo')}
-              className='w-full rounded border p-2'
-            >
-              <option value='M'>Masculino</option>
-              <option value='F'>Femenino</option>
-            </select>
-          </div>
-          <div>
-            <Label>Edad</Label>
-            <Input
-              type='number'
-              {...register('paciente.edad', { valueAsNumber: true })}
-            />
-            {errors.paciente?.edad && (
-              <span className='text-sm text-red-500'>
-                {errors.paciente.edad.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Condición Edad</Label>
-            <select
-              {...register('paciente.condicionEdad')}
-              className='w-full rounded border p-2'
-            >
-              <option value='H'>Horas</option>
-              <option value='D'>Días</option>
-              <option value='M'>Meses</option>
-              <option value='A'>Años</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Sección B: Características de la Solicitud */}
-      <section>
-        <h3 className='mb-4 text-xl font-semibold'>
-          B. Características de la Solicitud
-        </h3>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <Label>Servicio</Label>
-            <select
-              {...register('solicitud.servicio')}
-              className='w-full rounded border p-2'
-            >
-              <option value='EMERGENCIA'>Emergencia</option>
-              <option value='CONSULTA EXTERNA'>Consulta Externa</option>
-              <option value='HOSPITALIZACIÓN'>Hospitalización</option>
-            </select>
-          </div>
-          <div>
-            <Label>Especialidad</Label>
-            <Input {...register('solicitud.especialidad')} />
-            {errors.solicitud?.especialidad && (
-              <span className='text-sm text-red-500'>
-                {errors.solicitud.especialidad.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>No. Cama (opcional)</Label>
-            <Input {...register('solicitud.cama')} />
-          </div>
-          <div>
-            <Label>Urgente</Label>
-            <input
-              type='checkbox'
-              {...register('solicitud.urgente')}
-              className='ml-2'
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Sección C: Cuadro Clínico */}
-      <section>
-        <h3 className='mb-4 text-xl font-semibold'>C. Cuadro Clínico Actual</h3>
-        <Textarea {...register('cuadroClinico')} className='min-h-[100px]' />
-        {errors.cuadroClinico && (
-          <span className='text-sm text-red-500'>
-            {errors.cuadroClinico.message}
-          </span>
-        )}
-      </section>
-
-      {/* Sección E: Diagnósticos */}
-      <section>
-        <h3 className='mb-4 text-xl font-semibold'>
-          E. Diagnóstico Pre-presuntivo
-        </h3>
-        <div className='grid grid-cols-3 gap-4'>
-          {[...Array(6)].map((_, index) => (
-            <div key={index} className='space-y-2'>
-              <Label>Diagnóstico {index + 1}</Label>
-              <Input {...register(`diagnosticos.${index}.descripcion`)} />
-              <div className='grid grid-cols-3 gap-2'>
-                <Input
-                  placeholder='CE'
-                  {...register(`diagnosticos.${index}.ce`)}
-                />
-                <Input
-                  placeholder='PRE'
-                  {...register(`diagnosticos.${index}.pre`)}
-                />
-                <Input
-                  placeholder='DEF'
-                  {...register(`diagnosticos.${index}.def`)}
-                />
-              </div>
+          <div className='mb-4 grid grid-cols-2 gap-4'>
+            <div className='space-y-2'>
+              <Label>Primer Apellido</Label>
+              <Input {...register('paciente.primerApellido')} />
+              {errors.paciente?.primerApellido && (
+                <span className='text-sm text-red-500'>
+                  {errors.paciente.primerApellido.message}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-      </section>
+            <div className='space-y-2'>
+              <Label>Segundo Apellido</Label>
+              <Input {...register('paciente.segundoApellido')} />
+            </div>
+            <div className='space-y-2'>
+              <Label>Primer Nombre</Label>
+              <Input {...register('paciente.primerNombre')} />
+              {errors.paciente?.primerNombre && (
+                <span className='text-sm text-red-500'>
+                  {errors.paciente.primerNombre.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Segundo Nombre</Label>
+              <Input {...register('paciente.segundoNombre')} />
+            </div>
+            <div className='space-y-2'>
+              <Label>Sexo</Label>
+              <select
+                {...register('paciente.sexo')}
+                className='w-full rounded border bg-input p-2'
+              >
+                <option value='M'>Masculino</option>
+                <option value='F'>Femenino</option>
+              </select>
+            </div>
+            <div className='space-y-2'>
+              <Label>Edad</Label>
+              <Input
+                type='number'
+                {...register('paciente.edad', { valueAsNumber: true })}
+              />
+              {errors.paciente?.edad && (
+                <span className='text-sm text-red-500'>
+                  {errors.paciente.edad.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Condición Edad</Label>
+              <select
+                {...register('paciente.condicionEdad')}
+                className='w-full rounded border bg-input p-2'
+              >
+                <option value='H'>Horas</option>
+                <option value='D'>Días</option>
+                <option value='M'>Meses</option>
+                <option value='A'>Años</option>
+              </select>
+            </div>
+          </div>
+        </section>
 
-      {/* Sección G: Profesional Responsable */}
-      <section>
-        <h3 className='mb-4 text-xl font-semibold'>G. Datos del Profesional</h3>
-        <div className='grid grid-cols-2 gap-4'>
-          <div>
-            <Label>Fecha (aaaa-mm-dd)</Label>
-            <Input {...register('profesional.fecha')} />
-            {errors.profesional?.fecha && (
-              <span className='text-sm text-red-500'>
-                {errors.profesional.fecha.message}
-              </span>
-            )}
+        {/* Sección B: Características de la Solicitud */}
+        <section>
+          <h3 className='mb-4 text-xl font-semibold'>
+            B. Características de la Solicitud
+          </h3>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='space-y-2'>
+              <Label>Servicio</Label>
+              <select
+                {...register('solicitud.servicio')}
+                className='w-full rounded border bg-input p-2'
+              >
+                <option value='EMERGENCIA'>Emergencia</option>
+                <option value='CONSULTA EXTERNA'>Consulta Externa</option>
+                <option value='HOSPITALIZACIÓN'>Hospitalización</option>
+              </select>
+            </div>
+            <div className='space-y-2'>
+              <Label>Especialidad</Label>
+              <Input {...register('solicitud.especialidad')} />
+              {errors.solicitud?.especialidad && (
+                <span className='text-sm text-red-500'>
+                  {errors.solicitud.especialidad.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>No. Cama (opcional)</Label>
+              <Input {...register('solicitud.cama')} />
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Label>Urgente</Label>
+              <input
+                type='checkbox'
+                {...register('solicitud.urgente')}
+                className='ml-2'
+              />
+            </div>
           </div>
-          <div>
-            <Label>Hora (hh:mm)</Label>
-            <Input {...register('profesional.hora')} />
-            {errors.profesional?.hora && (
-              <span className='text-sm text-red-500'>
-                {errors.profesional.hora.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Nombre</Label>
-            <Input {...register('profesional.nombre')} />
-            {errors.profesional?.nombre && (
-              <span className='text-sm text-red-500'>
-                {errors.profesional.nombre.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Apellido</Label>
-            <Input {...register('profesional.apellido')} />
-            {errors.profesional?.apellido && (
-              <span className='text-sm text-red-500'>
-                {errors.profesional.apellido.message}
-              </span>
-            )}
-          </div>
-          <div>
-            <Label>Documento</Label>
-            <Input {...register('profesional.documento')} />
-            {errors.profesional?.documento && (
-              <span className='text-sm text-red-500'>
-                {errors.profesional.documento.message}
-              </span>
-            )}
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <Button
-        type='submit'
-        className='mt-6 bg-[#164284] text-white hover:bg-[#0d2f4d] dark:bg-[#0d2f4d] dark:hover:bg-[#164284]'
-        onClick={handleSubmit(onSubmit)}
-      >
-        Enviar Interconsulta
-      </Button>
+        {/* Sección C: Cuadro Clínico */}
+        <section>
+          <h3 className='mb-4 text-xl font-semibold'>
+            C. Cuadro Clínico Actual
+          </h3>
+          <Textarea {...register('cuadroClinico')} className='min-h-[100px]' />
+          {errors.cuadroClinico && (
+            <span className='text-sm text-red-500'>
+              {errors.cuadroClinico.message}
+            </span>
+          )}
+        </section>
+
+        {/* Sección E: Diagnósticos */}
+        <section>
+          <h3 className='mb-4 text-xl font-semibold'>
+            E. Diagnóstico Pre-presuntivo
+          </h3>
+          <div className='grid grid-cols-3 gap-4'>
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className='space-y-2'>
+                <Label>Diagnóstico {index + 1}</Label>
+                <Input {...register(`diagnosticos.${index}.descripcion`)} />
+                <div className='grid grid-cols-3 gap-2'>
+                  <Input
+                    placeholder='CE'
+                    {...register(`diagnosticos.${index}.ce`)}
+                  />
+                  <Input
+                    placeholder='PRE'
+                    {...register(`diagnosticos.${index}.pre`)}
+                  />
+                  <Input
+                    placeholder='DEF'
+                    {...register(`diagnosticos.${index}.def`)}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Sección G: Profesional Responsable */}
+        <section>
+          <h3 className='mb-4 text-xl font-semibold'>
+            G. Datos del Profesional
+          </h3>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='space-y-2'>
+              <Label>Fecha (aaaa-mm-dd)</Label>
+              <Input {...register('profesional.fecha')} />
+              {errors.profesional?.fecha && (
+                <span className='text-sm text-red-500'>
+                  {errors.profesional.fecha.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Hora (hh:mm)</Label>
+              <Input {...register('profesional.hora')} />
+              {errors.profesional?.hora && (
+                <span className='text-sm text-red-500'>
+                  {errors.profesional.hora.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Nombre</Label>
+              <Input {...register('profesional.nombre')} />
+              {errors.profesional?.nombre && (
+                <span className='text-sm text-red-500'>
+                  {errors.profesional.nombre.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Apellido</Label>
+              <Input {...register('profesional.apellido')} />
+              {errors.profesional?.apellido && (
+                <span className='text-sm text-red-500'>
+                  {errors.profesional.apellido.message}
+                </span>
+              )}
+            </div>
+            <div className='space-y-2'>
+              <Label>Documento</Label>
+              <Input {...register('profesional.documento')} />
+              {errors.profesional?.documento && (
+                <span className='text-sm text-red-500'>
+                  {errors.profesional.documento.message}
+                </span>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <Button
+          type='submit'
+          className='mt-6 bg-primary text-white'
+          onClick={handleSubmit(onSubmit)}
+        >
+          Enviar Interconsulta
+        </Button>
+      </div>
     </div>
   );
 }
