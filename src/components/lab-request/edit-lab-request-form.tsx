@@ -14,7 +14,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,11 +29,17 @@ import { LabRequestRow } from './columns';
 
 // ✅ Esquema de validación
 const editFormSchema = z.object({
-  id: z.string(),  // ✅ Ahora `id` es parte del esquema
-  numero_de_archivo: z.string().min(1, { message: 'El número de archivo es requerido.' }),
-  diagnostico_descripcion1: z.string().min(1, { message: 'El diagnóstico 1 es requerido.' }),
+  id: z.string(), // ✅ Ahora `id` es parte del esquema
+  numero_de_archivo: z
+    .string()
+    .min(1, { message: 'El número de archivo es requerido.' }),
+  diagnostico_descripcion1: z
+    .string()
+    .min(1, { message: 'El diagnóstico 1 es requerido.' }),
   diagnostico_cie1: z.string().min(1, { message: 'El CIE 1 es requerido.' }),
-  diagnostico_descripcion2: z.string().min(1, { message: 'El diagnóstico 2 es requerido.' }),
+  diagnostico_descripcion2: z
+    .string()
+    .min(1, { message: 'El diagnóstico 2 es requerido.' }),
   diagnostico_cie2: z.string().min(1, { message: 'El CIE 2 es requerido.' }),
   prioridad: z.string().min(1, { message: 'La prioridad es requerida.' }),
 });
@@ -35,7 +47,7 @@ const editFormSchema = z.object({
 type EditLabRequestFormProps = {
   onClose: () => void;
   id: string;
-  defaultValues: LabRequestRow;  // ✅ Ahora `defaultValues` incluye `id`
+  defaultValues: LabRequestRow; // ✅ Ahora `defaultValues` incluye `id`
 };
 
 // ✅ Función para actualizar la solicitud
@@ -48,7 +60,11 @@ async function updateLabRequest(
   // Aquí iría la lógica para llamar al backend
 }
 
-export default function EditLabRequestForm({ onClose, id, defaultValues }: EditLabRequestFormProps) {
+export default function EditLabRequestForm({
+  onClose,
+  id,
+  defaultValues,
+}: EditLabRequestFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -88,16 +104,23 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full flex-col">
-        <div className="grid w-full grid-cols-2 gap-x-10 gap-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className='flex w-full flex-col'
+      >
+        <div className='grid w-full grid-cols-2 gap-x-10 gap-y-6'>
           <FormField
             control={form.control}
-            name="numero_de_archivo"
+            name='numero_de_archivo'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">N° Archivo</FormLabel>
+                <FormLabel className='text-[#575756]'>N° Archivo</FormLabel>
                 <FormControl>
-                  <Input placeholder="228001" {...field} className="h-10 text-[#575756]" />
+                  <Input
+                    placeholder='228001'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,12 +129,16 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
           <FormField
             control={form.control}
-            name="diagnostico_descripcion1"
+            name='diagnostico_descripcion1'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">Diagnóstico 1</FormLabel>
+                <FormLabel className='text-[#575756]'>Diagnóstico 1</FormLabel>
                 <FormControl>
-                  <Input placeholder="Anemia" {...field} className="h-10 text-[#575756]" />
+                  <Input
+                    placeholder='Anemia'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,12 +147,16 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
           <FormField
             control={form.control}
-            name="diagnostico_cie1"
+            name='diagnostico_cie1'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">CIE 1</FormLabel>
+                <FormLabel className='text-[#575756]'>CIE 1</FormLabel>
                 <FormControl>
-                  <Input placeholder="D50.9" {...field} className="h-10 text-[#575756]" />
+                  <Input
+                    placeholder='D50.9'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,19 +165,22 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
           <FormField
             control={form.control}
-            name="prioridad"
+            name='prioridad'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">Prioridad</FormLabel>
+                <FormLabel className='text-[#575756]'>Prioridad</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar prioridad" />
+                      <SelectValue placeholder='Seleccionar prioridad' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Alta">Alta</SelectItem>
-                      <SelectItem value="Media">Media</SelectItem>
-                      <SelectItem value="Baja">Baja</SelectItem>
+                      <SelectItem value='Alta'>Alta</SelectItem>
+                      <SelectItem value='Media'>Media</SelectItem>
+                      <SelectItem value='Baja'>Baja</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -156,11 +190,15 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
           />
         </div>
 
-        <Button type="submit" className="mt-4 justify-center font-bold" disabled={isPending}>
+        <Button
+          type='submit'
+          className='mt-4 justify-center font-bold'
+          disabled={isPending}
+        >
           {isPending ? (
-            <div className="flex items-center justify-center gap-2">
+            <div className='flex items-center justify-center gap-2'>
               <span>Actualizando Solicitud</span>
-              <Loader2 className="animate-spin" size={16} strokeWidth={2} />
+              <Loader2 className='animate-spin' size={16} strokeWidth={2} />
             </div>
           ) : (
             'Guardar Cambios'

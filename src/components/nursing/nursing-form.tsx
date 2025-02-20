@@ -7,7 +7,14 @@ import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
 
 const nursingFormSchema = z.object({
   fecha: z.string().min(1, 'Campo obligatorio'),
@@ -71,81 +78,113 @@ export default function NursingForm() {
   };
 
   return (
-    <div className='space-y-6'>
-      <h2 className='text-2xl font-bold'>Formulario de Enfermería</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        
-        {/* A. Datos Generales */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>A. Datos Generales</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Fecha</TableHead>
-                <TableHead>Motivo de Consulta</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>
-                  <Input type='date' {...register('fecha')} value={currentDate} disabled />
-                  {errors.fecha && <span className='text-sm text-red-500'>{errors.fecha.message}</span>}
-                </TableCell>
-                <TableCell>
-                  <Input {...register('motivoConsulta')} />
-                  {errors.motivoConsulta && <span className='text-sm text-red-500'>{errors.motivoConsulta.message}</span>}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </section>
+    <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
+      <div className='space-y-6'>
+        <h2 className='text-2xl font-bold'>Formulario de Enfermería</h2>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* A. Datos Generales */}
+          <section className='mb-4'>
+            <h3 className='mb-4 text-xl font-semibold'>A. Datos Generales</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Motivo de Consulta</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <Input
+                      type='date'
+                      {...register('fecha')}
+                      value={currentDate}
+                      disabled
+                    />
+                    {errors.fecha && (
+                      <span className='text-sm text-red-500'>
+                        {errors.fecha.message}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Input {...register('motivoConsulta')} />
+                    {errors.motivoConsulta && (
+                      <span className='text-sm text-red-500'>
+                        {errors.motivoConsulta.message}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </section>
 
-        {/* C. Enfermedad Actual */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>C. Enfermedad Actual</h3>
-          <Input {...register('enfermedadProblemaActual')} />
-        </section>
+          {/* C. Enfermedad Actual */}
+          <section className='mb-4'>
+            <h3 className='mb-4 text-xl font-semibold'>C. Enfermedad Actual</h3>
+            <Input {...register('enfermedadProblemaActual')} />
+          </section>
 
-        {/* D. Signos Vitales */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>D. Signos Vitales</h3>
-          <div>
-            <Label>Fecha</Label>
-            <Input type='date' {...register('cvaFecha')} value={currentDate} disabled />
-          </div>
-          <div>
-            <Label>Hora</Label>
-            <Input type='time' {...register('cvaHora')} value={currentTime} disabled />
-          </div>
-          {[
-            'Temperatura',
-            'Presión Arterial',
-            'Pulso',
-            'Frecuencia Respiratoria',
-            'Peso',
-            'Talla',
-            'IMC',
-            'Perímetro Abdominal',
-            'Hemoglobina Capilar',
-            'Glucosa Capilar',
-            'Pulsioximetría',
-          ].map((field) => (
-            <div key={field}>
-              <Label>{field}</Label>
-              <Input {...register(`cva${field.replace(/\s+/g, '')}` as keyof NursingFormValues)} />
+          {/* D. Signos Vitales */}
+          <section className='mb-4'>
+            <h3 className='mb-4 text-xl font-semibold'>D. Signos Vitales</h3>
+            <div className='space-y-2'>
+              <Label>Fecha</Label>
+              <Input
+                type='date'
+                {...register('cvaFecha')}
+                value={currentDate}
+                disabled
+              />
             </div>
-          ))}
-        </section>
+            <div className='mt-4 space-y-2'>
+              <Label>Hora</Label>
+              <Input
+                type='time'
+                {...register('cvaHora')}
+                value={currentTime}
+                disabled
+              />
+            </div>
+            {[
+              'Temperatura',
+              'Presión Arterial',
+              'Pulso',
+              'Frecuencia Respiratoria',
+              'Peso',
+              'Talla',
+              'IMC',
+              'Perímetro Abdominal',
+              'Hemoglobina Capilar',
+              'Glucosa Capilar',
+              'Pulsioximetría',
+            ].map((field) => (
+              <div key={field} className='mt-4 space-y-2'>
+                <Label>{field}</Label>
+                <Input
+                  {...register(
+                    `cva${field.replace(/\s+/g, '')}` as keyof NursingFormValues
+                  )}
+                />
+              </div>
+            ))}
+          </section>
 
-        {/* F. Plan de Tratamiento */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>F. Plan de Tratamiento</h3>
-          <Label>Descripción</Label>
-          <Input {...register('planTratamiento')} />
-        </section>
+          {/* F. Plan de Tratamiento */}
+          <section className='mb-4'>
+            <h3 className='mb-4 text-xl font-semibold'>
+              F. Plan de Tratamiento
+            </h3>
+            <Label>Descripción</Label>
+            <Input {...register('planTratamiento')} className='mt-2' />
+          </section>
 
-        <Button type='submit' className='bg-blue-500 text-white'>Enviar</Button>
-      </form>
+          <Button type='submit' className='bg-primary text-white'>
+            Enviar
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
