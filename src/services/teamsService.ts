@@ -44,11 +44,19 @@ export interface editTeam {
 }
 
 export const createTeam = async (data: createTeam, token: string) => {
-  return post('/teams', data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await post('/teams', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Error al crear el equipo');
+  }
 };
 
 export const getTeams = async (
@@ -70,21 +78,22 @@ export const updateTeam = async (
   teamId: string
 ) => {
   try {
-    const response = await patch(`/teams/${teamId}`, data, {
+    const response = await patch(`/teams/${teamId}`, {
+      teamName: data.teamName,
+      groupId: data.groupId,
+      patientId: data.patientId,
+      userIds: data.userIds,
+    }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if ('response' in error && typeof error.response === 'object' && error.response && 'data' in error.response) {
-        const responseData = error.response.data as { message?: string };
-        throw new Error(responseData.message || error.message);
-      }
-      throw error;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
     }
-    throw new Error('Error inesperado al actualizar el equipo');
+    throw new Error('Error al actualizar el equipo');
   }
 };
 

@@ -93,7 +93,7 @@ export function EditTeamForm({ onClose, team }: EditTeamFormProps) {
       teamName: team.teamName,
       groupId: team.group.id,
       patientId: team.patient.id,
-      userIds: team.users.map(user => user.id),
+      userIds: team.users?.map(user => user.id) || [],
     },
   });
 
@@ -101,7 +101,15 @@ export function EditTeamForm({ onClose, team }: EditTeamFormProps) {
     mutationFn: async (values: EditFormValues) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      await updateTeam(values, token as string, team.id);
+      
+      const data = {
+        teamName: values.teamName,
+        groupId: values.groupId,
+        patientId: values.patientId,
+        userIds: values.userIds,
+      };
+      
+      await updateTeam(data, token as string, team.id);
     },
     onSuccess: () => {
       toast({

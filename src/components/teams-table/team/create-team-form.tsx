@@ -98,13 +98,25 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      userIds: [], // Inicializar el array vacío
+    },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      await createTeam({ ...values }, token as string);
+      
+      // Asegurarse de que los valores están en el formato correcto
+      const data = {
+        teamName: values.teamName,
+        groupId: values.groupId,
+        patientId: values.patientId,
+        userIds: values.userIds,
+      };
+      
+      await createTeam(data, token as string);
     },
     onSuccess: () => {
       toast({
