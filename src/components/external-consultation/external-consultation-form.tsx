@@ -15,6 +15,12 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { createInitialConsultation } from '@/services/consultation.service';
+import { useToast } from '@/components/ui/use-toast';
+import { useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 // Esquema de validación con Zod
 const formSchema = z.object({
@@ -30,6 +36,7 @@ const formSchema = z.object({
   segundoNombre: z.string().optional(),
   sexo: z.string().min(1, 'Campo obligatorio'),
   edad: z.number().min(0, 'La edad debe ser un número positivo'),
+  motivoConsulta: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaPrimera: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaSubsecuente: z.string().optional(),
   antecedentesPersonales: z.object({
@@ -108,23 +115,309 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ExternalConsultationForm() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
+  const patient = session?.user?.team?.patient;
+
+  // Obtener los datos guardados del localStorage
+  const getSavedFormData = () => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('consultationFormData');
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    // Usar los datos guardados como valores por defecto
+    defaultValues: getSavedFormData() || {
+      institucionSistema: 'Pucem',
+      unicodigo: '',
+      establecimientoSalud: 'Medicina',
+      numeroHistoriaClinica: '',
+      numeroArchivo: '',
+      numeroHoja: '',
+      primerApellido: '',
+      segundoApellido: '',
+      primerNombre: '',
+      segundoNombre: '',
+      sexo: '',
+      edad: 0,
+      motivoConsulta: '',
+      motivoConsultaPrimera: '',
+      motivoConsultaSubsecuente: '',
+      antecedentesPersonales: {
+        cardiopatia: false,
+        hipertension: false,
+        ebyec: false,
+        problemaMetabolico: false,
+        cancer: false,
+        tuberculosis: false,
+        enfMental: false,
+        enfInfecciosa: false,
+        malformacion: false,
+        otro: '',
+      },
+      antecedentesFamiliares: {
+        cardiopatia: false,
+        hipertension: false,
+        ebyec: false,
+        problemaMetabolico: false,
+        cancer: false,
+        tuberculosis: false,
+        enfMental: false,
+        enfInfecciosa: false,
+        malformacion: false,
+        otro: '',
+      },
+      enfermedadActual: '',
+      constantesVitales: {
+        fecha: '',
+        hora: '',
+        temperatura: 0,
+        presionArterial: '',
+        frecuenciaCardiaca: 0,
+        frecuenciaRespiratoria: 0,
+        peso: 0,
+        talla: 0,
+        imc: 0,
+        perimetroAbdominal: 0,
+        hemoglobinaCapilar: 0,
+        glucosaCapilar: 0,
+        pulsioximetria: 0,
+      },
+      revisionOrganosSistemas: {
+        pielAnexos: '',
+        organosSentidos: '',
+        respiratorio: '',
+        cardioVascular: '',
+        digestivo: '',
+        genitoUrinario: '',
+        musculoEsqueletico: '',
+        endocrino: '',
+        hemolinfatico: '',
+        nervioso: '',
+      },
+      examenFisico: {
+        pielFaneras: '',
+        cabeza: '',
+        ojos: '',
+        oidos: '',
+        nariz: '',
+        boca: '',
+        cuello: '',
+        torax: '',
+        abdomen: '',
+        genital: '',
+        miembrosSuperiores: '',
+        miembrosInferiores: '',
+        columnaVertebral: '',
+        inglePerine: '',
+        axilasMamas: '',
+      },
+      diagnostico: '',
+      planTratamiento: '',
+    }
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log(data);
+  // Guardar los datos en localStorage cuando cambien
+  const formData = watch();
+  useEffect(() => {
+    localStorage.setItem('consultationFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  const onSubmit = async (data: any) => {
+    try {
+      if (!session?.user) {
+        toast({
+          title: "Error",
+          description: "No hay información del usuario",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Extraer el ID del usuario del token JWT
+      const token = session.user.access_token;
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.id; // Este es el UUID que necesitamos: 5b33f942-102a-4621-94bc-343cfea257f0
+
+      console.log('User ID from token:', userId);
+
+      if (!userId || !patient?.id) {
+        toast({
+          title: "Error",
+          description: "No se pudo obtener el ID del usuario o paciente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Obtener la hora actual en formato HH:mm
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const formattedData = {
+        // Datos del establecimiento
+        institucionSistema: data.institucionSistema || '',
+        unicodigo: data.unicodigo || '',
+        establecimientoSalud: data.establecimientoSalud || '',
+        numeroHistoriaClinica: data.numeroHistoriaClinica || '',
+        numeroArchivo: data.numeroArchivo || '',
+        numeroHoja: data.numeroHoja || '',
+
+        // Datos del paciente
+        primerApellido: data.primerApellido || '',
+        segundoApellido: data.segundoApellido || '',
+        primerNombre: data.primerNombre || '',
+        segundoNombre: data.segundoNombre || '',
+        sexo: data.sexo || '',
+        edad: parseInt(data.edad) || 0,
+
+        // Datos de la consulta
+        motivoConsulta: data.motivoConsulta || data.motivoConsultaPrimera || '',
+        motivoConsultaPrimera: data.motivoConsulta || data.motivoConsultaPrimera || '',
+        motivoConsultaSubsecuente: data.motivoConsultaSubsecuente || '',
+        antecedentesPatologicosPersonales: data.antecedentesPatologicosPersonales || [],
+        antecedentesPatologicosPersonalesDesc: data.antecedentesPatologicosPersonalesDesc || 'Sin antecedentes personales',
+        antecedentesPatologicosFamiliares: data.antecedentesPatologicosFamiliares || [],
+        antecedentesPatologicosFamiliaresDesc: data.antecedentesPatologicosFamiliaresDesc || 'Sin antecedentes familiares',
+        enfermedadProblemaActual: data.enfermedadActual || '',
+        enfermedadActual: data.enfermedadActual || '',
+
+        // Antecedentes
+        antecedentesPersonales: {
+          cardiopatia: Boolean(data.antecedentesPersonales?.cardiopatia),
+          hipertension: Boolean(data.antecedentesPersonales?.hipertension),
+          ebyec: Boolean(data.antecedentesPersonales?.ebyec),
+          problemaMetabolico: Boolean(data.antecedentesPersonales?.problemaMetabolico),
+          cancer: Boolean(data.antecedentesPersonales?.cancer),
+          tuberculosis: Boolean(data.antecedentesPersonales?.tuberculosis),
+          enfMental: Boolean(data.antecedentesPersonales?.enfMental),
+          enfInfecciosa: Boolean(data.antecedentesPersonales?.enfInfecciosa),
+          malformacion: Boolean(data.antecedentesPersonales?.malformacion),
+          otro: data.antecedentesPersonales?.otro || ''
+        },
+
+        antecedentesFamiliares: {
+          cardiopatia: Boolean(data.antecedentesFamiliares?.cardiopatia),
+          hipertension: Boolean(data.antecedentesFamiliares?.hipertension),
+          ebyec: Boolean(data.antecedentesFamiliares?.ebyec),
+          problemaMetabolico: Boolean(data.antecedentesFamiliares?.problemaMetabolico),
+          cancer: Boolean(data.antecedentesFamiliares?.cancer),
+          tuberculosis: Boolean(data.antecedentesFamiliares?.tuberculosis),
+          enfMental: Boolean(data.antecedentesFamiliares?.enfMental),
+          enfInfecciosa: Boolean(data.antecedentesFamiliares?.enfInfecciosa),
+          malformacion: Boolean(data.antecedentesFamiliares?.malformacion),
+          otro: data.antecedentesFamiliares?.otro || ''
+        },
+
+        // Datos CVA
+        cvaFecha: new Date().toISOString(),
+        cvaHora: currentTime,
+        cvaTemperatura: String(data.cvaTemperatura || ''),
+        cvaPresionArterial: data.cvaPresionArterial || '',
+        cvaPulso: String(data.cvaPulso || ''),
+        cvaFrecuenciaRespiratoria: String(data.cvaFrecuenciaRespiratoria || ''),
+        cvaPeso: String(data.cvaPeso || ''),
+        cvaTalla: String(data.cvaTalla || ''),
+        cvaImc: String(data.cvaImc || ''),
+        cvaPerimetroAbdominal: String(data.cvaPerimetroAbdominal || ''),
+        cvaHemoglobinaCapilar: String(data.cvaHemoglobinaCapilar || ''),
+        cvaGlucosaCapilar: String(data.cvaGlucosaCapilar || ''),
+        cvaPulsioximetria: String(data.cvaPulsioximetria || ''),
+
+        // Constantes vitales como objeto
+        constantesVitales: {
+          fecha: new Date().toISOString(),
+          hora: currentTime,
+          temperatura: parseFloat(data.cvaTemperatura) || 0,
+          presionArterial: data.cvaPresionArterial || '',
+          frecuenciaCardiaca: parseFloat(data.cvaPulso) || 0,
+          frecuenciaRespiratoria: parseFloat(data.cvaFrecuenciaRespiratoria) || 0,
+          peso: parseFloat(data.cvaPeso) || 0,
+          talla: parseFloat(data.cvaTalla) || 0,
+          imc: parseFloat(data.cvaImc) || 0,
+          perimetroAbdominal: parseFloat(data.cvaPerimetroAbdominal) || 0,
+          hemoglobinaCapilar: parseFloat(data.cvaHemoglobinaCapilar) || 0,
+          glucosaCapilar: parseFloat(data.cvaGlucosaCapilar) || 0,
+          pulsioximetria: parseFloat(data.cvaPulsioximetria) || 0
+        },
+
+        // Patologías y exámenes
+        organosSistemasPatologia: Array.isArray(data.organosSistemasPatologia) 
+          ? data.organosSistemasPatologia 
+          : [],
+        organosSistemasPatologiaDesc: Array.isArray(data.organosSistemasPatologiaDesc)
+          ? data.organosSistemasPatologiaDesc
+          : [],
+        examenFisicoPatologia: Array.isArray(data.examenFisicoPatologia)
+          ? data.examenFisicoPatologia
+          : [],
+        examenFisicoPatologiaDesc: Array.isArray(data.examenFisicoPatologiaDesc)
+          ? data.examenFisicoPatologiaDesc
+          : [],
+        diagnosticosDesc: Array.isArray(data.diagnosticosDesc)
+          ? data.diagnosticosDesc
+          : [],
+        diagnosticosCie: Array.isArray(data.diagnosticosCie)
+          ? data.diagnosticosCie
+          : [],
+
+        // Plan de tratamiento
+        planTratamiento: data.planTratamiento || '',
+
+        // IDs
+        user: userId,
+        patient: patient.id
+      };
+
+      console.log('Datos a enviar:', formattedData);
+
+      const response = await createInitialConsultation(formattedData);
+      toast({
+        title: 'Éxito',
+        description: 'Consulta creada correctamente',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Error al crear la consulta',
+      });
+    }
+  };
+
+  // Botón para limpiar el formulario
+  const handleReset = () => {
+    localStorage.removeItem('consultationFormData');
+    window.location.reload();
   };
 
   return (
     <div className='space-y-6'>
-      <h2 className='text-2xl font-bold'>
-        Consulta Externa - Anamnesis y Examen Físico
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className='text-2xl font-bold'>
+          Consulta Externa - Anamnesis y Examen Físico
+        </h2>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleReset}
+          className="ml-4"
+        >
+          Limpiar Formulario
+        </Button>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <section className='mb-4'>
           <h3 className='mb-4 text-xl font-semibold'>
@@ -246,153 +539,174 @@ export default function ExternalConsultationForm() {
           </div>
         </section>
 
-        {/* Sección B: Motivo de Consulta */}
         <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>B. Motivo de Consulta</h3>
-          <div className='space-y-4'>
-            <div className='space-y-2'>
-              <Label>Primera</Label>
-              <Input {...register('motivoConsultaPrimera')} />
-              {errors.motivoConsultaPrimera && (
-                <p className='text-sm text-red-600 dark:text-red-400'>
-                  {errors.motivoConsultaPrimera.message}
-                </p>
+          <h3 className='mb-4 text-xl font-semibold'>
+            B. Motivo de Consulta y Enfermedad
+          </h3>
+          <div className='grid gap-4'>
+            <div>
+              <Label htmlFor='motivoConsulta'>Motivo de Consulta</Label>
+              <Textarea
+                id='motivoConsulta'
+                {...register('motivoConsulta', { required: 'Este campo es requerido' })}
+                onChange={(e) => {
+                  // Actualizar ambos campos al mismo tiempo
+                  setValue('motivoConsulta', e.target.value);
+                  setValue('motivoConsultaPrimera', e.target.value);
+                }}
+              />
+              {errors.motivoConsulta && (
+                <p className='text-sm text-red-600'>{errors.motivoConsulta.message}</p>
               )}
             </div>
-            <div className='space-y-2'>
-              <Label>Subsecuente</Label>
-              <Input {...register('motivoConsultaSubsecuente')} />
+
+            <div>
+              <Label htmlFor='enfermedadActual'>Enfermedad Actual</Label>
+              <Textarea
+                id='enfermedadActual'
+                {...register('enfermedadActual', { required: 'Este campo es requerido' })}
+              />
+              {errors.enfermedadActual && (
+                <p className='text-sm text-red-600'>{errors.enfermedadActual.message}</p>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Sección C: Antecedentes Patológicos Personales */}
         <section className='mb-4'>
           <h3 className='mb-4 text-xl font-semibold'>
-            C. Antecedentes Patológicos Personales
+            C. Antecedentes
           </h3>
-          <div className='space-y-2'>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.cardiopatia')} />
-              <Label htmlFor='cardiopatia'>Cardiopatía</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.hipertension')} />
-              <Label htmlFor='hipertension'>Hipertensión</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.ebyec')} />
-              <Label htmlFor='ebyec'>E-BYE C</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox
-                {...register('antecedentesPersonales.problemaMetabolico')}
-              />
-              <Label htmlFor='problema-metabolico'>Problema Metabólico</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.cancer')} />
-              <Label htmlFor='cancer'>Cáncer</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.tuberculosis')} />
-              <Label htmlFor='tuberculosis'>Tuberculosis</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.enfMental')} />
-              <Label htmlFor='enf-mental'>Enf. Mental</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.enfInfecciosa')} />
-              <Label htmlFor='enf-infecciosa'>Enf. Infecciosa</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.malformacion')} />
-              <Label htmlFor='malformacion'>Malformación</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesPersonales.otro')} />
-              <Label htmlFor='otro'>Otro</Label>
-              <Input
-                type='text'
-                className='w-48'
-                {...register('antecedentesPersonales.otro')}
-              />
-            </div>
-          </div>
-        </section>
+          <div className='grid gap-6'>
+            {/* Antecedentes Patológicos Personales */}
+            <div>
+              <Label>Antecedentes Patológicos Personales</Label>
+              <div className='space-y-4'>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <Label>Lista de Antecedentes</Label>
+                    <Input
+                      type="text"
+                      {...register('antecedentesPatologicosPersonales')}
+                      placeholder="Separar con comas (ej: Diabetes, Hipertensión)"
+                    />
+                  </div>
+                  <div className='space-y-2'>
+                    <Label>Descripción</Label>
+                    <Textarea
+                      {...register('antecedentesPatologicosPersonalesDesc', { required: 'Este campo es requerido' })}
+                    />
+                  </div>
+                </div>
 
-        {/* Sección D: Antecedentes Patológicos Familiares */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>
-            D. Antecedentes Patológicos Familiares
-          </h3>
-          <div className='space-y-2'>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.cardiopatia')} />
-              <Label htmlFor='fam-cardiopatia'>Cardiopatía</Label>
+                <div className='space-y-2'>
+                  <h4 className='font-medium'>Antecedentes Personales Detallados</h4>
+                  <div className='grid grid-cols-3 gap-2'>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.cardiopatia')} />
+                      <Label>Cardiopatía</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.hipertension')} />
+                      <Label>Hipertensión</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.ebyec')} />
+                      <Label>EBYEC</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.problemaMetabolico')} />
+                      <Label>Problema Metabólico</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.cancer')} />
+                      <Label>Cáncer</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.tuberculosis')} />
+                      <Label>Tuberculosis</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.enfMental')} />
+                      <Label>Enfermedad Mental</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.enfInfecciosa')} />
+                      <Label>Enfermedad Infecciosa</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesPersonales.malformacion')} />
+                      <Label>Malformación</Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.hipertension')} />
-              <Label htmlFor='fam-hipertension'>Hipertensión</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.ebyec')} />
-              <Label htmlFor='fam-ebyec'>E-BYE C</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox
-                {...register('antecedentesFamiliares.problemaMetabolico')}
-              />
-              <Label htmlFor='fam-problema-metabolico'>
-                Problema Metabólico
-              </Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.cancer')} />
-              <Label htmlFor='fam-cancer'>Cáncer</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.tuberculosis')} />
-              <Label htmlFor='fam-tuberculosis'>Tuberculosis</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.enfMental')} />
-              <Label htmlFor='fam-enf-mental'>Enf. Mental</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.enfInfecciosa')} />
-              <Label htmlFor='fam-enf-infecciosa'>Enf. Infecciosa</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.malformacion')} />
-              <Label htmlFor='fam-malformacion'>Malformación</Label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox {...register('antecedentesFamiliares.otro')} />
-              <Label htmlFor='fam-otro'>Otro</Label>
-              <Input
-                type='text'
-                className='w-48'
-                {...register('antecedentesFamiliares.otro')}
-              />
-            </div>
-          </div>
-        </section>
 
-        {/* Sección E: Enfermedad o Problema Actual */}
-        <section className='mb-4'>
-          <h3 className='mb-4 text-xl font-semibold'>
-            E. Enfermedad o Problema Actual
-          </h3>
-          <div>
-            <Label>Descripción</Label>
-            <Input {...register('enfermedadActual')} />
-            {errors.enfermedadActual && (
-              <p className='text-sm text-red-600 dark:text-red-400'>
-                {errors.enfermedadActual.message}
-              </p>
-            )}
+            {/* Antecedentes Patológicos Familiares */}
+            <div>
+              <Label>Antecedentes Patológicos Familiares</Label>
+              <div className='space-y-4'>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <Label>Lista de Antecedentes</Label>
+                    <Input
+                      type="text"
+                      {...register('antecedentesPatologicosFamiliares')}
+                      placeholder="Separar con comas (ej: Cáncer, Diabetes)"
+                    />
+                  </div>
+                  <div className='space-y-2'>
+                    <Label>Descripción</Label>
+                    <Textarea
+                      {...register('antecedentesPatologicosFamiliaresDesc', { required: 'Este campo es requerido' })}
+                    />
+                  </div>
+                </div>
+
+                <div className='space-y-2'>
+                  <h4 className='font-medium'>Antecedentes Familiares Detallados</h4>
+                  <div className='grid grid-cols-3 gap-2'>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.cardiopatia')} />
+                      <Label>Cardiopatía</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.hipertension')} />
+                      <Label>Hipertensión</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.ebyec')} />
+                      <Label>EBYEC</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.problemaMetabolico')} />
+                      <Label>Problema Metabólico</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.cancer')} />
+                      <Label>Cáncer</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.tuberculosis')} />
+                      <Label>Tuberculosis</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.enfMental')} />
+                      <Label>Enfermedad Mental</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.enfInfecciosa')} />
+                      <Label>Enfermedad Infecciosa</Label>
+                    </div>
+                    <div className='flex items-center space-x-2'>
+                      <Checkbox {...register('antecedentesFamiliares.malformacion')} />
+                      <Label>Malformación</Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
