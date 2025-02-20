@@ -18,35 +18,40 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createAdmin } from '@/services/adminService';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
-import { CareerDialog } from './carreer-dialog';
+import { fetchCareers } from '@/services/careerService';
 
-// Esquema de validación con carrera como objeto
+// Esquema de validación con todos los campos
 const formSchema = z.object({
   document: z.string().min(10, { message: 'Número de identificación es requerido.' }),
   name: z.string().min(1, { message: 'Nombre es requerido.' }),
   lastName: z.string().min(1, { message: 'Apellido es requerido.' }),
   password: z.string().min(8, { message: 'La contraseña debe tener al menos 8 caracteres.' }),
   email: z.string().email({ message: 'Correo electrónico no válido.' }),
-  career: z
-    .object({
-      id: z.string(),
-      careerName: z.string(),
-    })
-    .nullable()
-    .optional(),
+  career: z.string().min(1, { message: 'Debe seleccionar una carrera.' }),
 });
 
 export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
-  const [isCareerDialogOpen, setIsCareerDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Obtener la lista de carreras desde el backend
+  const { data: careers, isLoading, error } = useQuery({
+    queryKey: ['careers'],
+    queryFn: fetchCareers,
+    staleTime: 1000 * 60 * 5, // Cache de 5 minutos
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      career: null,
+      document: '',
+      name: '',
+      lastName: '',
+      password: '',
+      email: '',
+      career: '',
     },
   });
 
@@ -55,13 +60,7 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       if (!token) throw new Error('Token no encontrado.');
-      await createAdmin(
-        {
-          ...values,
-          career: values.career?.id || null, // Solo enviamos el ID de la carrera
-        },
-        token
-      );
+      await createAdmin(values, token);
     },
     onSuccess: () => {
       toast({ title: 'Creación Exitosa', description: 'Administrador creado exitosamente.' });
@@ -165,17 +164,16 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
           <FormField
             control={form.control}
             name="career"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Carrera</FormLabel>
                 <FormControl>
-                  <Button
-                    type="button"
-                    onClick={() => setIsCareerDialogOpen(true)}
-                    className="w-full justify-center"
-                  >
-                    {form.getValues('career')?.careerName || 'Seleccionar Carrera'}
-                  </Button>
+                  <select {...field} className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 dark:text-white">
+                    <option value="">Seleccionar una carrera</option>
+                    {isLoading ? <option disabled>Cargando...</option> : careers?.map((career) => (
+                      <option key={career.id} value={career.id}>{career.careerName}</option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,27 +182,8 @@ export default function CreateAdminForm({ onClose }: { onClose: () => void }) {
         </div>
 
         <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? (
-            <div className="flex items-center justify-center gap-2">
-              <Loader2 className="animate-spin" size={16} strokeWidth={2} />
-              <span>Creando Administrador</span>
-            </div>
-          ) : (
-            'Crear Administrador'
-          )}
+          {mutation.isPending ? 'Creando Administrador...' : 'Crear Administrador'}
         </Button>
-
-        <CareerDialog
-          isOpen={isCareerDialogOpen}
-          onClose={() => setIsCareerDialogOpen(false)}
-          onSelect={(career) => {
-            form.setValue('career', {
-              id: career.id,
-              careerName: career.careerName,
-            });
-            setIsCareerDialogOpen(false);
-          }}
-        />
       </form>
     </Form>
   );

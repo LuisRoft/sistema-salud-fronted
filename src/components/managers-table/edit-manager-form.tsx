@@ -16,11 +16,9 @@ import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateManager } from '@/services/managerService';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
-import { useState } from 'react';
-import { CareerDialog } from './carreer-dialog';
-import { Career } from '@/types/career/get-careers';
+import { fetchCareers } from '@/services/careerService';
 
 export const schema = z.object({
   id: z.string(),
@@ -29,18 +27,27 @@ export const schema = z.object({
   name: z.string().min(1, 'Nombre es obligatorio'),
   lastName: z.string().min(1, 'Apellido es obligatorio'),
   address: z.string().optional(),
-  career: z.object({ id: z.string(), careerName: z.string() }).nullable(),
+  career: z.string().min(1, { message: 'Debe seleccionar una carrera.' }),
   password: z.string().optional(),
 });
 
 export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof schema>; onClose: () => void }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [isCareerDialogOpen, setIsCareerDialogOpen] = useState(false);
+
+  // Obtener la lista de carreras desde el backend
+  const { data: careers, isLoading, error } = useQuery({
+    queryKey: ['careers'],
+    queryFn: fetchCareers,
+    staleTime: 1000 * 60 * 5, // Cache por 5 minutos
+  });
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: manager,
+    defaultValues: {
+      ...manager,
+      career: manager.career?.id || '',
+    },
     mode: 'onChange',
   });
 
@@ -51,7 +58,7 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
       if (!token) throw new Error('Token no disponible.');
 
       const { id, ...rest } = values;
-      return await updateManager(id, { ...rest, career: rest.career?.id }, token);
+      return await updateManager(id, { ...rest, career: rest.career }, token);
     },
     onSuccess: () => {
       toast({
@@ -87,12 +94,7 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
               <FormItem>
                 <FormLabel className="text-[#575756]">Número de Identificación</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="1312172818"
-                    {...field}
-                    className="h-10 text-[#575756]"
-                    disabled
-                  />
+                  <Input placeholder="1312172818" {...field} className="h-10 text-[#575756]" disabled />
                 </FormControl>
                 <FormDescription>Este es su número de identificación.</FormDescription>
                 <FormMessage />
@@ -137,13 +139,7 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
               <FormItem>
                 <FormLabel className="text-[#575756]">Correo Electrónico</FormLabel>
                 <FormControl>
-                  <Input
-                    id="email"
-                    {...field}
-                    placeholder="test@pucesm.edu.ec"
-                    className="h-10 text-[#575756]"
-                    disabled
-                  />
+                  <Input id="email" {...field} placeholder="test@pucesm.edu.ec" className="h-10 text-[#575756]" disabled />
                 </FormControl>
                 <FormDescription>Este es su correo electrónico.</FormDescription>
                 <FormMessage />
@@ -169,17 +165,24 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
           <FormField
             control={form.control}
             name="career"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[#575756]">Carrera</FormLabel>
                 <FormControl>
-                  <Button
-                    type="button"
-                    onClick={() => setIsCareerDialogOpen(true)}
-                    className="w-full justify-center"
-                  >
-                    {form.getValues('career')?.careerName || 'Seleccionar Carrera'}
-                  </Button>
+                  <select {...field} className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 dark:text-white">
+                    <option value="">Seleccionar una carrera</option>
+                    {isLoading ? (
+                      <option disabled>Cargando...</option>
+                    ) : error ? (
+                      <option disabled>Error al cargar carreras</option>
+                    ) : (
+                      careers?.map((career: { id: string; careerName: string }) => (
+                        <option key={career.id} value={career.id}>
+                          {career.careerName}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </FormControl>
                 <FormDescription>Seleccione la carrera asociada.</FormDescription>
                 <FormMessage />
@@ -194,12 +197,7 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
               <FormItem>
                 <FormLabel className="text-[#575756]">Contraseña</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="********"
-                    className="h-10 text-[#575756]"
-                    disabled
-                  />
+                  <Input type="password" placeholder="********" className="h-10 text-[#575756]" disabled />
                 </FormControl>
                 <FormDescription>Contactar ADMIN para cambio de contraseña.</FormDescription>
                 <FormMessage />
@@ -218,18 +216,6 @@ export function EditManagerForm({ manager, onClose }: { manager: z.infer<typeof 
             'Guardar Cambios'
           )}
         </Button>
-
-        <CareerDialog
-          isOpen={isCareerDialogOpen}
-          onClose={() => setIsCareerDialogOpen(false)}
-          onSelect={(career: Career) => {
-            form.setValue('career', {
-              id: career.id,
-              careerName: career.careerName,
-            });
-            setIsCareerDialogOpen(false);
-          }}
-        />
       </form>
     </Form>
   );
