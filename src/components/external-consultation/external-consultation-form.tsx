@@ -39,30 +39,10 @@ const formSchema = z.object({
   motivoConsulta: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaPrimera: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaSubsecuente: z.string().optional(),
-  antecedentesPersonales: z.object({
-    cardiopatia: z.boolean(),
-    hipertension: z.boolean(),
-    ebyec: z.boolean(),
-    problemaMetabolico: z.boolean(),
-    cancer: z.boolean(),
-    tuberculosis: z.boolean(),
-    enfMental: z.boolean(),
-    enfInfecciosa: z.boolean(),
-    malformacion: z.boolean(),
-    otro: z.string().optional(),
-  }),
-  antecedentesFamiliares: z.object({
-    cardiopatia: z.boolean(),
-    hipertension: z.boolean(),
-    ebyec: z.boolean(),
-    problemaMetabolico: z.boolean(),
-    cancer: z.boolean(),
-    tuberculosis: z.boolean(),
-    enfMental: z.boolean(),
-    enfInfecciosa: z.boolean(),
-    malformacion: z.boolean(),
-    otro: z.string().optional(),
-  }),
+  antecedentesPatologicosPersonales: z.array(z.string()).optional(),
+  antecedentesPatologicosPersonalesDesc: z.string().optional(),
+  antecedentesPatologicosFamiliares: z.array(z.string()).optional(),
+  antecedentesPatologicosFamiliaresDesc: z.string().optional(),
   enfermedadActual: z.string().min(1, 'Campo obligatorio'),
   constantesVitales: z.object({
     fecha: z.string().min(1, 'Campo obligatorio'),
@@ -110,13 +90,36 @@ const formSchema = z.object({
   }),
   diagnostico: z.string().min(1, 'Campo obligatorio'),
   planTratamiento: z.string().min(1, 'Campo obligatorio'),
+  antecedentesPersonales: z.object({
+    cardiopatia: z.boolean(),
+    hipertension: z.boolean(),
+    ebyec: z.boolean(),
+    problemaMetabolico: z.boolean(),
+    cancer: z.boolean(),
+    tuberculosis: z.boolean(),
+    enfMental: z.boolean(),
+    enfInfecciosa: z.boolean(),
+    malformacion: z.boolean(),
+    otro: z.string().optional(),
+  }),
+  antecedentesFamiliares: z.object({
+    cardiopatia: z.boolean(),
+    hipertension: z.boolean(),
+    ebyec: z.boolean(),
+    problemaMetabolico: z.boolean(),
+    cancer: z.boolean(),
+    tuberculosis: z.boolean(),
+    enfMental: z.boolean(),
+    enfInfecciosa: z.boolean(),
+    malformacion: z.boolean(),
+    otro: z.string().optional(),
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ExternalConsultationForm() {
   const { data: session } = useSession();
-  const router = useRouter();
   const { toast } = useToast();
   const patient = session?.user?.team?.patient;
 
@@ -154,30 +157,10 @@ export default function ExternalConsultationForm() {
       motivoConsulta: '',
       motivoConsultaPrimera: '',
       motivoConsultaSubsecuente: '',
-      antecedentesPersonales: {
-        cardiopatia: false,
-        hipertension: false,
-        ebyec: false,
-        problemaMetabolico: false,
-        cancer: false,
-        tuberculosis: false,
-        enfMental: false,
-        enfInfecciosa: false,
-        malformacion: false,
-        otro: '',
-      },
-      antecedentesFamiliares: {
-        cardiopatia: false,
-        hipertension: false,
-        ebyec: false,
-        problemaMetabolico: false,
-        cancer: false,
-        tuberculosis: false,
-        enfMental: false,
-        enfInfecciosa: false,
-        malformacion: false,
-        otro: '',
-      },
+      antecedentesPatologicosPersonales: [],
+      antecedentesPatologicosPersonalesDesc: '',
+      antecedentesPatologicosFamiliares: [],
+      antecedentesPatologicosFamiliaresDesc: '',
       enfermedadActual: '',
       constantesVitales: {
         fecha: '',
@@ -225,6 +208,30 @@ export default function ExternalConsultationForm() {
       },
       diagnostico: '',
       planTratamiento: '',
+      antecedentesPersonales: {
+        cardiopatia: false,
+        hipertension: false,
+        ebyec: false,
+        problemaMetabolico: false,
+        cancer: false,
+        tuberculosis: false,
+        enfMental: false,
+        enfInfecciosa: false,
+        malformacion: false,
+        otro: '',
+      },
+      antecedentesFamiliares: {
+        cardiopatia: false,
+        hipertension: false,
+        ebyec: false,
+        problemaMetabolico: false,
+        cancer: false,
+        tuberculosis: false,
+        enfMental: false,
+        enfInfecciosa: false,
+        malformacion: false,
+        otro: '',
+      },
     }
   });
 
