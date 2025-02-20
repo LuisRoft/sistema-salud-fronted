@@ -17,23 +17,17 @@ import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateAdmin } from '@/services/adminService';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
-import { useState } from 'react';
-import { CareerDialog } from './carreer-dialog';
+import { fetchCareers } from '@/services/careerService';
 
-// 🔹 Esquema de validación con carrera opcional
+// 🔹 Esquema de validación con `career` como string (ID)
 const editFormSchema = z.object({
   document: z.string().min(10, { message: 'Número de identificación es requerido.' }),
   name: z.string().min(1, { message: 'Nombre es requerido.' }),
   lastName: z.string().min(1, { message: 'Apellido es requerido.' }),
   email: z.string().email({ message: 'Correo electrónico no válido.' }),
-  career: z
-    .object({
-      id: z.string(),
-      careerName: z.string(),
-    })
-    .optional(),
+  career: z.string().min(1, { message: 'Debe seleccionar una carrera.' }),
 });
 
 type EditAdminFormProps = {
@@ -43,13 +37,22 @@ type EditAdminFormProps = {
 };
 
 export default function EditAdminForm({ onClose, id, defaultValues }: EditAdminFormProps) {
-  const [isCareerDialogOpen, setIsCareerDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Obtener la lista de carreras desde el backend
+  const { data: careers, isLoading, error } = useQuery({
+    queryKey: ['careers'],
+    queryFn: fetchCareers,
+    staleTime: 1000 * 60 * 5, // Cache de 5 minutos
+  });
+
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
-    defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      career: typeof defaultValues.career === 'object' ? defaultValues.career.id : '',
+    },
     mode: 'onChange',
   });
 
@@ -60,7 +63,7 @@ export default function EditAdminForm({ onClose, id, defaultValues }: EditAdminF
       return await updateAdmin(
         {
           ...values,
-          career: values.career?.id || undefined, // 🔹 Solo enviamos el ID de la carrera
+          career: values.career, // Enviamos solo el ID de la carrera
         },
         id,
         token as string
@@ -150,17 +153,24 @@ export default function EditAdminForm({ onClose, id, defaultValues }: EditAdminF
           <FormField
             control={form.control}
             name="career"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>Carrera</FormLabel>
+                <FormLabel className="text-[#575756]">Carrera</FormLabel>
                 <FormControl>
-                  <Button
-                    type="button"
-                    onClick={() => setIsCareerDialogOpen(true)}
-                    className="w-full justify-center"
-                  >
-                    {form.getValues('career')?.careerName || 'Seleccionar Carrera'}
-                  </Button>
+                  <select {...field} className="w-full p-2 border rounded-md bg-white dark:bg-gray-900 dark:text-white">
+                    <option value="">Seleccionar una carrera</option>
+                    {isLoading ? (
+                      <option disabled>Cargando...</option>
+                    ) : error ? (
+                      <option disabled>Error al cargar carreras</option>
+                    ) : (
+                      careers?.map((career: { id: string; careerName: string }) => (
+                        <option key={career.id} value={career.id}>
+                          {career.careerName}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,18 +188,6 @@ export default function EditAdminForm({ onClose, id, defaultValues }: EditAdminF
             'Guardar Cambios'
           )}
         </Button>
-
-        <CareerDialog
-          isOpen={isCareerDialogOpen}
-          onClose={() => setIsCareerDialogOpen(false)}
-          onSelect={(career) => {
-            form.setValue('career', {
-              id: career.id,
-              careerName: career.careerName,
-            });
-            setIsCareerDialogOpen(false);
-          }}
-        />
       </form>
     </Form>
   );

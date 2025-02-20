@@ -2,11 +2,12 @@ import { del, get, patch, post } from './requestHandler';
 import { CreateCareer } from '@/types/career/create-career';
 import { UpdateCareer } from '@/types/career/update-career';
 import { Career } from '@/types/career/get-careers';
+import { getSession } from 'next-auth/react';
 
 interface GetCareersParams {
   page?: number;
   limit?: number;
-  name?: string; // Filtro por nombre para búsqueda
+  name?: string;
 }
 
 // Crear una nueva carrera
@@ -18,7 +19,7 @@ export const createCareer = async (data: CreateCareer, token: string) => {
   });
 };
 
-// Obtener todas las carreras (con soporte para paginación y filtro por nombre)
+// Obtener todas las carreras con autenticación
 export const getCareers = async (
   token: string,
   params?: GetCareersParams
@@ -41,24 +42,22 @@ export const getCareers = async (
   return response.data;
 };
 
-// Actualizar una carrera existente
-export const updateCareer = async (
-  data: UpdateCareer,
-  id: string,
-  token: string
-) => {
-  return patch(`/careers/${id}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+// Obtener carreras con autenticación desde la sesión
+export async function fetchCareers() {
+  try {
+    const session = await getSession();
+    const token = session?.user.access_token;
 
-// Eliminar (borrar) una carrera
-export const deleteCareer = async (id: string, token: string) => {
-  return del(`/careers/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+    if (!token) {
+      console.error('Token no encontrado');
+      return [];
+    }
+
+    const careers = await getCareers(token);
+    console.log('Carreras obtenidas:', careers);
+    return careers;
+  } catch (error) {
+    console.error('Error al obtener las carreras:', error);
+    return [];
+  }
+}
