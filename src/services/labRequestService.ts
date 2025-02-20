@@ -10,6 +10,7 @@ import { LabRequestRow } from '@/components/lab-request/columns';
  */
 export const createLaboratoryRequest = async (data: CreateLaboratoryRequestDTO, token: string) => {
   try {
+    console.log('🔍 URL de la petición:', '/laboratory-request');
     const res = await post('/api/laboratory-request', data, {
       headers: { Authorization: `Bearer ${token}` },
     });
