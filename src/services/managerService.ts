@@ -34,7 +34,7 @@ export const getManagers = async (
   if (params?.role) queryParams.append('role', params.role);
 
   const queryString = queryParams.toString();
-  const endpoint = `/users/role/user?${queryString}`;
+  const endpoint = `users/role/user${queryString ? `?${queryString}` : ''}`;
 
   return get(endpoint, {
     headers: {
@@ -43,19 +43,19 @@ export const getManagers = async (
   }).then((res) => res.data);
 };
 
-// Actualizar un manager existente
 export const updateManager = async (
   id: string,
   data: UpdateManager,
   token: string
 ) => {
   console.log('Datos enviados al servidor para actualización:', id, data);
-  return patch(`/users/user/${id}`, data, {
+  return patch(`/users/user/${id}`, { ...data, career: data.career, team: data.team }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
+
 
 
 // Eliminar un manager
