@@ -11,7 +11,7 @@ import { LabRequestRow } from '@/components/lab-request/columns';
 export const createLaboratoryRequest = async (data: CreateLaboratoryRequestDTO, token: string) => {
   try {
     console.log('🔍 URL de la petición:', '/laboratory-request');
-    const res = await post('/api/laboratory-request', data, {
+    const res = await post('/laboratory-request', data, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
@@ -27,7 +27,7 @@ export const createLaboratoryRequest = async (data: CreateLaboratoryRequestDTO, 
  */
 export const getLaboratoryRequests = async (token: string): Promise<LabRequestRow[]> => {
   try {
-    const res = await get('/api/laboratory-request', {
+    const res = await get('/laboratory-request', {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -60,7 +60,7 @@ export const getLaboratoryRequests = async (token: string): Promise<LabRequestRo
  */
 export const getLaboratoryRequestById = async (id: string, token: string): Promise<LaboratoryRequestDTO> => {
   try {
-    const res = await get(`/api/laboratory-request/${id}`, {
+    const res = await get(`/laboratory-request/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
@@ -79,7 +79,7 @@ export const updateLaboratoryRequest = async (
   token: string
 ): Promise<LaboratoryRequestDTO> => {
   try {
-    const res = await patch(`/api/laboratory-request/${id}`, data, {
+    const res = await patch(`/laboratory-request/${id}`, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
@@ -94,7 +94,7 @@ export const updateLaboratoryRequest = async (
  */
 export const deleteLaboratoryRequest = async (id: string, token: string): Promise<void> => {
   try {
-    await del(`/api/laboratory-request/${id}`, {
+    await del(`/laboratory-request/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
   } catch (error) {

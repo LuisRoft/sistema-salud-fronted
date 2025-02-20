@@ -3,7 +3,7 @@ import { InternalConsultationDTO } from '@/types/consultation/internal-consultat
 
 export const createInternalConsultation = async (data: InternalConsultationDTO, token: string) => {
   try {
-    const url = '/api/consultations-internal';
+    const url = '/consultations-internal';
     console.log('🔍 Intentando POST a:', url);
     console.log('📝 Datos enviados:', data);
     
