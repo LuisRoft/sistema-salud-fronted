@@ -89,6 +89,16 @@
     --sidebar-border: 223 11% 38%; /* #5B5E63 - Bordes de la barra lateral */
     --sidebar-ring: 198 100% 30%; /* #009FDC - Indicador visual de foco en barra lateral */
   }
+
+  /* Suavizar transiciones de modo claro/oscuro */
+  .dark-mode-transition {
+    @apply transition-colors duration-200;
+  }
+
+  /* Transición suave para los logos */
+  .logo-transition {
+    @apply transition-opacity duration-200;
+  }
 }
 
 @layer base {
@@ -97,5 +107,17 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .login-gradient {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800;
+  }
+
+  .form-container {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-2xl;
+  }
+
+  .input-field {
+    @apply bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-600;
   }
 }
