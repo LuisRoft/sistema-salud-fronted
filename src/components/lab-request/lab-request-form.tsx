@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createLaboratoryRequest } from '@/services/labRequestService';
 import { useToast } from '@/hooks/use-toast';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { CreateLaboratoryRequestDTO } from '@/types/labrequest/create-laboratory-request';
 import { useEffect } from 'react';
 
@@ -51,6 +51,7 @@ const labFormSchema = z.object({
 type LabFormValues = z.infer<typeof labFormSchema>;
 
 export default function LaboratoryRequestForm() {
+  const { data: session } = useSession();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -71,18 +72,21 @@ export default function LaboratoryRequestForm() {
       const sessionData = await getSession();
       console.log('🔑 Sesión obtenida:', sessionData);
 
-      if (sessionData?.user) {
-        // Usamos `sub` ya que no existe `id` directamente en el objeto `user`
-        const userId = sessionData.user.sub; // Usamos `sub` como `userId`
+      if (sessionData?.user?.access_token) {
+        // Extraer el ID del usuario del token JWT
+        const token = sessionData.user.access_token;
+        const tokenParts = token.split('.');
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const userId = payload.id; // Este es el UUID que necesitamos
 
         if (userId) {
           setValue('userId', userId);
           console.log(`✅ userId asignado correctamente: ${userId}`);
         } else {
-          console.warn('⚠️ No se encontró el `userId` en la sesión.');
+          console.warn('⚠️ No se encontró el UUID en el token.');
         }
 
-        // Accedemos al `patientId` de `team.patient.id`
+        // Accedemos al patientId
         const patientId = sessionData.user.team?.patient?.id;
         if (patientId) {
           setValue('patientId', patientId);
@@ -91,7 +95,7 @@ export default function LaboratoryRequestForm() {
           console.warn('⚠️ No se encontró `patientId` en la sesión.');
         }
       } else {
-        console.error('🚨 No se encontró información de usuario en la sesión.');
+        console.error('🚨 No se encontró el token de acceso en la sesión.');
       }
     };
 
@@ -127,17 +131,60 @@ export default function LaboratoryRequestForm() {
       console.error('❌ Error en `mutation.mutate()`:', error),
   });
 
-  const onSubmit = (data: LabFormValues) => {
-    console.log('✅ `onSubmit` ejecutado con los datos:', data);
+  const onSubmit = async (data: LabFormValues) => {
+    try {
+      const sessionData = await getSession();
+      if (!sessionData?.user?.access_token) {
+        toast({
+          title: 'Error',
+          description: 'No hay información del usuario',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    mutation.mutate(data, {
-      onSuccess: () => {
-        console.log('✅ Mutación ejecutada con éxito');
-      },
-      onError: (error) => {
-        console.error('❌ Error en `mutation.mutate()`:', error);
-      },
-    });
+      const patientId = sessionData.user.team?.patient?.id;
+      if (!patientId) {
+        toast({
+          title: 'Error',
+          description: 'No se pudo obtener el ID del paciente',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Extraer el ID del usuario del token JWT
+      const token = sessionData.user.access_token;
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.id;
+
+      console.log('User ID from token:', userId);
+
+      const formattedData = {
+        ...data,
+        userId: userId,
+        patientId: patientId, // Usar el patientId validado
+      };
+
+      console.log('Datos a enviar:', formattedData);
+
+      const response = await createLaboratoryRequest(formattedData, token);
+      toast({
+        title: 'Éxito',
+        description: 'Pedido de laboratorio creado correctamente',
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Error al crear el pedido de laboratorio';
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: errorMessage,
+      });
+    }
   };
 
   /** 🔹 Muestra errores en la consola para debugging */
