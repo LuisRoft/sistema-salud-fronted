@@ -7,14 +7,14 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const { token } = req.nextauth;
 
-    // Protección para dashboard
-    if (pathname.startsWith('/dashboard') && token?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/unauthorized', req.url));
-    }
-
-    // Protección general para todas las rutas protegidas
+    // Si no hay token, redirigir a login
     if (!token) {
       return NextResponse.redirect(new URL('/login', req.url));
+    }
+
+    // Si intenta acceder a /dashboard sin ser admin, enviarlo a /pucem en lugar de /unauthorized
+    if (pathname.startsWith('/dashboard') && token?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/pucem', req.url));
     }
 
     return NextResponse.next();
