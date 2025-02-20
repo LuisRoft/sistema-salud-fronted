@@ -15,6 +15,7 @@ import { getSession } from 'next-auth/react';
 import { CreateLaboratoryRequestDTO } from '@/types/labrequest/create-laboratory-request';
 import { useEffect } from "react";
 
+
 const labFormSchema = z.object({
   numero_de_archivo: z.string().min(1, 'Campo obligatorio'),
   diagnostico_descripcion1: z.string().min(1, 'Campo obligatorio'),
@@ -49,8 +50,6 @@ const labFormSchema = z.object({
 
 type LabFormValues = z.infer<typeof labFormSchema>;
 
-
-
 export default function LaboratoryRequestForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -59,70 +58,108 @@ export default function LaboratoryRequestForm() {
     resolver: zodResolver(labFormSchema),
     mode: "onChange",
   });
-  
-  
-  useEffect(() => {
-    console.log("🚨 Errores en el formulario:", errors);
-  }, [errors]);
-  
 
+  /** 🔹 Fetch session data (userId y patientId) */
+  useEffect(() => {
+    const fetchSessionData = async () => {
+      const sessionData = await getSession();
+      console.log("🔑 Sesión obtenida:", sessionData);
+  
+      if (sessionData?.user) {
+        // Usamos `sub` ya que no existe `id` directamente en el objeto `user`
+        const userId = sessionData.user.sub; // Usamos `sub` como `userId`
+  
+        if (userId) {
+          setValue("userId", userId);
+          console.log(`✅ userId asignado correctamente: ${userId}`);
+        } else {
+          console.warn("⚠️ No se encontró el `userId` en la sesión.");
+        }
+  
+        // Accedemos al `patientId` de `team.patient.id`
+        const patientId = sessionData.user.team?.patient?.id;
+        if (patientId) {
+          setValue("patientId", patientId);
+          console.log(`✅ patientId asignado correctamente: ${patientId}`);
+        } else {
+          console.warn("⚠️ No se encontró `patientId` en la sesión.");
+        }
+      } else {
+        console.error("🚨 No se encontró información de usuario en la sesión.");
+      }
+    };
+  
+    fetchSessionData();
+  }, [setValue]);
+  
   const mutation = useMutation({
     mutationFn: async (data: CreateLaboratoryRequestDTO) => {
       console.log("🛠️ `mutationFn` ejecutándose con datos:", data);
-  
+      
       const session = await getSession();
       console.log("🔑 Sesión obtenida:", session);
-  
+
       const token = session?.user.access_token;
       if (!token) {
         console.error("🚨 No se encontró el token. No se puede hacer la solicitud.");
         return;
       }
-  
-      return await createLaboratoryRequest(data, token);
+
+      try {
+        const response = await createLaboratoryRequest(data, token);
+        console.log("📤 Respuesta del servidor:", response);
+        return response;
+      } catch (error) {
+        console.error("❌ Error al enviar la solicitud:", error);
+        throw error;
+      }
     },
     onSuccess: () => console.log("✅ Mutación ejecutada con éxito"),
-    onError: (error) => console.error("❌ Error en la mutación:", error),
-  });  
+    onError: (error) => console.error("❌ Error en `mutation.mutate()`:", error),
+  });
 
   const onSubmit = (data: LabFormValues) => {
-    console.log("✅ `onSubmit` se ejecutó correctamente con los siguientes datos:", data);
+    console.log("✅ `onSubmit` ejecutado con los datos:", data);
   
     mutation.mutate(data, {
-      onSuccess: () => console.log("✅ Mutación ejecutada con éxito"),
-      onError: (error) => console.error("❌ Error en `mutation.mutate()`:", error),
+      onSuccess: () => {
+        console.log("✅ Mutación ejecutada con éxito");
+      },
+      onError: (error) => {
+        console.error("❌ Error en `mutation.mutate()`:", error);
+      },
     });
   };
-  
 
-  /** 🔍 DEBUG: Verifica si el formulario está en el DOM y si `submit` se ejecuta */
+  /** 🔹 Muestra errores en la consola para debugging */
   useEffect(() => {
-    const form = document.querySelector("form");
-
-    if (!form) {
-      console.error("🚨 No se encontró ningún formulario en el DOM.");
-    } else {
-      console.log("✅ Formulario detectado en el DOM:", form);
-      
-      form.addEventListener("submit", () => {
-        console.log("🚀 Evento `submit` detectado correctamente en el formulario.");
-      });
+    if (Object.keys(errors).length > 0) {
+      console.error("🚨 Errores en el formulario:", errors);
     }
-  }, []);
+  }, [errors]);
 
   return (
     <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    console.log("🟢 Formulario enviado"); 
-    handleSubmit((data) => {
-      console.log("🔍 handleSubmit se ejecutó con datos:", data); 
-      onSubmit(data); 
-    })();
-  }}
->
+      onSubmit={(e) => {
+        e.preventDefault();
+        console.log("🟢 Formulario enviado");
 
-        
+        handleSubmit((data) => {
+          console.log("🔍 `handleSubmit` se ejecutó correctamente con los datos:", data);
+          if (Object.keys(errors).length > 0) {
+            toast({ 
+              title: "Errores en el formulario", 
+              description: "Por favor revisa los campos en rojo.", 
+              variant: "destructive" 
+            });
+          } else {
+            onSubmit(data);
+          }
+        })();
+      }}
+    >
+    
+    
       <h2 className='text-2xl font-bold'>Formulario de Solicitud de Laboratorio</h2>
 
       {/* Sección A: Datos del Paciente */}
@@ -447,8 +484,12 @@ export default function LaboratoryRequestForm() {
   </div>
 </section>
 
+
 <Button type='submit' className='bg-blue-600 text-white hover:bg-blue-700'>Enviar Solicitud</Button>
 </form>
   )
 }
+
+
+
 
