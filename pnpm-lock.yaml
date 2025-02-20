@@ -60,7 +60,7 @@ importers:
         specifier: ^1.7.7
         version: 1.7.9
       class-variance-authority:
-        specifier: ^0.7.0
+        specifier: ^0.7.1
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
@@ -96,7 +96,7 @@ importers:
         specifier: 'file:'
         version: file:(@babel/runtime@7.26.0)(@types/react-dom@18.3.2)(@types/react@18.3.14)(core-js-pure@3.40.0)(prop-types@15.8.1)(tailwindcss@3.4.16)
       tailwind-merge:
-        specifier: ^2.5.4
+        specifier: ^2.5.5
         version: 2.5.5
       tailwindcss-animate:
         specifier: ^1.0.7
