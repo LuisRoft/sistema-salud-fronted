@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/ui/input';
@@ -13,35 +13,46 @@ import { getSession, useSession } from 'next-auth/react';
 import { useEffect } from "react";
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { createNursingForm } from '@/services/nursingService';
+import { AxiosError } from 'axios';
 
 // Esquema para validación
 const nursingFormSchema = z.object({
-  numero_de_archivo: z.string().min(1, 'Campo obligatorio'),
   // NANDA
-  nanda_dominio: z.string().optional(),
-  nanda_clase: z.string().optional(),
-  nanda_etiqueta_diagnostica: z.string().optional(),
-  nanda_factor_relacionado: z.string().optional(),
-  nanda_planteamiento_del_diagnostico: z.string().optional(),
+  nanda_dominio: z.string().min(1, 'Campo requerido'),
+  nanda_clase: z.string().min(1, 'Campo requerido'),
+  nanda_etiqueta_diagnostica: z.string().min(1, 'Campo requerido'),
+  nanda_factor_relacionado: z.string().min(1, 'Campo requerido'),
+  nanda_planteamiento_del_diagnostico: z.string().min(1, 'Campo requerido'),
   // NOC
-  noc_resultado_noc: z.string().optional(),
-  noc_dominio: z.string().optional(),
-  noc_clase: z.string().optional(),
-  noc_indicador: z.array(z.string()).optional().default([]),
-  noc_rango: z.array(z.string()).optional().default([]),
-  noc_diana_inicial: z.array(z.string()).optional().default([]),
-  noc_diana_esperada: z.array(z.string()).optional().default([]),
-  noc_evaluacion: z.array(z.string()).optional().default([]),
-  // NIC
-  nic_intervencion: z.array(z.string()).optional().default([]),
-  nic_clase: z.array(z.string()).optional().default([]),
-  nic_actividades: z.array(z.string()).optional().default([]),
+  noc_resultado_noc: z.string().min(1, 'Campo requerido'),
+  noc_dominio: z.string().min(1, 'Campo requerido'),
+  noc_clase: z.string().min(1, 'Campo requerido'),
+  // Arrays
+  noc_indicador: z.array(z.object({ value: z.string() })),
+  noc_rango: z.array(z.object({ value: z.string() })),
+  noc_diana_inicial: z.array(z.object({ value: z.string() })),
+  noc_diana_esperada: z.array(z.object({ value: z.string() })),
+  noc_evaluacion: z.array(z.object({ value: z.string() })),
+  nic_intervencion: z.array(z.object({ value: z.string() })),
+  nic_clase: z.array(z.object({ value: z.string() })),
+  nic_actividades: z.array(z.object({ value: z.string() })),
   // IDs
   userId: z.string().uuid(),
   patientId: z.string().uuid(),
 });
 
 type NursingFormValues = z.infer<typeof nursingFormSchema>;
+
+// Primero, definimos el tipo para los campos de array
+type ArrayFieldName = 
+  | "noc_indicador"
+  | "noc_rango"
+  | "noc_diana_inicial"
+  | "noc_diana_esperada"
+  | "noc_evaluacion"
+  | "nic_intervencion"
+  | "nic_clase"
+  | "nic_actividades";
 
 export default function NursingNNNForm() {
   const { data: session } = useSession();
@@ -51,67 +62,63 @@ export default function NursingNNNForm() {
     resolver: zodResolver(nursingFormSchema),
     mode: "onChange",
     defaultValues: {
-      noc_indicador: [''],
-      noc_rango: [''],
-      noc_diana_inicial: [''],
-      noc_diana_esperada: [''],
-      noc_evaluacion: [''],
-      nic_intervencion: [''],
-      nic_clase: [''],
-      nic_actividades: [''],
+      noc_indicador: [{ value: '' }],
+      noc_rango: [{ value: '' }],
+      noc_diana_inicial: [{ value: '' }],
+      noc_diana_esperada: [{ value: '' }],
+      noc_evaluacion: [{ value: '' }],
+      nic_intervencion: [{ value: '' }],
+      nic_clase: [{ value: '' }],
+      nic_actividades: [{ value: '' }],
     }
   });
 
   // Configuración de campos de array para NOC
   const nocIndicadores = useFieldArray({
     control,
-    name: "noc_indicador"
+    name: "noc_indicador" as const
   });
 
   const nocRangos = useFieldArray({
     control,
-    name: "noc_rango"
+    name: "noc_rango" as const
   });
 
   const nocDianaInicial = useFieldArray({
     control,
-    name: "noc_diana_inicial"
+    name: "noc_diana_inicial" as const
   });
 
   const nocDianaEsperada = useFieldArray({
     control,
-    name: "noc_diana_esperada"
+    name: "noc_diana_esperada" as const
   });
 
   const nocEvaluacion = useFieldArray({
     control,
-    name: "noc_evaluacion"
+    name: "noc_evaluacion" as const
   });
 
-  // Configuración de campos de array para NIC
   const nicIntervencion = useFieldArray({
     control,
-    name: "nic_intervencion"
+    name: "nic_intervencion" as const
   });
 
   const nicClase = useFieldArray({
     control,
-    name: "nic_clase"
+    name: "nic_clase" as const
   });
 
   const nicActividades = useFieldArray({
     control,
-    name: "nic_actividades"
+    name: "nic_actividades" as const
   });
 
-  /** 🔹 Fetch session data (userId y patientId) */
+  /** Fetch session data (userId y patientId) */
   useEffect(() => {
     const fetchSessionData = async () => {
       const sessionData = await getSession();
-      console.log("🔑 Sesión obtenida:", sessionData);
-
       if (sessionData?.user?.access_token) {
-        // Extraer el ID del usuario del token JWT
         const token = sessionData.user.access_token;
         const tokenParts = token.split('.');
         const payload = JSON.parse(atob(tokenParts[1]));
@@ -119,44 +126,30 @@ export default function NursingNNNForm() {
 
         if (userId) {
           setValue("userId", userId);
-          console.log(`✅ userId asignado correctamente: ${userId}`);
-        } else {
-          console.warn("⚠️ No se encontró el UUID en el token.");
         }
 
-        // Accedemos al patientId
         const patientId = sessionData.user.team?.patient?.id;
         if (patientId) {
           setValue("patientId", patientId);
-          console.log(`✅ patientId asignado correctamente: ${patientId}`);
-        } else {
-          console.warn("⚠️ No se encontró `patientId` en la sesión.");
         }
-      } else {
-        console.error("🚨 No se encontró el token de acceso en la sesión.");
       }
     };
 
     fetchSessionData();
   }, [setValue]);
 
-  // Mutación para enviar el formulario
+  // Mutación con logs detallados
   const mutation = useMutation({
     mutationFn: async (data: NursingFormValues) => {
+      console.log('📝 Datos a enviar:', data);
+      
       const session = await getSession();
       const token = session?.user.access_token;
-
       if (!token) {
         throw new Error("No se encontró el token de acceso");
       }
 
-      // Aquí iría la llamada a tu API
-      const response = await createNursingForm(data, token);
-      return response;
-
-      // Simulación provisional
-      console.log("Datos enviados:", data);
-      return { success: true };
+      return await createNursingForm(data, token);
     },
     onSuccess: () => {
       toast({
@@ -164,30 +157,64 @@ export default function NursingNNNForm() {
         description: 'Formulario de enfermería creado correctamente',
       });
     },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : 'Error al crear el formulario';
+    onError: (error: any) => {
+      console.error('❌ Error:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: errorMessage,
+        description: error.response?.data?.message?.[0] || 'Error al crear el formulario',
       });
     }
   });
 
   const onSubmit = async (data: NursingFormValues) => {
     try {
-      await mutation.mutateAsync(data);
+      const formattedData = {
+        nanda_dominio: data.nanda_dominio,
+        nanda_clase: data.nanda_clase,
+        nanda_etiqueta_diagnostica: data.nanda_etiqueta_diagnostica,
+        nanda_factor_relacionado: data.nanda_factor_relacionado,
+        nanda_planteamiento_del_diagnostico: data.nanda_planteamiento_del_diagnostico,
+        noc_resultado_noc: data.noc_resultado_noc,
+        noc_dominio: data.noc_dominio,
+        noc_clase: data.noc_clase,
+        noc_indicador: data.noc_indicador.map(item => item.value).filter(Boolean),
+        noc_rango: data.noc_rango.map(item => item.value).filter(Boolean),
+        noc_diana_inicial: data.noc_diana_inicial.map(item => item.value).filter(Boolean),
+        noc_diana_esperada: data.noc_diana_esperada.map(item => item.value).filter(Boolean),
+        noc_evaluacion: data.noc_evaluacion.map(item => item.value).filter(Boolean),
+        nic_intervencion: data.nic_intervencion.map(item => item.value).filter(Boolean),
+        nic_clase: data.nic_clase.map(item => item.value).filter(Boolean),
+        nic_actividades: data.nic_actividades.map(item => item.value).filter(Boolean),
+        userId: data.userId,
+        patientId: data.patientId
+      };
+
+      await mutation.mutateAsync(formattedData);
     } catch (error) {
-      console.error("Error en submit:", error);
+      if (error instanceof AxiosError) {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: error.response?.data?.message?.[0] || 'Error al crear el formulario'
+        });
+      }
     }
   };
 
-  /** 🔹 Muestra errores en la consola para debugging */
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.error("🚨 Errores en el formulario:", errors);
-    }
-  }, [errors]);
+  const handleAddIndicator = () => {
+    nocIndicadores.append({ value: '' });
+    nocRangos.append({ value: '' });
+    nocDianaInicial.append({ value: '' });
+    nocDianaEsperada.append({ value: '' });
+    nocEvaluacion.append({ value: '' });
+  };
+
+  const handleAddIntervencion = () => {
+    nicIntervencion.append({ value: '' });
+    nicClase.append({ value: '' });
+    nicActividades.append({ value: '' });
+  };
 
   return (
     <div className="container mx-auto p-6 bg-[#f0f4f8] dark:bg-[#0B1120] rounded-lg">
@@ -197,31 +224,9 @@ export default function NursingNNNForm() {
             Formulario de Enfermería NNN (NANDA-NOC-NIC)
           </h1>
 
-          {/* Sección A: Datos del Paciente */}
+          {/* Sección A: NANDA - Diagnóstico de Enfermería */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
-            A. Datos del Paciente
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Número de Archivo
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
-                {...register('numero_de_archivo')}
-              />
-              {errors.numero_de_archivo && (
-                <p className="text-sm text-red-500">{errors.numero_de_archivo.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Sección B: NANDA - Diagnóstico de Enfermería */}
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md mt-8">
-            B. NANDA - Diagnóstico de Enfermería
+            A. NANDA - Diagnóstico de Enfermería
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -235,6 +240,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('nanda_dominio')}
               />
+              {errors.nanda_dominio && (
+                <p className="text-sm text-red-500">{errors.nanda_dominio.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -246,6 +254,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('nanda_clase')}
               />
+              {errors.nanda_clase && (
+                <p className="text-sm text-red-500">{errors.nanda_clase.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -257,6 +268,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('nanda_etiqueta_diagnostica')}
               />
+              {errors.nanda_etiqueta_diagnostica && (
+                <p className="text-sm text-red-500">{errors.nanda_etiqueta_diagnostica.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -268,6 +282,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('nanda_factor_relacionado')}
               />
+              {errors.nanda_factor_relacionado && (
+                <p className="text-sm text-red-500">{errors.nanda_factor_relacionado.message}</p>
+              )}
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -279,6 +296,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100 min-h-32"
                 {...register('nanda_planteamiento_del_diagnostico')}
               />
+              {errors.nanda_planteamiento_del_diagnostico && (
+                <p className="text-sm text-red-500">{errors.nanda_planteamiento_del_diagnostico.message}</p>
+              )}
             </div>
           </div>
 
@@ -298,6 +318,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('noc_resultado_noc')}
               />
+              {errors.noc_resultado_noc && (
+                <p className="text-sm text-red-500">{errors.noc_resultado_noc.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -309,6 +332,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('noc_dominio')}
               />
+              {errors.noc_dominio && (
+                <p className="text-sm text-red-500">{errors.noc_dominio.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -320,6 +346,9 @@ export default function NursingNNNForm() {
                          dark:focus:border-transparent text-gray-900 dark:text-gray-100"
                 {...register('noc_clase')}
               />
+              {errors.noc_clase && (
+                <p className="text-sm text-red-500">{errors.noc_clase.message}</p>
+              )}
             </div>
           </div>
 
@@ -333,13 +362,7 @@ export default function NursingNNNForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  nocIndicadores.append('');
-                  nocRangos.append('');
-                  nocDianaInicial.append('');
-                  nocDianaEsperada.append('');
-                  nocEvaluacion.append('');
-                }}
+                onClick={handleAddIndicator}
                 className="flex items-center gap-1 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
               >
                 <PlusCircle className="h-4 w-4" />
@@ -355,7 +378,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_indicador.${index}`)}
+                    {...register(`noc_indicador.${index}.value`)}
                   />
                 </div>
                 <div>
@@ -364,7 +387,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_rango.${index}`)}
+                    {...register(`noc_rango.${index}.value`)}
                   />
                 </div>
                 <div>
@@ -373,7 +396,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_diana_inicial.${index}`)}
+                    {...register(`noc_diana_inicial.${index}.value`)}
                   />
                 </div>
                 <div>
@@ -382,7 +405,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_diana_esperada.${index}`)}
+                    {...register(`noc_diana_esperada.${index}.value`)}
                   />
                 </div>
                 <div className="flex items-end">
@@ -392,7 +415,7 @@ export default function NursingNNNForm() {
                     </Label>
                     <Input
                       className="w-full bg-white dark:bg-[#1E293B]"
-                      {...register(`noc_evaluacion.${index}`)}
+                      {...register(`noc_evaluacion.${index}.value`)}
                     />
                   </div>
                   {index > 0 && (
@@ -431,11 +454,7 @@ export default function NursingNNNForm() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  nicIntervencion.append('');
-                  nicClase.append('');
-                  nicActividades.append('');
-                }}
+                onClick={handleAddIntervencion}
                 className="flex items-center gap-1 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800"
               >
                 <PlusCircle className="h-4 w-4" />
@@ -451,7 +470,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`nic_intervencion.${index}`)}
+                    {...register(`nic_intervencion.${index}.value`)}
                   />
                 </div>
                 <div>
@@ -460,7 +479,7 @@ export default function NursingNNNForm() {
                   </Label>
                   <Input
                     className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`nic_clase.${index}`)}
+                    {...register(`nic_clase.${index}.value`)}
                   />
                 </div>
                 <div className="flex items-end">
@@ -470,7 +489,7 @@ export default function NursingNNNForm() {
                     </Label>
                     <Textarea
                       className="w-full bg-white dark:bg-[#1E293B] min-h-24"
-                      {...register(`nic_actividades.${index}`)}
+                      {...register(`nic_actividades.${index}.value`)}
                       placeholder="Describa las actividades relacionadas con esta intervención"
                     />
                   </div>
@@ -502,8 +521,9 @@ export default function NursingNNNForm() {
                        hover:bg-blue-700 dark:hover:bg-[#2D3B4F] 
                        text-white font-medium py-3 px-8 rounded-lg 
                        transition-all"
+              disabled={mutation.isPending}
             >
-              Crear Formulario de Enfermería
+              {mutation.isPending ? 'Guardando...' : 'Guardar Formulario'}
             </Button>
           </div>
         </form>
