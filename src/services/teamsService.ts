@@ -23,18 +23,24 @@ export interface Team {
 }
 
 export interface editTeam {
+  id: string;
+  teamName: string;
+  patient: {
     id: string;
-   teamName: string;
-    patient: {
-       id: string;
-       document: string;
-       name: string;
-       lastName: string;
-     };
-     group: {
-       id: string;
-       groupName: string;
-     };
+    document: string;
+    name: string;
+    lastName: string;
+  };
+  group: {
+    id: string;
+    groupName: string;
+  };
+  users: {
+    id: string;
+    document: string;
+    name: string;
+    lastName: string;
+  }[];
 }
 
 export const createTeam = async (data: createTeam, token: string) => {
@@ -70,17 +76,17 @@ export const updateTeam = async (
       },
     });
     return response.data;
-  } catch (error: any) {
-    // Capturamos el mensaje de error específico del backend
-    if (error.response?.data?.message) {
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('Error inesperado al actualizar el equipo');
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if ('response' in error && typeof error.response === 'object' && error.response && 'data' in error.response) {
+        const responseData = error.response.data as { message?: string };
+        throw new Error(responseData.message || error.message);
+      }
+      throw error;
     }
+    throw new Error('Error inesperado al actualizar el equipo');
   }
-}
+};
 
 export const deleteTeam = async (teamId: string, token: string) => {
   return del(`/teams/${teamId}`, {

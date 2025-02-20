@@ -75,11 +75,15 @@ export const columns: ColumnDef<Team>[] = [
       const users = row.original.users;
       return (
         <div className='text-sm'>
-          {users.map((user) => (
-            <div key={user.id}>
-              {user.name} {user.lastName}
-            </div>
-          ))}
+          {users && users.length > 0 ? (
+            users.map((user) => (
+              <div key={user.id}>
+                {user.name} {user.lastName}
+              </div>
+            ))
+          ) : (
+            <span className="text-gray-500">Sin gestores asignados</span>
+          )}
         </div>
       );
     },

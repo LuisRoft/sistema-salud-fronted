@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '../../ui/select';
 import { getGroups } from '@/services/groupsService';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import CreateGroupDialog from '../group/create-group-dialog';
 import { getPatients } from '@/services/patientService';
 import EditGroupDialog from "../group/EditGroupDialog";
@@ -52,11 +52,17 @@ const formSchema = z.object({
   }),
 });
 
+// Definir tipo para dataGroupItem
+interface GroupItem {
+  id: string;
+  groupName: string;
+}
+
 export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [editGroupOpen, setEditGroupOpen] = useState(false);
   const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
-  const [dataGroupItem, setDataGroupItem] = useState<any>(null);
+  const [dataGroupItem, setDataGroupItem] = useState<GroupItem | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
