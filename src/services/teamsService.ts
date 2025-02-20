@@ -1,6 +1,6 @@
 import { Group } from './groupsService';
 import { Patient } from './patientService';
-import { post, get, patch, del } from './requestHandler';
+import { post, get, patch, del, patch as patchUser } from './requestHandler';
 
 
 interface createTeam {
@@ -56,22 +56,25 @@ export const createTeam = async (data: createTeam, token: string) => {
       },
     });
 
-    // Si hay usuarios seleccionados, actualizamos sus team_id
+    // Si hay usuarios seleccionados, actualizamos el team_id de cada uno
     if (data.userIds && data.userIds.length > 0) {
-      await post('/teams/assign-users', {
-        teamId: response.data.id,
-        userIds: data.userIds
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await Promise.all(
+        data.userIds.map(userId =>
+          patchUser(`/users/user/${userId}`, {
+            team_id: response.data.id
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        )
+      );
     }
 
     return response.data;
-  } catch (error: Error) {
-    if ('response' in error && error.response?.data?.message) {
-      throw new Error(error.response.data.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw error;
     }
     throw new Error('Error al crear el equipo');
   }
@@ -107,22 +110,52 @@ export const updateTeam = async (
       },
     });
 
-    // Si hay usuarios seleccionados, actualizamos sus asignaciones
-    if (data.userIds) {
-      await post('/teams/assign-users', {
-        teamId: teamId,
-        userIds: data.userIds
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    }
+    // Obtenemos los usuarios actuales del equipo
+    const currentTeam = await get(`/teams/${teamId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const currentUserIds = currentTeam.data.users.map((user: any) => user.id);
+    const newUserIds = data.userIds || [];
+
+    // Usuarios a remover del equipo (establecer team_id a null)
+    const usersToRemove = currentUserIds.filter(id => !newUserIds.includes(id));
+    
+    // Usuarios a agregar al equipo
+    const usersToAdd = newUserIds.filter(id => !currentUserIds.includes(id));
+
+    // Actualizamos los usuarios que se remueven (team_id = null)
+    await Promise.all(
+      usersToRemove.map(userId =>
+        patchUser(`/users/user/${userId}`, {
+          team_id: null
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      )
+    );
+
+    // Actualizamos los usuarios que se agregan (team_id = teamId)
+    await Promise.all(
+      usersToAdd.map(userId =>
+        patchUser(`/users/user/${userId}`, {
+          team_id: teamId
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      )
+    );
 
     return response.data;
-  } catch (error: Error) {
-    if ('response' in error && error.response?.data?.message) {
-      throw new Error(error.response.data.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw error;
     }
     throw new Error('Error al actualizar el equipo');
   }
