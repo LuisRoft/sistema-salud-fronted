@@ -45,11 +45,7 @@ const formSchema = z.object({
   patientId: z.string().min(1, {
     message: 'Debe seleccionar un paciente.',
   }),
-  userIds: z.array(z.string()).min(1, {
-    message: 'Debe seleccionar al menos un gestor.',
-  }).max(5, {
-    message: 'No puede seleccionar más de 5 gestores.',
-  }),
+  userIds: z.array(z.string()).optional(),
 });
 
 // Definir tipo para dataGroupItem
@@ -99,7 +95,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userIds: [], // Inicializar el array vacío
+      userIds: [],
     },
   });
 
@@ -108,15 +104,12 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       
-      // Asegurarse de que los valores están en el formato correcto
-      const data = {
+      await createTeam({
         teamName: values.teamName,
         groupId: values.groupId,
         patientId: values.patientId,
-        userIds: values.userIds,
-      };
-      
-      await createTeam(data, token as string);
+        userIds: values.userIds
+      }, token as string);
     },
     onSuccess: () => {
       toast({
@@ -319,7 +312,6 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
               )}
             />
 
-            {/* Nuevo campo para seleccionar gestores */}
             <FormField
               control={form.control}
               name="userIds"
@@ -336,7 +328,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                           field.onChange(selectedOptions);
                         }
                       }}
-                      value={field.value}
+                      value={field.value || []}
                     >
                       {managers?.users.map((manager) => (
                         <option key={manager.id} value={manager.id}>

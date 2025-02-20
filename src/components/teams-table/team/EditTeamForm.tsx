@@ -41,11 +41,7 @@ const editFormSchema = z.object({
   patientId: z.string().min(1, {
     message: 'Debe seleccionar un paciente.',
   }),
-  userIds: z.array(z.string()).min(1, {
-    message: 'Debe seleccionar al menos un gestor.',
-  }).max(5, {
-    message: 'No puede seleccionar más de 5 gestores.',
-  }),
+  userIds: z.array(z.string()).optional(),
 });
 
 type EditFormValues = z.infer<typeof editFormSchema>;
@@ -106,7 +102,7 @@ export function EditTeamForm({ onClose, team }: EditTeamFormProps) {
         teamName: values.teamName,
         groupId: values.groupId,
         patientId: values.patientId,
-        userIds: values.userIds,
+        userIds: values.userIds
       };
       
       await updateTeam(data, token as string, team.id);
@@ -207,7 +203,7 @@ export function EditTeamForm({ onClose, team }: EditTeamFormProps) {
                       field.onChange(selectedOptions);
                     }
                   }}
-                  value={field.value}
+                  value={field.value || []}
                 >
                   {managers?.users.map((manager) => (
                     <option key={manager.id} value={manager.id}>

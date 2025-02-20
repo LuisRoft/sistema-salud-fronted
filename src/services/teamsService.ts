@@ -7,7 +7,7 @@ interface createTeam {
   teamName: string;
   groupId: string;
   patientId: string;
-  userIds: string[];
+  userIds?: string[]; // IDs de usuarios a asignar
 }
 
 interface TeamsResponse {
@@ -45,14 +45,32 @@ export interface editTeam {
 
 export const createTeam = async (data: createTeam, token: string) => {
   try {
-    const response = await post('/teams', data, {
+    // Primero creamos el equipo
+    const response = await post('/teams', {
+      teamName: data.teamName,
+      groupId: data.groupId,
+      patientId: data.patientId
+    }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    // Si hay usuarios seleccionados, actualizamos sus team_id
+    if (data.userIds && data.userIds.length > 0) {
+      await post('/teams/assign-users', {
+        teamId: response.data.id,
+        userIds: data.userIds
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
     return response.data;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
+  } catch (error: Error) {
+    if ('response' in error && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Error al crear el equipo');
@@ -78,19 +96,32 @@ export const updateTeam = async (
   teamId: string
 ) => {
   try {
+    // Primero actualizamos el equipo
     const response = await patch(`/teams/${teamId}`, {
       teamName: data.teamName,
       groupId: data.groupId,
-      patientId: data.patientId,
-      userIds: data.userIds,
+      patientId: data.patientId
     }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    // Si hay usuarios seleccionados, actualizamos sus asignaciones
+    if (data.userIds) {
+      await post('/teams/assign-users', {
+        teamId: teamId,
+        userIds: data.userIds
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
     return response.data;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
+  } catch (error: Error) {
+    if ('response' in error && error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Error al actualizar el equipo');
