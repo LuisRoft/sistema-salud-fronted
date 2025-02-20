@@ -59,6 +59,11 @@ export interface editTeam {
   }[];
 }
 
+interface ApiError {
+  message: string;
+  data?: any;
+}
+
 export const createTeam = async (data: createTeam, token: string) => {
   try {
     // Primero creamos el equipo
@@ -116,7 +121,7 @@ export const updateTeam = async (
 ) => {
   try {
     // Primero actualizamos el equipo
-    const response = await patch(`/teams/${teamId}`, {
+    const response = await patch<TeamResponse>(`/teams/${teamId}`, {
       teamName: data.teamName,
       groupId: data.groupId,
       patientId: data.patientId
@@ -134,20 +139,20 @@ export const updateTeam = async (
     });
 
     const currentTeam = currentTeamResponse.data;
-    const currentUserIds = currentTeam.users?.map(user => user.id) || [];
+    const currentUserIds = currentTeam.users?.map((user: User) => user.id) || [];
     const newUserIds = data.userIds || [];
 
-    // Usuarios a remover del equipo (establecer team_id a null)
-    const usersToRemove = currentUserIds.filter((id: string) => !newUserIds.includes(id));
+    // Usuarios a remover del equipo
+    const usersToRemove = currentUserIds.filter(id => !newUserIds.includes(id));
     
     // Usuarios a agregar al equipo
-    const usersToAdd = newUserIds.filter((id: string) => !currentUserIds.includes(id));
+    const usersToAdd = newUserIds.filter(id => !currentUserIds.includes(id));
 
-    // Actualizamos los usuarios que se remueven (team_id = null)
+    // Actualizamos los usuarios que se remueven
     if (usersToRemove.length > 0) {
       await Promise.all(
-        usersToRemove.map((userId: string) =>
-          patchUser(`/users/user/${userId}`, {
+        usersToRemove.map(userId =>
+          patch(`/users/user/${userId}`, {
             team_id: null
           }, {
             headers: {
@@ -158,11 +163,11 @@ export const updateTeam = async (
       );
     }
 
-    // Actualizamos los usuarios que se agregan (team_id = teamId)
+    // Actualizamos los usuarios que se agregan
     if (usersToAdd.length > 0) {
       await Promise.all(
-        usersToAdd.map((userId: string) =>
-          patchUser(`/users/user/${userId}`, {
+        usersToAdd.map(userId =>
+          patch(`/users/user/${userId}`, {
             team_id: teamId
           }, {
             headers: {
@@ -176,8 +181,9 @@ export const updateTeam = async (
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      if ('response' in error && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      const apiError = error as { response?: { data: ApiError } };
+      if (apiError.response?.data) {
+        throw new Error(apiError.response.data.message);
       }
       throw error;
     }

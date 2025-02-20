@@ -8,32 +8,32 @@ const instance = axios.create({
   },
 });
 
-export const get = async (
+export const get = async <T = any>(
   url: string,
   config?: AxiosRequestConfig
-): Promise<AxiosResponse> => {
-  return instance.get(url, config);
+): Promise<AxiosResponse<T>> => {
+  return instance.get<T>(url, config);
 };
 
-export const post = async (
+export const post = async <T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
-): Promise<AxiosResponse> => {
-  return instance.post(url, data, config);
+): Promise<AxiosResponse<T>> => {
+  return instance.post<T>(url, data, config);
 };
 
-export const patch = async (
+export const patch = async <T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
-): Promise<AxiosResponse> => {
-  return instance.patch(url, data, config);
+): Promise<AxiosResponse<T>> => {
+  return instance.patch<T>(url, data, config);
 };
 
-export const del = async (
+export const del = async <T = any>(
   url: string,
   config?: AxiosRequestConfig
-): Promise<AxiosResponse> => {
-  return instance.delete(url, config);
+): Promise<AxiosResponse<T>> => {
+  return instance.delete<T>(url, config);
 };
