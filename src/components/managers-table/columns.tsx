@@ -42,8 +42,13 @@ export const columns: ColumnDef<Manager>[] = [
   {
     accessorKey: 'career.careerName',
     header: 'Carrera',
-    cell: ({ row }) => row.original.career.careerName || 'Sin Carrera',
-  },  
+    cell: ({ row }) => row.original.career?.careerName || 'Sin Carrera',
+  },
+  {
+    accessorKey: 'team.teamName',
+    header: 'Equipo',
+    cell: ({ row }) => row.original.team?.teamName || 'Sin equipo',
+  },
   {
     id: 'actions',
     cell: ({ row }) => (
