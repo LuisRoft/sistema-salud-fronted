@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { getCaregivers } from '@/services/caregiverService';
 import { getSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
+
 import TableSkeleton from '../table-skeleton';
 
 export default function CaregiverTable() {
@@ -19,6 +20,8 @@ export default function CaregiverTable() {
       const token = session?.user.access_token;
 
       const res = await getCaregivers(token as string, pageSize, pageIndex + 1);
+
+      console.log('Datos recibidos en la tabla:', res); // 🔍 Verificar si patientName llega
 
       return res;
     },
