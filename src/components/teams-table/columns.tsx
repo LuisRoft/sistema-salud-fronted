@@ -21,6 +21,12 @@ export const teamSchema = z.object({
     id: z.string(),
     groupName: z.string(),
   }),
+  users: z.array(z.object({
+    id: z.string(),
+    document: z.string(),
+    name: z.string(),
+    lastName: z.string(),
+  })),
 });
 
 export type Team = z.infer<typeof teamSchema>;
@@ -58,6 +64,24 @@ export const columns: ColumnDef<Team>[] = [
     cell: ({ row }) => {
       const group = row.original.group;
       return <div className='text-sm capitalize'>{group.groupName}</div>;
+    },
+  },
+  {
+    accessorKey: 'users',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Gestores' />
+    ),
+    cell: ({ row }) => {
+      const users = row.original.users;
+      return (
+        <div className='text-sm'>
+          {users.map((user) => (
+            <div key={user.id}>
+              {user.name} {user.lastName}
+            </div>
+          ))}
+        </div>
+      );
     },
   },
   {

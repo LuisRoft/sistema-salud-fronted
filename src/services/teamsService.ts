@@ -7,6 +7,7 @@ interface createTeam {
   teamName: string;
   groupId: string;
   patientId: string;
+  userIds: string[];
 }
 
 interface TeamsResponse {

@@ -33,16 +33,22 @@ import CreateGroupDialog from '../group/create-group-dialog';
 import { getPatients } from '@/services/patientService';
 import EditGroupDialog from "../group/EditGroupDialog";
 import DeleteGroupDialog from "../group/DeleteGroupDialog";
+import { getManagers } from '@/services/managerService';
 
 const formSchema = z.object({
   teamName: z.string().min(10, {
-    message: 'Nombre del equipo es requerido.',
+    message: 'El nombre del equipo debe tener al menos 10 caracteres.',
   }),
   groupId: z.string().min(1, {
-    message: 'Grupo es requerido.',
+    message: 'Debe seleccionar un grupo.',
   }),
   patientId: z.string().min(1, {
-    message: 'Paciente asignado es requerido.',
+    message: 'Debe seleccionar un paciente.',
+  }),
+  userIds: z.array(z.string()).min(1, {
+    message: 'Debe seleccionar al menos un gestor.',
+  }).max(5, {
+    message: 'No puede seleccionar más de 5 gestores.',
   }),
 });
 
@@ -71,6 +77,16 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       return await getPatients(token as string, { limit: 20, page: 1 });
+    },
+  });
+
+  // Agregar query para obtener gestores
+  const { data: managers } = useQuery({
+    queryKey: ['managers'],
+    queryFn: async () => {
+      const session = await getSession();
+      const token = session?.user.access_token;
+      return getManagers(token as string, { limit: 100 });
     },
   });
 
@@ -279,6 +295,40 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   </FormControl>
                   <FormDescription>
                     Selecciona el paciente asignado al equipo.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Nuevo campo para seleccionar gestores */}
+            <FormField
+              control={form.control}
+              name="userIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gestores</FormLabel>
+                  <FormControl>
+                    <select
+                      multiple
+                      className="w-full p-2 border rounded-md"
+                      onChange={(e) => {
+                        const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+                        if (selectedOptions.length <= 5) {
+                          field.onChange(selectedOptions);
+                        }
+                      }}
+                      value={field.value}
+                    >
+                      {managers?.users.map((manager) => (
+                        <option key={manager.id} value={manager.id}>
+                          {manager.name} {manager.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </FormControl>
+                  <FormDescription>
+                    Seleccione hasta 5 gestores (Mantenga presionado Ctrl/Cmd para seleccionar múltiples)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
