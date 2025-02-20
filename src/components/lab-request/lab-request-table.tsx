@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { getSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import TableSkeleton from '../table-skeleton';
+import { getLaboratoryRequests } from '@/services/labRequestService';
+import { LabRequestRow } from '@/components/lab-request/columns';
 
 export default function LabRequestTable() {
   const [pageIndex, setPageIndex] = useState(0);
@@ -18,12 +20,10 @@ export default function LabRequestTable() {
       const token = session?.user.access_token;
 
       if (!token) return { requests: [], total: 0 };
-      const res = await getLabRequests(token, {
-        page: pageIndex + 1,
-        limit: pageSize,
-      });
 
-      return res;
+      const requests: LabRequestRow[] = await getLaboratoryRequests(token);
+
+      return { requests, total: requests.length };
     },
     staleTime: 60000,
   });
@@ -42,13 +42,9 @@ export default function LabRequestTable() {
           setPageIndex={setPageIndex}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          totalPages={data?.total || 0}
+          totalPages={Math.ceil((data?.total || 1) / pageSize)}
         />
       )}
     </div>
   );
 }
-function getLabRequests(token: string, arg1: { page: number; limit: number; }) {
-    throw new Error('Function not implemented.');
-}
-
