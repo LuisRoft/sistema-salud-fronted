@@ -1,34 +1,28 @@
 import { get, post } from './requestHandler';
 
+interface Patient {
+  id: string;
+  document: string;
+  name: string;
+  lastName: string;
+}
+
 interface GetCaregiver {
   id: string;
   document: string;
   name: string;
   lastName: string;
   gender: string;
-  conventionalNumbers?: string[] | undefined;
+  conventionalNumbers?: string[];
   cellphoneNumbers: string[];
   canton: string;
   parish: string;
   zoneType: string;
   address: string;
-  reference?: string | undefined;
+  reference?: string;
   patientRelationship: string;
-}
-
-interface Caregiver {
-  document: string;
-  name: string;
-  lastName: string;
-  gender: string;
-  conventionalNumbers?: string[] | undefined;
-  cellphoneNumbers: string[];
-  canton: string;
-  parish: string;
-  zoneType: string;
-  address: string;
-  reference?: string | undefined;
-  patientRelationship: string;
+  patients?: Patient[]; // 🆕 Lista de pacientes asociados
+  patientName?: string; // 🆕 Nombre del paciente extraído
 }
 
 interface CaregiverResponse {
@@ -36,8 +30,8 @@ interface CaregiverResponse {
   total: number;
 }
 
-export const createCaregiver = async (data: Caregiver, token: string) => {
-  console.log(data);
+export const createCaregiver = async (data: GetCaregiver, token: string) => {
+  console.log('Datos enviados al backend:', data);
   return post('/caregivers', data, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -56,10 +50,17 @@ export const getCaregivers = async (
     },
   });
 
-  console.log(response.data);
+  console.log('API Response:', response.data); // 🔍 Verificar si la API devuelve patientName
 
   return {
-    caregivers: response.data,
+    caregivers: response.data.map((caregiver: GetCaregiver) => {
+      const firstPatient = caregiver.patients?.length ? caregiver.patients[0] : null;
+      return {
+        ...caregiver,
+        patientName: firstPatient ? `${firstPatient.name} ${firstPatient.lastName}` : 'No asignado',
+      };
+    }),
     total: response.data.length,
   };
 };
+// Antobriox

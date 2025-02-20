@@ -121,7 +121,6 @@ export default function CreateUserForm({ onClose }: { onClose: () => void }) {
   });
 
   function onSubmit(values: FormSchema) {
-    console.log(values);
     mutation.mutate(values);
   }
 

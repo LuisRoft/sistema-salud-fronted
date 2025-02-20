@@ -1,4 +1,5 @@
 export interface UpdateManager {
+  team: any;
   document: string;
   name: string;
   lastName: string;

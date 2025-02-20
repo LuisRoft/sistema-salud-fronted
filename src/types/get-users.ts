@@ -9,4 +9,5 @@ export interface Admin {
   email: string;
   name: string;
   lastName: string;
+  career: string;
 }

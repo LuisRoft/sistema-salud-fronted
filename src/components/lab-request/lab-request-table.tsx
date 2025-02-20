@@ -3,32 +3,32 @@
 import { DataTable } from '../ui/data-table';
 import { columns } from './columns';
 import { useState } from 'react';
-import { getTeams } from '@/services/teamsService';
 import { getSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import TableSkeleton from '../table-skeleton';
 
-export default function TeamsTable() {
+export default function LabRequestTable() {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['teams', pageIndex, pageSize],
+    queryKey: ['lab-requests', pageIndex, pageSize],
     queryFn: async () => {
       const session = await getSession();
       const token = session?.user.access_token;
-      const teamsData = await getTeams(token as string, {
-        limit: pageSize,
+
+      if (!token) return { requests: [], total: 0 };
+      const res = await getLabRequests(token, {
         page: pageIndex + 1,
+        limit: pageSize,
       });
 
-      return teamsData;
+      return res;
     },
-
-    staleTime: 60000, // Los datos se consideran frescos durante 60 segundos
+    staleTime: 60000,
   });
 
-  if (isError) return <div>Error loading teams</div>;
+  if (isError) return <div>Error al cargar las solicitudes de laboratorio</div>;
 
   return (
     <div>
@@ -37,14 +37,18 @@ export default function TeamsTable() {
       ) : (
         <DataTable
           columns={columns}
-          data={data?.teams || []}
+          data={data?.requests || []}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          totalPages={Math.ceil((data?.total || 0) / pageSize)}
+          totalPages={data?.total || 0}
         />
       )}
     </div>
   );
 }
+function getLabRequests(token: string, arg1: { page: number; limit: number; }) {
+    throw new Error('Function not implemented.');
+}
+

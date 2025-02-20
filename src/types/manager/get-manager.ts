@@ -1,4 +1,5 @@
 export interface Manager {
+    team: any;
     id: string;
     document: string;
     email: string;

@@ -1,8 +1,7 @@
 'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { any, z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
-import { createTeam } from '@/services/teamsService';
+import { updateTeam } from '@/services/teamsService';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import {
@@ -26,11 +25,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '../../ui/select';
 import { getGroups } from '@/services/groupsService';
 import { useState } from 'react';
-import CreateGroupDialog from './create-group-dialog';
 import { getPatients } from '@/services/patientService';
+import { Team } from '@/components/teams-table/columns';
 
 const formSchema = z.object({
   teamName: z.string().min(10, {
@@ -44,8 +43,12 @@ const formSchema = z.object({
   }),
 });
 
-export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
-  const [createGroupOpen, setCreateGroupOpen] = useState(false);
+interface EditTeamDialogProps {
+  data: Team;
+  onClose: () => void;
+}
+export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) {
+ 
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -56,7 +59,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
       const session = await getSession();
       const token = session?.user.access_token;
       return await getGroups(token as string);
-    },
+    }, 
   });
 
   // Obtener datos de pacientes
@@ -71,32 +74,33 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: { teamName: data.teamName , groupId: data.group.id, patientId: data.patient.id },
   });
-
+  
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      await createTeam({ ...values }, token as string);
+      return await updateTeam(values as any, token as string, data.id);
     },
     onSuccess: () => {
       toast({
-        title: 'Creación Exitosa',
-        description: 'Usuario creado exitosamente.',
+        title: 'Edición Exitosa',
+        description: 'Grupo editado exitosamente.',
       });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
       onClose();
     },
-    onError: (error: unknown) => {
+    onError: (error: any) => {
       toast({
-        title: 'Oh no! Algo está mal',
-        description: (error as Error).message,
+        title: 'Error al editar equipo',
+        description: error.message,
         variant: 'destructive',
       });
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) { 
     if (values.groupId === 'no-grupos' || values.patientId === 'no-pacientes') {
       toast({
         title: 'Error',
@@ -110,8 +114,9 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <Form {...form}>
+      <Form {...form} >
         <form
+        
           onSubmit={form.handleSubmit(onSubmit)}
           className='flex w-full flex-col'
         >
@@ -130,6 +135,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                       placeholder='Equipo de prueba'
                       {...field}
                       className='h-10 text-[#575756]'
+                      value={field.value }
                     />
                   </FormControl>
                   <FormDescription>
@@ -150,8 +156,11 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   <div className='flex items-center gap-4'>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(id) => {
+                          field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
+                        }}
+
+                        value={field.value}
                       >
                         <SelectTrigger>
                           <SelectValue
@@ -177,13 +186,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() => setCreateGroupOpen(true)}
-                    >
-                      Crear Grupo
-                    </Button>
+                    
                   </div>
                   <FormDescription>
                     Selecciona o crea un grupo para el equipo.
@@ -204,8 +207,10 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                   </FormLabel>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(id) => {
+                        field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
+                      }}
+                      value={field.value}
                     >
                       <SelectTrigger>
                         <SelectValue
@@ -248,21 +253,15 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
           >
             {mutation.isPending ? (
               <div className='flex items-center justify-center gap-2'>
-                <span>Creando Team</span>
+                <span>Editando Team</span>
                 <Loader2 className='animate-spin' size={16} strokeWidth={2} />
               </div>
             ) : (
-              'Crear Team'
+              'Editar Team'
             )}
           </Button>
         </form>
       </Form>
-
-      {/* Diálogo para crear un grupo */}
-      <CreateGroupDialog
-        isOpen={createGroupOpen}
-        setIsOpen={setCreateGroupOpen}
-      />
     </>
   );
 }

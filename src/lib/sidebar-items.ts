@@ -1,7 +1,14 @@
-import { Bot, HeartHandshake, User2, Users } from 'lucide-react';
+import {
+  Bot,
+  BriefcaseMedicalIcon,
+  HeartHandshake,
+  SyringeIcon,
+  User2,
+  Users,
+} from 'lucide-react';
 
 export const sidebarItems = {
-  navMain: [
+  admin: [
     {
       title: 'Gestores y Admins',
       icon: User2,
@@ -44,6 +51,49 @@ export const sidebarItems = {
         {
           title: 'Manejar Equipos',
           url: '/dashboard/teams',
+        },
+      ],
+    },
+  ],
+  user: [
+    {
+      title: 'Usuarios',
+      icon: Users,
+      isActive: true,
+      items: [
+        {
+          title: 'Usuarios asignados',
+          url: '/pucem/users',
+        },
+      ],
+    },
+    {
+      title: 'Medicina',
+      icon: BriefcaseMedicalIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Consulta Externa',
+          url: '/pucem/consultation-external',
+        },
+        {
+          title: 'Consulta Interna',
+          url: '/pucem/consultation-internal',
+        },
+        {
+          title: 'Pedido de Laboratorio',
+          url: '/pucem/lab-request',
+        },
+      ],
+    },
+    {
+      title: 'Enfermería',
+      icon: SyringeIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Formulario de Enfermería',
+          url: '/pucem/nursing',
         },
       ],
     },
