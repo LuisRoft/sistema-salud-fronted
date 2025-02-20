@@ -16,5 +16,6 @@ export interface Team {
     document: string;
     name: string;
     lastName: string;
+    team_id?: string | null;
   }[];
 } 

@@ -15,6 +15,22 @@ interface TeamsResponse {
   total: number;
 }
 
+interface User {
+  id: string;
+  document: string;
+  name: string;
+  lastName: string;
+  team_id?: string | null;
+}
+
+interface TeamResponse {
+  id: string;
+  teamName: string;
+  patient: Patient;
+  group: Group;
+  users: User[];
+}
+
 export interface Team {
   id: string;
   teamName: string;
@@ -111,50 +127,58 @@ export const updateTeam = async (
     });
 
     // Obtenemos los usuarios actuales del equipo
-    const currentTeam = await get(`/teams/${teamId}`, {
+    const currentTeamResponse = await get<TeamResponse>(`/teams/${teamId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const currentUserIds = currentTeam.data.users.map((user: any) => user.id);
+    const currentTeam = currentTeamResponse.data;
+    const currentUserIds = currentTeam.users?.map(user => user.id) || [];
     const newUserIds = data.userIds || [];
 
     // Usuarios a remover del equipo (establecer team_id a null)
-    const usersToRemove = currentUserIds.filter(id => !newUserIds.includes(id));
+    const usersToRemove = currentUserIds.filter((id: string) => !newUserIds.includes(id));
     
     // Usuarios a agregar al equipo
-    const usersToAdd = newUserIds.filter(id => !currentUserIds.includes(id));
+    const usersToAdd = newUserIds.filter((id: string) => !currentUserIds.includes(id));
 
     // Actualizamos los usuarios que se remueven (team_id = null)
-    await Promise.all(
-      usersToRemove.map(userId =>
-        patchUser(`/users/user/${userId}`, {
-          team_id: null
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-      )
-    );
+    if (usersToRemove.length > 0) {
+      await Promise.all(
+        usersToRemove.map((userId: string) =>
+          patchUser(`/users/user/${userId}`, {
+            team_id: null
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        )
+      );
+    }
 
     // Actualizamos los usuarios que se agregan (team_id = teamId)
-    await Promise.all(
-      usersToAdd.map(userId =>
-        patchUser(`/users/user/${userId}`, {
-          team_id: teamId
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-      )
-    );
+    if (usersToAdd.length > 0) {
+      await Promise.all(
+        usersToAdd.map((userId: string) =>
+          patchUser(`/users/user/${userId}`, {
+            team_id: teamId
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        )
+      );
+    }
 
     return response.data;
   } catch (error: unknown) {
     if (error instanceof Error) {
+      if ('response' in error && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
       throw error;
     }
     throw new Error('Error al actualizar el equipo');
