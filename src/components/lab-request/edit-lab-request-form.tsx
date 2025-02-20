@@ -19,19 +19,34 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
+import { LabRequestRow } from './columns';
 
-// Esquema de validación
+// ✅ Esquema de validación
 const editFormSchema = z.object({
-  requesterName: z.string().min(1, { message: 'El nombre del solicitante es requerido.' }),
-  labName: z.string().min(1, { message: 'El laboratorio es requerido.' }),
-  status: z.enum(['pending', 'approved', 'rejected'], { message: 'Estado inválido.' }),
+  id: z.string(),  // ✅ Ahora `id` es parte del esquema
+  numero_de_archivo: z.string().min(1, { message: 'El número de archivo es requerido.' }),
+  diagnostico_descripcion1: z.string().min(1, { message: 'El diagnóstico 1 es requerido.' }),
+  diagnostico_cie1: z.string().min(1, { message: 'El CIE 1 es requerido.' }),
+  diagnostico_descripcion2: z.string().min(1, { message: 'El diagnóstico 2 es requerido.' }),
+  diagnostico_cie2: z.string().min(1, { message: 'El CIE 2 es requerido.' }),
+  prioridad: z.string().min(1, { message: 'La prioridad es requerida.' }),
 });
 
 type EditLabRequestFormProps = {
   onClose: () => void;
   id: string;
-  defaultValues: z.infer<typeof editFormSchema>;
+  defaultValues: LabRequestRow;  // ✅ Ahora `defaultValues` incluye `id`
 };
+
+// ✅ Función para actualizar la solicitud
+async function updateLabRequest(
+  values: z.infer<typeof editFormSchema>,
+  id: string,
+  token: string
+): Promise<void> {
+  console.log('Actualizando solicitud:', values, id, token);
+  // Aquí iría la lógica para llamar al backend
+}
 
 export default function EditLabRequestForm({ onClose, id, defaultValues }: EditLabRequestFormProps) {
   const queryClient = useQueryClient();
@@ -43,6 +58,7 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
     mode: 'onChange',
   });
 
+  // ✅ Mutación para actualizar la solicitud
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof editFormSchema>) => {
       const session = await getSession();
@@ -76,12 +92,12 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
         <div className="grid w-full grid-cols-2 gap-x-10 gap-y-6">
           <FormField
             control={form.control}
-            name="requesterName"
+            name="numero_de_archivo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">Nombre del Solicitante</FormLabel>
+                <FormLabel className="text-[#575756]">N° Archivo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Juan Pérez" {...field} className="h-10 text-[#575756]" />
+                  <Input placeholder="228001" {...field} className="h-10 text-[#575756]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,12 +106,12 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
           <FormField
             control={form.control}
-            name="labName"
+            name="diagnostico_descripcion1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">Laboratorio</FormLabel>
+                <FormLabel className="text-[#575756]">Diagnóstico 1</FormLabel>
                 <FormControl>
-                  <Input placeholder="Laboratorio de Física" {...field} className="h-10 text-[#575756]" />
+                  <Input placeholder="Anemia" {...field} className="h-10 text-[#575756]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,22 +120,33 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
 
           <FormField
             control={form.control}
-            name="status"
+            name="diagnostico_cie1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[#575756]">Estado</FormLabel>
+                <FormLabel className="text-[#575756]">CIE 1</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Input placeholder="D50.9" {...field} className="h-10 text-[#575756]" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="prioridad"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-[#575756]">Prioridad</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar estado" />
+                      <SelectValue placeholder="Seleccionar prioridad" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pendiente</SelectItem>
-                      <SelectItem value="approved">Aprobado</SelectItem>
-                      <SelectItem value="rejected">Rechazado</SelectItem>
+                      <SelectItem value="Alta">Alta</SelectItem>
+                      <SelectItem value="Media">Media</SelectItem>
+                      <SelectItem value="Baja">Baja</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -143,7 +170,3 @@ export default function EditLabRequestForm({ onClose, id, defaultValues }: EditL
     </Form>
   );
 }
-function updateLabRequest(values: { requesterName: string; labName: string; status: "pending" | "approved" | "rejected"; }, id: string, arg2: string): any {
-    throw new Error('Function not implemented.');
-}
-

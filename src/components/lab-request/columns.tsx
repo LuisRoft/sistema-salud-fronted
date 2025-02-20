@@ -1,72 +1,86 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { z } from 'zod';
-
-import { DataTableColumnHeader } from '@/components/ui/data-table-header';
-import ActionsCells from '../actions-cells';
+import ActionsCellsLab from './ActionsCellsLab';
 import EditLabRequestDialog from './edit-lab-request-dialog';
 import DeleteLabRequestDialog from './delete-lab-request-dialog';
-import { Badge } from '../ui/badge';
 
-// Esquema de validación para Lab Request
-export const labRequestSchema = z.object({
-  id: z.string(),
-  requesterName: z.string().min(1, 'El nombre del solicitante es requerido'),
-  labName: z.string().min(1, 'El laboratorio es requerido'),
-  status: z.enum(['pending', 'approved', 'rejected']),
-  createdAt: z.string(),
-});
+export interface LabRequestRow {
+  id: string;
+  numero_de_archivo: string;
+  diagnostico_descripcion1: string;
+  diagnostico_cie1: string;
+  diagnostico_descripcion2: string;
+  diagnostico_cie2: string;
+  prioridad: string;
+  hematologia_examenes: string[];
+  coagulacion_examenes: string[];
+  quimica_sanguinea_examenes: string[];
+  orina_examenes: string[];
+  heces_examenes: string[];
+  hormonas_examenes: string[];
+  serologia_examenes: string[];
+  userId: string;
+  patientId: string;
+}
 
-export type LabRequest = z.infer<typeof labRequestSchema>;
-
-// Definición de columnas de la tabla
-export const columns: ColumnDef<LabRequest>[] = [
+export const columns: ColumnDef<LabRequestRow>[] = [
   {
-    accessorKey: 'requesterName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Solicitante" />
-    ),
+    accessorKey: 'numero_de_archivo',
+    header: 'N° Archivo',
   },
   {
-    accessorKey: 'labName',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Laboratorio" />
-    ),
+    accessorKey: 'diagnostico_descripcion1',
+    header: 'Diagnóstico 1',
   },
   {
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Estado" />
-    ),
-    cell: ({ row }) => {
-      const status = row.original.status;
-      return (
-        <Badge
-          className={`${
-            status === 'approved'
-              ? 'bg-green-500'
-              : status === 'rejected'
-              ? 'bg-red-500'
-              : 'bg-yellow-500'
-          }`}
-        >
-          {status === 'approved' ? 'Aprobado' : status === 'rejected' ? 'Rechazado' : 'Pendiente'}
-        </Badge>
-      );
-    },
+    accessorKey: 'diagnostico_cie1',
+    header: 'CIE 1',
   },
   {
-    accessorKey: 'createdAt',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fecha de Solicitud" />
-    ),
-    cell: ({ row }) => <div>{new Date(row.original.createdAt).toLocaleDateString()}</div>,
+    accessorKey: 'diagnostico_descripcion2',
+    header: 'Diagnóstico 2',
+  },
+  {
+    accessorKey: 'diagnostico_cie2',
+    header: 'CIE 2',
+  },
+  {
+    accessorKey: 'prioridad',
+    header: 'Prioridad',
+  },
+  {
+    accessorKey: 'hematologia_examenes',
+    header: 'Hematología',
+  },
+  {
+    accessorKey: 'coagulacion_examenes',
+    header: 'Coagulación',
+  },
+  {
+    accessorKey: 'quimica_sanguinea_examenes',
+    header: 'Química Sanguínea',
+  },
+  {
+    accessorKey: 'orina_examenes',
+    header: 'Orina',
+  },
+  {
+    accessorKey: 'heces_examenes',
+    header: 'Heces',
+  },
+  {
+    accessorKey: 'hormonas_examenes',
+    header: 'Hormonas',
+  },
+  {
+    accessorKey: 'serologia_examenes',
+    header: 'Serología',
   },
   {
     id: 'actions',
     cell: ({ row }) => (
-      <ActionsCells<LabRequest>
+      <ActionsCellsLab
         data={row.original}
         DeleteDialog={DeleteLabRequestDialog}
         EditDialog={EditLabRequestDialog}
