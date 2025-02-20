@@ -16,15 +16,16 @@ import {
 import Link from 'next/link';
 import { University } from 'lucide-react';
 import { sidebarItems } from '@/lib/sidebar-items';
+import { ModeToggle } from '../ui/mode-toggle';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant='inset' {...props}>
       <SidebarHeader>
-        <SidebarMenu>
+        <SidebarMenu className='flex flex-row items-center justify-between'>
           <SidebarMenuItem>
             <SidebarMenuButton size='lg' asChild>
-              <Link href='/dashboard'>
+              <Link href='/dashboard' className='px-3 pr-10'>
                 <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground'>
                   <University className='size-4' />
                 </div>
@@ -35,6 +36,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <div>
+            <ModeToggle />
+          </div>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>

@@ -1,22 +1,27 @@
-import { CreateUser } from '@/types/create-user';
-import { get, patch, post } from './requestHandler';
+import { CreateAdmin } from '@/types/create-admin';
+import { del, get, patch, post } from './requestHandler';
+import { UpdateAdmin } from '@/types/update-admin';
 import { ResponseUsers } from '@/types/get-users';
 
-interface GetUsersParams {
+interface GetAdminsParams {
   page?: number;
   limit?: number;
   username?: string;
   name_role?: string;
 }
 
-export const createUser = async (data: CreateUser) => {
-  const res = await post('/users', data);
+export const createAdmin = async (data: CreateAdmin, token: string) => {
+  const res = await post('/users/admin', data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return res.data;
 };
 
-export const getUsers = async (
+export const getAdmins = async (
   token: string,
-  params?: GetUsersParams
+  params?: GetAdminsParams
 ): Promise<ResponseUsers> => {
   const queryParams = new URLSearchParams();
 
@@ -26,26 +31,34 @@ export const getUsers = async (
   if (params?.name_role) queryParams.append('name_role', params.name_role);
 
   const queryString = queryParams.toString();
-  const endpoint = queryString ? `/users?${queryString}` : '/users';
+  const endpoint = `/users/role/admin?${queryString}`;
 
   const res = await get(endpoint, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+
   return res.data;
 };
 
-export const updateUser = async (
-  data: CreateUser,
+export const updateAdmin = async (
+  data: UpdateAdmin,
   id: string,
   token: string
 ) => {
-  const res = await patch(`/users/${id}`, data, {
+  const res = await patch(`/users/admin/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
+  return res.data;
+};
+
+export const deleteAdmin = async (id: string, token: string) => {
+  const res = await del(`/users/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
