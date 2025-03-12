@@ -134,7 +134,7 @@ export default function InternalConsultationForm() {
 
       toast({
         title: 'Éxito',
-        description: 'Consulta interna creada correctamente',
+        description: 'Interconsulta creada correctamente',
       });
     } catch (error) {
       console.error('❌ Error completo:', error);
@@ -144,7 +144,7 @@ export default function InternalConsultationForm() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Error al crear la consulta interna';
+          : 'Error al crear la Interconsulta';
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -157,7 +157,7 @@ export default function InternalConsultationForm() {
     <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         <h2 className='mb-6 text-2xl font-bold'>
-          Formulario de Consulta Interna
+          Formulario de Interconsulta
         </h2>
 
         {/* Sección A: Datos básicos */}
@@ -409,7 +409,7 @@ export default function InternalConsultationForm() {
         </section>
 
         <Button type='submit' className='bg-primary text-white'>
-          Crear Consulta Interna
+          Crear Interconsulta
         </Button>
       </form>
     </div>

@@ -77,7 +77,7 @@ export const sidebarItems = {
           url: '/pucem/consultation-external',
         },
         {
-          title: 'Consulta Interna',
+          title: 'Interconsulta',
           url: '/pucem/consultation-internal',
         },
         {

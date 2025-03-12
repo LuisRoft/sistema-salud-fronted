@@ -18,13 +18,13 @@ export default function CreateTeamDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline'>Agregar team</Button>
+        <Button variant='outline'>Agregar Equipo</Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-xl'>
         <DialogHeader>
-          <DialogTitle>Crear Team</DialogTitle>
+          <DialogTitle>Crear Equipo</DialogTitle>
           <DialogDescription>
-            Formulario para crear un nuevo team
+            Formulario para crear un nuevo Equipo
           </DialogDescription>
         </DialogHeader>
         <CreateUserForm onClose={() => setIsOpen(false)} />
