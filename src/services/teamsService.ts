@@ -19,7 +19,7 @@ export interface Team {
   id: string;
   teamName: string;
   patientCount: number;
-  userCount: number;  // ✅ Agregamos `userCount`
+  userCount: number;  // ✅ Agregamos userCount
   patient?: {  
     id: string;
     document: string;
@@ -37,7 +37,7 @@ export interface editTeam {
   id: string;
   teamName: string;
   patientIds: string[];
-  patientCount?: number;  // ✅ Ahora `patientCount` es opcional
+  patientCount?: number;  // ✅ Ahora patientCount es opcional
   group: {
      id: string;
      groupName: string;
@@ -52,7 +52,7 @@ export const createTeam = async (data: createTeam, token: string) => {
     patientIds: data.patientIds, // ✅ Asegura que se envía como array
   }, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: Bearer ${token},
     },
   });
 };
@@ -62,9 +62,9 @@ export const getTeams = async (
   token: string,
   { limit, page }: { limit: number; page: number }
 ): Promise<TeamsResponse> => {
-  const response = await get(`/teams?limit=${limit}&page=${page}`, {
+  const response = await get(/teams?limit=${limit}&page=${page}, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: Bearer ${token},
     },
   });
 
@@ -78,9 +78,9 @@ export const updateTeam = async (
   teamId: string
 ) => {
   try {
-    const response = await patch(`/teams/${teamId}`, data, {
+    const response = await patch(/teams/${teamId}, data, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: Bearer ${token},
       },
     });
     return response.data;
@@ -95,9 +95,9 @@ export const updateTeam = async (
 
 
 export const deleteTeam = async (teamId: string, token: string) => {
-  return del(`/teams/${teamId}`, {
+  return del(/teams/${teamId}, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: Bearer ${token},
     },
   });
 }

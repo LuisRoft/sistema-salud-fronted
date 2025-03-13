@@ -100,7 +100,7 @@ export function CareerForm({ onClose, onSelect }: { onClose: () => void; onSelec
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">Gestión de Carreras</h2>
+      <h2 className="text-lg font-bold mb-4 uppercase">Gestión de Carreras</h2>
 
       <div className="flex items-center gap-2 mb-4">
         <Input
@@ -142,7 +142,7 @@ export function CareerForm({ onClose, onSelect }: { onClose: () => void; onSelec
 
       {editingCareer && (
         <div className="mt-4">
-          <h3 className="text-md font-bold mb-2">Editar Carrera</h3>
+          <h3 className="text-md font-bold mb-2 uppercase">Editar Carrera</h3>
           <Input
             value={editingCareer.careerName}
             onChange={(e) =>

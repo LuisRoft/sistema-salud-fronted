@@ -23,8 +23,8 @@ export default function CreateAdminDialog() {
       </DialogTrigger>
       <DialogContent className='sm:max-w-xl'>
         <DialogHeader>
-          <DialogTitle>Crear Administrador</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="uppercase">Crear Administrador</DialogTitle>
+          <DialogDescription className="uppercase">
             Formulario para crear un nuevo administrador
           </DialogDescription>
         </DialogHeader>

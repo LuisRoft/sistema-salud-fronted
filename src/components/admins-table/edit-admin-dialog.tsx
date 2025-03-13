@@ -17,8 +17,8 @@ export default function EditAdminDialog({
   return (
     <DialogContent className="sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Editar Administrador</DialogTitle>
-        <DialogDescription>
+        <DialogTitle className="uppercase">Editar Administrador</DialogTitle>
+        <DialogDescription className="uppercase">
           Realiza cambios en la información del administrador y guarda cuando hayas terminado.
         </DialogDescription>
       </DialogHeader>

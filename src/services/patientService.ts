@@ -39,8 +39,6 @@ interface CreateUser {
   isActive?: boolean;
 }
 
-
-
 export const getPatients = async (
   token: string,
   params?: GetPatientsParams
@@ -69,6 +67,31 @@ export const createUser = async (data: CreateUser, token: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const getPatientByDocument = async (document: string, token: string) => {
+  const response = await get(`/patients/document/${document}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const getPatientByUserAssigned = async (userId: string, token: string): Promise<Patient[]> => {
+  console.log('🔍 Fetching patients for user:', userId);
+  try {
+    const response = await get(`/patients/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('✅ Patients received:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching patients:', error);
+    throw error;
+  }
 };
 
 

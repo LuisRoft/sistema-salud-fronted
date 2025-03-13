@@ -19,8 +19,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { createInitialConsultation } from '@/services/consultation.service';
 import { useToast } from '@/components/ui/use-toast';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { PatientSelector } from '../shared/patient-selector';
+import { Patient } from '@/services/patientService';
 
 // Esquema de validación con Zod
 const formSchema = z.object({
@@ -241,6 +243,26 @@ export default function ExternalConsultationForm() {
     localStorage.setItem('consultationFormData', JSON.stringify(formData));
   }, [formData]);
 
+  const handlePatientSelect = (patient: Patient) => {
+    // Auto-fill patient data
+    setValue('primerApellido', patient.lastName);
+    setValue('primerNombre', patient.name);
+    setValue('sexo', patient.gender);
+    setValue('numeroArchivo', patient.document);
+    setValue('numeroHistoriaClinica', patient.document);
+
+    // Calculate age from birthday if available
+    if (patient.birthday) {
+      const birthDate = new Date(patient.birthday);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      setValue('edad', age);
+    }
+
+    // Store patient ID for submission
+    setValue('patientId', patient.id);
+  };
+
   const onSubmit = async (data: any) => {
     try {
       if (!session?.user) {
@@ -431,14 +453,17 @@ export default function ExternalConsultationForm() {
           <h2 className='text-2xl font-bold'>
             Consulta Externa - Anamnesis y Examen Físico
           </h2>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={handleReset}
-            className='ml-4'
-          >
-            Limpiar Formulario
-          </Button>
+          <div className="flex gap-2">
+            <PatientSelector onSelect={handlePatientSelect} />
+            <Button
+              type='button'
+              variant='outline'
+              onClick={handleReset}
+              className='ml-4'
+            >
+              Limpiar Formulario
+            </Button>
+          </div>
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <section className='mb-4'>

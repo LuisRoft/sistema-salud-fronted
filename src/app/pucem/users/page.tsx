@@ -35,6 +35,7 @@ export default function UsersPage() {
         <>
           <div className="mb-6">
             <p className="text-muted-foreground">Pacientes asignados:</p>
+
           </div>
           <DataTable 
             columns={columns} 
