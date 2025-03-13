@@ -41,16 +41,18 @@ const formSchema = z.object({
   groupId: z.string().min(1, {
     message: 'Grupo es requerido.',
   }),
-  patientId: z.string().min(1, {
-    message: 'Paciente asignado es requerido.',
+  patientIds: z.array(z.string()).min(1, {
+    message: 'Debes seleccionar al menos un paciente.',
   }),
 });
+
 
 export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [editGroupOpen, setEditGroupOpen] = useState(false);
   const [deleteGroupOpen, setDeleteGroupOpen] = useState(false);
   const [dataGroupItem, setDataGroupItem] = useState<any>(null);
+  const [selectedPatients, setSelectedPatients] = useState<{ id: string; name: string; lastName: string }[]>([]);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -102,16 +104,20 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) { 
-    if (values.groupId === 'no-grupos' || values.patientId === 'no-pacientes') {
+    if (values.groupId === 'no-grupos' || !values.patientIds.length) {
       toast({
         title: 'Error',
-        description: 'Debes seleccionar un grupo y un paciente válido.',
+        description: 'Debes seleccionar un grupo y al menos un paciente.',
         variant: 'destructive',
       });
       return;
     }
-    mutation.mutate(values);
+    mutation.mutate({
+      ...values,
+      patientIds: values.patientIds, // Ahora es un array
+    });
   }
+  
 
   const handleEditGroup = () => {
     if (!dataGroupItem) {
@@ -239,51 +245,69 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
               )}
             />
 
-            {/* Campo Paciente */}
-            <FormField
-              control={form.control}
-              name='patientId'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='text-[#575756]'>
-                    Paciente Asignado
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            patientsLoading
-                              ? 'Cargando pacientes...'
-                              : 'Selecciona un paciente'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {dataPatients ? (
-                          dataPatients.patients.map((patient) => (
-                            <SelectItem key={patient.id} value={patient.id}>
-                              {patient.name} {patient.lastName}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem disabled value='no-pacientes'>
-                            No hay pacientes disponibles
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>
-                    Selecciona el paciente asignado al equipo.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+{/* Campo Paciente */}
+<FormField
+        control={form.control}
+        name='patientIds'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='text-[#575756]'>Pacientes Asignados</FormLabel>
+            <FormControl>
+              <Select
+                onValueChange={(selectedId) => {
+                  const patient = dataPatients?.patients.find((p) => p.id === selectedId);
+
+                  if (patient && !selectedPatients.some((p) => p.id === patient.id)) {
+                    setSelectedPatients([...selectedPatients, patient]);  // Agregar paciente a la lista
+                    field.onChange([...(field.value ?? []), selectedId]);  // ✅ Aseguramos que siempre sea un array
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Selecciona pacientes' />
+                </SelectTrigger>
+                <SelectContent>
+                  {dataPatients?.patients.map((patient) => (
+                    <SelectItem key={patient.id} value={patient.id}>
+                      {patient.name} {patient.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+
+            {/* Lista de Pacientes Seleccionados */}
+            {selectedPatients.length > 0 && (
+              <div className='mt-3 border p-3 rounded-md'>
+                <h3 className='text-sm font-semibold mb-2'>Pacientes Seleccionados:</h3>
+                <ul className='space-y-2'>
+                  {selectedPatients.map((patient) => (
+                    <li key={patient.id} className='flex justify-between items-center border-b pb-2'>
+                      <span>
+                        {patient.name} {patient.lastName}
+                      </span>
+                      <Button
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => {
+                          setSelectedPatients(selectedPatients.filter((p) => p.id !== patient.id)); // Remover de la lista
+                          field.onChange((field.value ?? []).filter((id) => id !== patient.id)); // ✅ Siempre array
+                        }}
+                      >
+                        <Trash size={14} />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+
           </div>
 
           {/* Botón de enviar */}

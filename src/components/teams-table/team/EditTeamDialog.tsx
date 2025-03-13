@@ -38,17 +38,18 @@ const formSchema = z.object({
   groupId: z.string().min(1, {
     message: 'Grupo es requerido.',
   }),
-  patientId: z.string().min(1, {
-    message: 'Paciente asignado es requerido.',
+  patientIds: z.array(z.string()).min(1, {
+    message: 'Debes seleccionar al menos un paciente.',
   }),
 });
+
 
 interface EditTeamDialogProps {
   data: Team;
   onClose: () => void;
 }
-export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) {
- 
+export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps) {
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -59,7 +60,7 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
       const session = await getSession();
       const token = session?.user.access_token;
       return await getGroups(token as string);
-    }, 
+    },
   });
 
   // Obtener datos de pacientes
@@ -72,11 +73,26 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
     },
   });
 
+  // Asegurar que `data.patient` es un array (si no lo es, lo convertimos en uno)
+  const patientsArray = Array.isArray(data.patient) ? data.patient : [data.patient];
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { teamName: data.teamName , groupId: data.group.id, patientId: data.patient.id },
+    defaultValues: {
+      teamName: data.teamName,
+      groupId: data.group.id,
+      patientIds: patientsArray.map((p) => p.id),  // ✅ Ahora es un array seguro
+    },
   });
-  
+
+  // Estado para pacientes seleccionados
+  const [selectedPatients, setSelectedPatients] = useState<{ id: string; name: string; lastName: string }[]>(
+    patientsArray.map((p) => ({ id: p.id, name: p.name, lastName: p.lastName })) // ✅ Ahora seguro
+  );
+
+
+
+
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
@@ -100,8 +116,8 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) { 
-    if (values.groupId === 'no-grupos' || values.patientId === 'no-pacientes') {
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.groupId === 'no-grupos') {
       toast({
         title: 'Error',
         description: 'Debes seleccionar un grupo y un paciente válido.',
@@ -116,7 +132,7 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
     <>
       <Form {...form} >
         <form
-        
+
           onSubmit={form.handleSubmit(onSubmit)}
           className='flex w-full flex-col'
         >
@@ -135,7 +151,7 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
                       placeholder='Equipo de prueba'
                       {...field}
                       className='h-10 text-[#575756]'
-                      value={field.value }
+                      value={field.value}
                     />
                   </FormControl>
                   <FormDescription>
@@ -186,7 +202,7 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    
+
                   </div>
                   <FormDescription>
                     Selecciona o crea un grupo para el equipo.
@@ -199,50 +215,64 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps ) 
             {/* Campo Paciente */}
             <FormField
               control={form.control}
-              name='patientId'
+              name="patientIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='text-[#575756]'>
-                    Paciente Asignado
-                  </FormLabel>
+                  <FormLabel className="text-[#575756]">Pacientes Asignados</FormLabel>
                   <FormControl>
                     <Select
-                      onValueChange={(id) => {
-                        field.onChange(id); // Pasa solo el ID al formulario (si es necesario)
+                      onValueChange={(selectedId) => {
+                        const patient = dataPatients?.patients.find((p) => p.id === selectedId);
+                        if (patient && !selectedPatients.some((p) => p.id === patient.id)) {
+                          setSelectedPatients([...selectedPatients, patient]);  // Agrega a la lista
+                          field.onChange([...field.value, selectedId]);  // Agrega al formulario
+                        }
                       }}
-                      value={field.value}
                     >
                       <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            patientsLoading
-                              ? 'Cargando pacientes...'
-                              : 'Selecciona un paciente'
-                          }
-                        />
+                        <SelectValue placeholder="Selecciona pacientes" />
                       </SelectTrigger>
                       <SelectContent>
-                        {dataPatients ? (
-                          dataPatients.patients.map((patient) => (
-                            <SelectItem key={patient.id} value={patient.id}>
-                              {patient.name} {patient.lastName}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem disabled value='no-pacientes'>
-                            No hay pacientes disponibles
+                        {dataPatients?.patients.map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.name} {patient.lastName}
                           </SelectItem>
-                        )}
+                        ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>
-                    Selecciona el paciente asignado al equipo.
-                  </FormDescription>
+
+                  {/* Lista de Pacientes Seleccionados */}
+                  {selectedPatients.length > 0 && (
+                    <div className="mt-3 border p-3 rounded-md">
+                      <h3 className="text-sm font-semibold mb-2">Pacientes Seleccionados:</h3>
+                      <ul className="space-y-2">
+                        {selectedPatients.map((patient) => (
+                          <li key={patient.id} className="flex justify-between items-center border-b pb-2">
+                            <span>
+                              {patient.name} {patient.lastName}
+                            </span>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPatients(selectedPatients.filter((p) => p.id !== patient.id)); // Remueve de la lista
+                                field.onChange(field.value.filter((id) => id !== patient.id)); // Remueve del formulario
+                              }}
+                            >
+                              ❌
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+
           </div>
 
           {/* Botón de enviar */}

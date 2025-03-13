@@ -6,8 +6,9 @@ import { post, get, patch, del } from './requestHandler';
 interface createTeam {
   teamName: string;
   groupId: string;
-  patientId: string;
+  patientIds: string[];  // ✅ Ahora acepta múltiples pacientes
 }
+
 
 interface TeamsResponse {
   teams: Team[];
@@ -17,32 +18,45 @@ interface TeamsResponse {
 export interface Team {
   id: string;
   teamName: string;
-  patient: Patient;
-  group: Group;
+  patientCount: number;
+  userCount: number;  // ✅ Agregamos `userCount`
+  patient?: {  
+    id: string;
+    document: string;
+    name: string;
+    lastName: string;
+  };
+  group: {
+    id: string;
+    groupName: string;
+  };
 }
+
 
 export interface editTeam {
-    id: string;
-   teamName: string;
-    patient: {
-       id: string;
-       document: string;
-       name: string;
-       lastName: string;
-     };
-     group: {
-       id: string;
-       groupName: string;
-     };
+  id: string;
+  teamName: string;
+  patientIds: string[];
+  patientCount?: number;  // ✅ Ahora `patientCount` es opcional
+  group: {
+     id: string;
+     groupName: string;
+   };
 }
 
+
+
 export const createTeam = async (data: createTeam, token: string) => {
-  return post('/teams', data, {
+  return post('/teams', {
+    ...data,
+    patientIds: data.patientIds, // ✅ Asegura que se envía como array
+  }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
+
 
 export const getTeams = async (
   token: string,
@@ -57,8 +71,9 @@ export const getTeams = async (
   return response.data;
 };
 
+
 export const updateTeam = async (
-  data: createTeam,
+  data: editTeam,  // ✅ Ahora usa editTeam correctamente
   token: string,
   teamId: string
 ) => {
@@ -70,16 +85,14 @@ export const updateTeam = async (
     });
     return response.data;
   } catch (error: any) {
-    // Capturamos el mensaje de error específico del backend
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
-    } else if (error.message) {
-      throw new Error(error.message);
     } else {
       throw new Error('Error inesperado al actualizar el equipo');
     }
   }
-}
+};
+
 
 export const deleteTeam = async (teamId: string, token: string) => {
   return del(`/teams/${teamId}`, {
