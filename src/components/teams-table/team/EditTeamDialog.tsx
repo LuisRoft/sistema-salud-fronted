@@ -97,14 +97,34 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps) {
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      return await updateTeam(values as any, token as string, data.id);
+      
+      // Create a properly formatted object for the API
+      const updateData = {
+        teamName: values.teamName,
+        groupId: values.groupId,
+        patientIds: values.patientIds, // This should be an array of patient IDs
+      };
+      
+      console.log('Sending team update data:', updateData);
+      
+      try {
+        const result = await updateTeam(updateData, token as string, data.id);
+        console.log('Update result:', result);
+        return result;
+      } catch (error) {
+        console.error('Error in mutation:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
         title: 'Edición Exitosa',
-        description: 'Grupo editado exitosamente.',
+        description: 'Equipo editado exitosamente.',
       });
+      // Force a refetch of the teams data
       queryClient.invalidateQueries({ queryKey: ['teams'] });
+      // Also invalidate any related queries
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
       onClose();
     },
     onError: (error: any) => {
@@ -125,6 +145,19 @@ export default function EditTeamDialog({ data, onClose }: EditTeamDialogProps) {
       });
       return;
     }
+    
+    console.log('Submitting form with values:', values);
+    
+    // Ensure patientIds is an array
+    if (!Array.isArray(values.patientIds) || values.patientIds.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'Debes seleccionar al menos un paciente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     mutation.mutate(values);
   }
 

@@ -71,23 +71,34 @@ export const getTeams = async (
 
 
 export const updateTeam = async (
-  data: editTeam,  // ✅ Ahora usa editTeam correctamente
+  data: {
+    teamName?: string;
+    groupId?: string;
+    patientIds: string[];
+  },
   token: string,
   teamId: string
 ) => {
   try {
-    const response = await patch(`/teams/${teamId}`, data, {
+    console.log('Updating team with data:', data);
+    
+    // Ensure we're sending the exact format the backend expects
+    const formattedData = {
+      teamName: data.teamName,
+      groupId: data.groupId,
+      patientIds: Array.isArray(data.patientIds) ? data.patientIds : [data.patientIds],
+    };
+
+    const response = await patch(`/teams/${teamId}`, formattedData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+
     return response.data;
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      throw new Error(error.response.data.message);
-    } else {
-      throw new Error('Error inesperado al actualizar el equipo');
-    }
+  } catch (error) {
+    console.error('Error updating team:', error);
+    throw error;
   }
 };
 

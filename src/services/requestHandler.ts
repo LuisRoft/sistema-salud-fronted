@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
-// Configurar la base URL para todas las peticiones
+// Configure base URL for all requests
 const api = axios.create({
-  // Asegurarnos de que la base URL no incluya /api
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
