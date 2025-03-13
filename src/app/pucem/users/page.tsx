@@ -8,10 +8,13 @@ import TableSkeleton from '@/components/table-skeleton';
 export default function UsersPage() {
   const { data: session, status } = useSession();
   const teamData = session?.user?.team;
-  const patient = teamData?.patient;
+  const patients = teamData?.patient
+  ? Object.values(teamData.patient) // ✅ Convertir el objeto indexado en un array
+  : [];
+
 
   if (status === 'loading') {
-    return <TableSkeleton />;
+    return <TableSkeleton rows={0} columns={0} />;
   }
 
   if (!teamData) {
@@ -28,19 +31,26 @@ export default function UsersPage() {
       <h2 className="text-2xl font-semibold mb-4">
         Equipo: {teamData.teamName}
       </h2>
-      {patient ? (
+      {patients.length > 0 ? (
         <>
           <div className="mb-6">
-            <p className="text-muted-foreground">Paciente Asignado:</p>
+            <p className="text-muted-foreground">Pacientes asignados:</p>
+
           </div>
           <DataTable 
             columns={columns} 
-            data={[patient]} 
+            data={patients} // ✅ Pasamos la lista de pacientes
+            pageIndex={0}
+            setPageIndex={() => {}}
+            pageSize={10}
+            setPageSize={() => {}}
+            totalPages={1}
           />
         </>
       ) : (
-        <p className="text-muted-foreground">No hay paciente asignado a este equipo</p>
+        <p className="text-muted-foreground">No hay pacientes asignados a este equipo</p>
       )}
     </div>
   );
+  
 } 
