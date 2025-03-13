@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getSession, useSession } from 'next-auth/react';
 import { CreateLaboratoryRequestDTO } from '@/types/labrequest/create-laboratory-request';
 import { useEffect } from "react";
+import { PatientSelector } from '@/components/shared/patient-selector';
+
 
 
 const labFormSchema = z.object({
@@ -48,8 +50,6 @@ const labFormSchema = z.object({
     coloracion_zhiel_nielsen: z.string(),
   }).optional(),
 });
-
-
 type LabFormValues = z.infer<typeof labFormSchema>;
 
 export default function LabRequestForm() {
@@ -61,6 +61,10 @@ export default function LabRequestForm() {
     resolver: zodResolver(labFormSchema),
     mode: "onChange",
   });
+
+  const handlePatientSelect = (patient: any) => {
+    setValue('numero_de_archivo', String(patient.document));
+  };
 
   /** 🔹 Fetch session data (userId y patientId) */
   useEffect(() => {
@@ -185,12 +189,14 @@ export default function LabRequestForm() {
   }, [errors]);
 
   return (
-    <div className="container mx-auto p-6 bg-[#f0f4f8] dark:bg-[#0B1120] rounded-lg">
-      <div className="bg-white dark:bg-[#0B1120] p-6 rounded-lg">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-2">
-            Formulario de Solicitud de Laboratorio
-          </h1>
+          <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
+      <div className='flex items-center justify-between mb-6'>
+        <h2 className='text-2xl font-bold'>Formulario de Solicitud de Laboratorio</h2>
+        <PatientSelector onSelect={handlePatientSelect} />
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
+        <h2 className='mb-6 text-2xl font-bold'>
+        </h2>
 
           {/* Sección A: Datos del Paciente */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
@@ -695,10 +701,6 @@ export default function LabRequestForm() {
           </div>
         </form>
       </div>
-    </div>
   );
 }
-
-
-
 

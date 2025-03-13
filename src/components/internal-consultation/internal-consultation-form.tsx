@@ -169,9 +169,8 @@ export default function InternalConsultationForm() {
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         <h2 className='mb-6 text-2xl font-bold'>
-          Formulario de Interconsulta
         </h2>
-
+        
         {/* Sección A: Datos básicos */}
         <section className='space-y-4'>
           <h3 className='text-xl font-semibold'>A. Datos Básicos</h3>

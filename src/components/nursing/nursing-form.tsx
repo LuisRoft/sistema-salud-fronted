@@ -14,6 +14,8 @@ import { useEffect } from "react";
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { createNursingForm } from '@/services/nursingService';
 import { AxiosError } from 'axios';
+import { PatientSelector } from '@/components/shared/patient-selector';
+
 
 // Esquema para validación
 const nursingFormSchema = z.object({
@@ -72,6 +74,10 @@ export default function NursingNNNForm() {
       nic_actividades: [{ value: '' }],
     }
   });
+
+  const handlePatientSelect = (patient: any) => {
+    setValue("patientId", patient.id);
+  };
 
   // Configuración de campos de array para NOC
   const nocIndicadores = useFieldArray({
@@ -217,12 +223,14 @@ export default function NursingNNNForm() {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-[#f0f4f8] dark:bg-[#0B1120] rounded-lg">
-      <div className="bg-white dark:bg-[#0B1120] p-6 rounded-lg">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-gray-800 pb-2">
-            Formulario de Enfermería NNN (NANDA-NOC-NIC)
-          </h1>
+    <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
+      <div className='flex items-center justify-between mb-6'>
+        <h2 className='text-2xl font-bold'>Formulario de Enfermería NNN (NANDA-NOC-NIC)</h2>
+        <PatientSelector onSelect={handlePatientSelect} />
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
+        <h2 className='mb-6 text-2xl font-bold'>
+        </h2>
 
           {/* Sección A: NANDA - Diagnóstico de Enfermería */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
@@ -528,6 +536,5 @@ export default function NursingNNNForm() {
           </div>
         </form>
       </div>
-    </div>
   );
 }
