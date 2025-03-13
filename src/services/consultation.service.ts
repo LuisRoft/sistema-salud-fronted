@@ -1,5 +1,6 @@
 import { axiosInstance } from '@/lib/axios';
 import { getSession } from 'next-auth/react';
+import { get } from './requestHandler';
 
 export const createInitialConsultation = async (consultationData: any) => {
   try {
@@ -26,4 +27,31 @@ export const createInitialConsultation = async (consultationData: any) => {
     }
     throw error;
   }
+};
+
+export const getAllInitialConsultations = async (token: string) => {
+  const response = await get('/api/consultations/initial', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const getAllSubsequentConsultations = async (token: string) => {
+  const response = await get('/api/consultations/subsequent', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const getConsultationsByUser = async (token: string, userId: string) => {
+  const response = await get(`/api/consultations/user/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 }; 

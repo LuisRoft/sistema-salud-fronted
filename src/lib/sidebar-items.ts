@@ -2,6 +2,7 @@ import {
   Bot,
   BriefcaseMedicalIcon,
   HeartHandshake,
+  HistoryIcon,
   SyringeIcon,
   User2,
   Users,
@@ -62,7 +63,7 @@ export const sidebarItems = {
       isActive: true,
       items: [
         {
-          title: 'Usuarios asignados',
+          title: 'Usuarios Asignados',
           url: '/pucem/users',
         },
       ],
@@ -94,6 +95,17 @@ export const sidebarItems = {
         {
           title: 'Formulario de Enfermería',
           url: '/pucem/nursing',
+        },
+      ],
+    },
+    {
+      title: 'Historial',
+      icon: HistoryIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Historial de Consulta',
+          url: '/pucem/consultation-history',
         },
       ],
     },

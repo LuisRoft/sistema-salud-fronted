@@ -21,7 +21,6 @@ export const createLaboratoryRequest = async (data: CreateLaboratoryRequestDTO, 
   }
 };
 
-
 /**
  * Obtiene todas las solicitudes de laboratorio
  */
@@ -32,7 +31,7 @@ export const getLaboratoryRequests = async (token: string): Promise<LabRequestRo
     });
 
     return res.data.map((req: any) => ({
-      id: req.id ?? crypto.randomUUID(), // ✅ Si `id` falta, se genera uno temporal
+      id: req.id ?? crypto.randomUUID(),
       numero_de_archivo: req.numero_de_archivo,
       diagnostico_descripcion1: req.diagnostico_descripcion1,
       diagnostico_cie1: req.diagnostico_cie1,
@@ -46,8 +45,8 @@ export const getLaboratoryRequests = async (token: string): Promise<LabRequestRo
       heces_examenes: req.heces_examenes ?? [],
       hormonas_examenes: req.hormonas_examenes ?? [],
       serologia_examenes: req.serologia_examenes ?? [],
-      userId: req.user?.id ?? '', // ✅ Evita `undefined`
-      patientId: req.patient?.id ?? '', // ✅ Evita `undefined`
+      userId: req.user?.id ?? '',
+      patientId: req.patient?.id ?? '',
     }));
   } catch (error) {
     console.error('❌ Error al obtener las solicitudes de laboratorio:', error);
@@ -66,6 +65,21 @@ export const getLaboratoryRequestById = async (id: string, token: string): Promi
     return res.data;
   } catch (error) {
     console.error(`❌ Error al obtener la solicitud con ID ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene todas las solicitudes de laboratorio de un usuario específico
+ */
+export const getLaboratoryRequestsByUser = async (userId: string, token: string): Promise<LabRequestRow[]> => {
+  try {
+    const res = await get(`/api/laboratory-request/user/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (error) {
+    console.error(`❌ Error al obtener las solicitudes del usuario ${userId}:`, error);
     throw error;
   }
 };

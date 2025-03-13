@@ -22,8 +22,8 @@ export default function CreateTeamDialog() {
       </DialogTrigger>
       <DialogContent className='sm:max-w-xl'>
         <DialogHeader>
-          <DialogTitle>Crear Equipo</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="uppercase">Crear Equipo</DialogTitle>
+          <DialogDescription className="uppercase">
             Formulario para crear un nuevo Equipo
           </DialogDescription>
         </DialogHeader>
