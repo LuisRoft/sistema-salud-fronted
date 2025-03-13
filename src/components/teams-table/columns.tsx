@@ -11,18 +11,20 @@ import  EditTeamDialog from './team/EditTeamDialog';
 export const teamSchema = z.object({
   id: z.string(),
   teamName: z.string().min(1, 'El nombre del equipo es requerido'),
-  patientCount: z.number().nonnegative(),  // ✅ Ahora el schema valida `patientCount`
+  patientCount: z.number().nonnegative(),
+  userCount: z.number().nonnegative(),  // ✅ Ahora `userCount` es parte del esquema
   patient: z.object({
     id: z.string(),
     document: z.string(),
     name: z.string(),
     lastName: z.string(),
-  }).optional(), // ✅ Hacemos opcional `patient` en caso de equipos sin pacientes
+  }).optional(),
   group: z.object({
     id: z.string(),
     groupName: z.string(),
   }),
 });
+
 
 
 export type Team = z.infer<typeof teamSchema>;
@@ -58,6 +60,7 @@ export const columns: ColumnDef<Team>[] = [
       return <div className='text-sm text-center'>{count}</div>;
     },
   },
+  
   {
     accessorKey: 'group',
     header: ({ column }) => (
