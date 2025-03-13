@@ -298,7 +298,7 @@ export default function CreateTeamForm({ onClose }: { onClose: () => void }) {
                 <Loader2 className='animate-spin' size={16} strokeWidth={2} />
               </div>
             ) : (
-              'Crear Equipo'
+              'Crear Team'
             )}
           </Button>
         </form>

@@ -1,6 +1,7 @@
-import { post } from './requestHandler';
+import { post, get } from './requestHandler';
 import { InternalConsultationDTO } from '@/types/consultation/internal-consultation';
 
+// Crear consulta interna
 export const createInternalConsultation = async (data: InternalConsultationDTO, token: string) => {
   try {
     const url = '/consultations-internal';
@@ -23,4 +24,34 @@ export const createInternalConsultation = async (data: InternalConsultationDTO, 
     }
     throw error;
   }
+};
+
+// Obtener todas las consultas internas
+export const getAllInternalConsultations = async (token: string) => {
+  const response = await get('/api/consultations-internal', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+// Obtener una consulta interna por ID
+export const getInternalConsultationById = async (token: string, id: string) => {
+  const response = await get(`/api/consultations-internal/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+// Obtener consultas internas por usuario
+export const getInternalConsultationsByUser = async (token: string, userId: string) => {
+  const response = await get(`/api/consultations-internal/user/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
 };

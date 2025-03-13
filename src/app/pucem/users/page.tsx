@@ -31,7 +31,7 @@ export default function UsersPage() {
       {patient ? (
         <>
           <div className="mb-6">
-            <p className="text-muted-foreground">Paciente asignado:</p>
+            <p className="text-muted-foreground">Paciente Asignado:</p>
           </div>
           <DataTable 
             columns={columns} 

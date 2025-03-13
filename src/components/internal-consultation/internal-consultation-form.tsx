@@ -11,6 +11,7 @@ import { useSession, getSession } from 'next-auth/react';
 import { useToast } from '@/components/ui/use-toast';
 import { createInternalConsultation } from '@/services/internalConsultation.service';
 import { useState } from 'react';
+import { PatientSelector } from '@/components/shared/patient-selector';
 
 const formSchema = z.object({
   numeroDeArchivo: z.number().min(1, 'Campo obligatorio'),
@@ -41,6 +42,7 @@ export default function InternalConsultationForm() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,6 +64,12 @@ export default function InternalConsultationForm() {
       planTerapeuticoPropuesto: '',
     },
   });
+
+  const handlePatientSelect = (patient: any) => {
+    setValue('numeroDeArchivo', Number(patient.document));
+    setValue('fecha', patient.birthday);
+    setValue('cuadroClinicoActual', patient.typeDisability);
+  };
 
   const [diagnosticos, setDiagnosticos] = useState([
     { desc: '', cie: '', presuntivo: false, definitivo: false },
@@ -138,8 +146,8 @@ export default function InternalConsultationForm() {
       });
     } catch (error) {
       console.error('❌ Error completo:', error);
-      if (error.response) {
-        console.error('Detalles del error del servidor:', error.response.data);
+      if (error instanceof Error && (error as any).response) {
+        console.error('Detalles del error del servidor:', (error as any).response.data);
       }
       const errorMessage =
         error instanceof Error
@@ -155,6 +163,10 @@ export default function InternalConsultationForm() {
 
   return (
     <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
+      <div className='flex items-center justify-between mb-6'>
+        <h2 className='text-2xl font-bold'>Formulario de Interconsulta</h2>
+        <PatientSelector onSelect={handlePatientSelect} />
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         <h2 className='mb-6 text-2xl font-bold'>
           Formulario de Interconsulta

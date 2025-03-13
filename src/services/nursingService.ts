@@ -50,3 +50,33 @@ export const createNursingForm = async (data: NursingFormData, token: string) =>
     throw error;
   }
 };
+
+// Obtener todos los formularios de enfermería
+export const getAllNursingForms = async (token: string) => {
+  const response = await get('/api/nursing', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+// Obtener un formulario de enfermería por ID
+export const getNursingFormById = async (token: string, id: string) => {
+  const response = await get(`/api/nursing/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+// Obtener formularios de enfermería por usuario
+export const getNursingFormsByUser = async (token: string, userId: string) => {
+  const response = await get(`/api/nursing/user/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};

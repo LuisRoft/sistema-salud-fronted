@@ -38,63 +38,60 @@ export function DataTablePagination<TData>({
           <p className='text-sm font-medium'>Filas por página</p>
           <Select
             value={`${pageSize}`}
-            onValueChange={(value) => setPageSize(Number(value))}
+            onValueChange={(value) => {
+              setPageSize(Number(value));
+              setPageIndex(0); // Reset to first page when changing page size
+            }}
           >
             <SelectTrigger className='h-8 w-[70px]'>
-              <SelectValue placeholder={`${pageSize}`} />
+              <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side='top'>
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
+              {[10, 20, 30, 40, 50].map((size) => (
+                <SelectItem key={size} value={`${size}`}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       </div>
-      <div className='flex items-center space-x-6 lg:space-x-8'>
-        <div className='flex w-[100px] items-center justify-center text-sm font-medium'>
-          Página {pageIndex + 1} de {totalPages}
-        </div>
-        <div className='flex items-center space-x-2'>
-          <Button
-            variant='outline'
-            className='hidden h-8 w-8 p-0 lg:flex'
-            onClick={() => setPageIndex(0)}
-            disabled={pageIndex === 0}
-          >
-            <span className='sr-only'>Go to first page</span>
-            <DoubleArrowLeftIcon className='h-4 w-4' />
-          </Button>
-          <Button
-            variant='outline'
-            className='h-8 w-8 p-0'
-            onClick={() => setPageIndex(pageIndex - 1)}
-            disabled={pageIndex === 0}
-          >
-            <span className='sr-only'>Go to previous page</span>
-            <ChevronLeftIcon className='h-4 w-4' />
-          </Button>
-          <Button
-            variant='outline'
-            className='h-8 w-8 p-0'
-            onClick={() => setPageIndex(pageIndex + 1)}
-            disabled={pageIndex === totalPages - 1}
-          >
-            <span className='sr-only'>Go to next page</span>
-            <ChevronRightIcon className='h-4 w-4' />
-          </Button>
-          <Button
-            variant='outline'
-            className='hidden h-8 w-8 p-0 lg:flex'
-            onClick={() => setPageIndex(totalPages - 1)}
-            disabled={pageIndex === totalPages - 1}
-          >
-            <span className='sr-only'>Go to last page</span>
-            <DoubleArrowRightIcon className='h-4 w-4' />
-          </Button>
-        </div>
+      <div className='flex w-[100px] items-center justify-center text-sm font-medium'>
+        Página {pageIndex + 1} de {Math.max(1, totalPages)}
+      </div>
+      <div className='flex items-center space-x-2'>
+        <Button
+          variant='outline'
+          className='h-8 w-8 p-0'
+          onClick={() => setPageIndex(0)}
+          disabled={pageIndex === 0}
+        >
+          <DoubleArrowLeftIcon className='h-4 w-4' />
+        </Button>
+        <Button
+          variant='outline'
+          className='h-8 w-8 p-0'
+          onClick={() => setPageIndex(pageIndex - 1)}
+          disabled={pageIndex === 0}
+        >
+          <ChevronLeftIcon className='h-4 w-4' />
+        </Button>
+        <Button
+          variant='outline'
+          className='h-8 w-8 p-0'
+          onClick={() => setPageIndex(pageIndex + 1)}
+          disabled={pageIndex >= totalPages - 1}
+        >
+          <ChevronRightIcon className='h-4 w-4' />
+        </Button>
+        <Button
+          variant='outline'
+          className='h-8 w-8 p-0'
+          onClick={() => setPageIndex(totalPages - 1)}
+          disabled={pageIndex >= totalPages - 1}
+        >
+          <DoubleArrowRightIcon className='h-4 w-4' />
+        </Button>
       </div>
     </div>
   );

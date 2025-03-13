@@ -2,7 +2,6 @@ import { Group } from './groupsService';
 import { Patient } from './patientService';
 import { post, get, patch, del } from './requestHandler';
 
-
 interface createTeam {
   teamName: string;
   groupId: string;
@@ -22,18 +21,18 @@ export interface Team {
 }
 
 export interface editTeam {
+  id: string;
+  teamName: string;
+  patient: {
     id: string;
-   teamName: string;
-    patient: {
-       id: string;
-       document: string;
-       name: string;
-       lastName: string;
-     };
-     group: {
-       id: string;
-       groupName: string;
-     };
+    document: string;
+    name: string;
+    lastName: string;
+  };
+  group: {
+    id: string;
+    groupName: string;
+  };
 }
 
 export const createTeam = async (data: createTeam, token: string) => {
@@ -54,6 +53,16 @@ export const getTeams = async (
     },
   });
 
+  return response.data;
+};
+
+// Agregar la nueva función para obtener pacientes asignados
+export const getAssignedPatients = async (token: string): Promise<Patient[]> => {
+  const response = await get('/teams/my-patients', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 

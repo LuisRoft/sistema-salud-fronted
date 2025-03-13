@@ -21,7 +21,7 @@ export function CareerDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Seleccionar Carrera</DialogTitle>
+          <DialogTitle className="uppercase">Seleccionar Carrera</DialogTitle>
         </DialogHeader>
         <CareerForm onClose={onClose} onSelect={onSelect} />
       </DialogContent>
