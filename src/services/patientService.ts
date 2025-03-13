@@ -1,4 +1,5 @@
 import { get, post } from './requestHandler';
+import { getSession } from 'next-auth/react';
 
 interface GetPatientsParams {
   page?: number;
@@ -78,19 +79,60 @@ export const getPatientByDocument = async (document: string, token: string) => {
   return response.data;
 };
 
-export const getPatientByUserAssigned = async (userId: string, token: string): Promise<Patient[]> => {
+export const getPatientByUserAssigned = async (
+  userId: string,
+  token: string,
+): Promise<Patient[]> => {
   console.log('🔍 Fetching patients for user:', userId);
   try {
+    // First try to get patients from team assignment
+    const session = await getSession();
+    const teamData = session?.user?.team;
+    
+    // If user has team with patients, use those first
+    if (teamData?.patient && Object.values(teamData.patient).length > 0) {
+      const teamPatients = Object.values(teamData.patient) as Patient[];
+      console.log('✅ Using patients from team assignment:', teamPatients);
+      return teamPatients;
+    }
+    
+    // Otherwise fetch from API
     const response = await get(`/patients/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('✅ Patients received:', response.data);
-    return response.data;
+    
+    console.log('✅ API Response:', response.data);
+    
+    // Handle both array and object with patients property
+    const patients = Array.isArray(response.data) 
+      ? response.data 
+      : response.data.patients || [];
+      
+    console.log('✅ Processed patients:', patients);
+    return patients;
   } catch (error) {
     console.error('❌ Error fetching patients:', error);
-    throw error;
+    if ((error as any).response) {
+      console.error('Server response:', (error as any).response.data);
+      console.error('Status code:', (error as any).response.status);
+    }
+    
+    // Try to get patients from session as fallback
+    try {
+      const session = await getSession();
+      const teamData = session?.user?.team;
+      if (teamData?.patient && Object.values(teamData.patient).length > 0) {
+        const teamPatients = Object.values(teamData.patient) as Patient[];
+        console.log('✅ Fallback: Using patients from team assignment:', teamPatients);
+        return teamPatients;
+      }
+    } catch (sessionError) {
+      console.error('Failed to get patients from session:', sessionError);
+    }
+    
+    return [];
   }
 };
 

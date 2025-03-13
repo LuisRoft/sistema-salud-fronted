@@ -29,6 +29,14 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
         return [];
       }
       
+      // First check if user has patients in team
+      const teamData = session?.user?.team;
+      if (teamData?.patient && Object.values(teamData.patient).length > 0) {
+        const teamPatients = Object.values(teamData.patient) as Patient[];
+        console.log('✅ Using patients from team assignment:', teamPatients);
+        return teamPatients;
+      }
+      
       // Get user ID from token
       const tokenParts = session.user.access_token.split('.');
       const payload = JSON.parse(atob(tokenParts[1]));
@@ -37,9 +45,15 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
       console.log('🔑 Using token:', session.user.access_token);
       console.log('👤 User ID:', userId);
       
-      return getPatientByUserAssigned(userId, session.user.access_token);
+      try {
+        return await getPatientByUserAssigned(userId, session.user.access_token);
+      } catch (error) {
+        console.error('Error fetching patients:', error);
+        return [];
+      }
     },
     enabled: !!session?.user?.access_token,
+    retry: 1, // Limit retries on failure
   });
 
   // Debug log
@@ -63,13 +77,20 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
         </DialogHeader>
         <div className="grid gap-4">
           {isLoading ? (
-            <div>Cargando pacientes...</div>
+            <div className="flex justify-center p-4">
+              <div className="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"></div>
+              <span className="ml-2">Cargando pacientes...</span>
+            </div>
           ) : error ? (
-            <div className="text-red-500">Error al cargar pacientes: {(error as Error).message}</div>
+            <div className="text-red-500 p-4">
+              Error al cargar pacientes: {(error as Error).message}
+            </div>
           ) : !patients?.length ? (
-            <div className="text-gray-500">No hay pacientes asignados</div>
+            <div className="text-gray-500 p-4">
+              No hay pacientes asignados a este usuario. Por favor contacte a un administrador para que le asigne pacientes.
+            </div>
           ) : (
-            <div className="grid gap-2">
+            <div className="grid gap-2 max-h-[60vh] overflow-y-auto p-2">
               {patients.map((patient) => (
                 <Button
                   key={patient.id}
@@ -81,7 +102,12 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
                     setOpen(false);
                   }}
                 >
-                  {patient.lastName}, {patient.name} - {patient.document}
+                  <div>
+                    <strong>{patient.lastName}, {patient.name}</strong>
+                    <div className="text-sm text-gray-500">
+                      Documento: {patient.document}
+                    </div>
+                  </div>
                 </Button>
               ))}
             </div>
