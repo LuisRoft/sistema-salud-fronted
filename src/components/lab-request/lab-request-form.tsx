@@ -36,6 +36,7 @@ const labFormSchema = z.object({
   diagnostico_cie1: z.string().min(1, 'Campo obligatorio'),
   diagnostico_descripcion2: z.string().min(1, 'Campo obligatorio'),
   diagnostico_cie2: z.string().min(1, 'Campo obligatorio'),
+  fecha: z.string().min(1, 'Campo obligatorio'),
   prioridad: z.enum(['URGENTE', 'RUTINA']),
   hematologia_examenes: z.array(z.string()).optional().default([]),
   coagulacion_examenes: z.array(z.string()).optional().default([]),
@@ -183,6 +184,10 @@ export default function LabRequestForm() {
   
       console.log('User ID from token:', userId);
   
+      // Obtener la fecha actual del sistema en formato ISO (YYYY-MM-DD)
+      const fechaActual = new Date().toISOString().split('T')[0];
+      console.log('Fecha actual:', fechaActual);
+  
       // Filtrar campos visuales que no deben enviarse al backend
       const {
         primer_nombre,
@@ -201,7 +206,8 @@ export default function LabRequestForm() {
       const formattedData = {
         ...filteredData,
         userId: userId,
-        patientId: patientId
+        patientId: patientId,
+        fecha: data.fecha,  // Incluir la fecha
       };
   
       console.log('Datos a enviar:', formattedData);
@@ -233,6 +239,7 @@ export default function LabRequestForm() {
       });
     }
   };
+  
   
 
   /** 🔹 Muestra errores en la consola para debugging */
@@ -325,6 +332,19 @@ export default function LabRequestForm() {
       {...register('diagnostico_cie2')} 
     />
   </div>
+  <div className="space-y-2">
+  <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+    Fecha
+  </Label>
+  <Input 
+    type="date"
+    className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+             dark:border-transparent focus:border-blue-500 
+             dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+    {...register('fecha')} 
+  />
+</div>
+
 </div>
 
 
