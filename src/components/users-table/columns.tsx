@@ -29,7 +29,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const name = row.original.name;
-      return <div className='text-sm capitalize'>{name}</div>;
+      return <div className='text-sm uppercase'>{name}</div>;
     },
   },
   {
@@ -39,7 +39,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const lastName = row.original.lastName;
-      return <div className='text-sm capitalize'>{lastName}</div>;
+      return <div className='text-sm uppercase'>{lastName}</div>;
     },
   },
   {
@@ -69,7 +69,8 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const gender = row.original.gender;
-      return <div className='text-sm capitalize'>{gender}</div>;
+      const genderText = gender === 'male' ? 'Hombre' : gender === 'female' ? 'Mujer' : 'No especificado';
+      return <div className='text-sm uppercase'>{genderText}</div>;
     },
   },
   {
@@ -80,7 +81,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const isActive = row.original.isActive;
       return (
-        <div className='text-sm capitalize'>
+        <div className='text-sm uppercase'>
           {isActive ? 'Activo' : 'Inactivo'}
         </div>
       );
@@ -103,7 +104,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const typeBeneficiary = row.original.typeBeneficiary;
-      return <div className='text-sm capitalize'>{typeBeneficiary}</div>;
+      return <div className='text-sm uppercase'>{typeBeneficiary}</div>;
     },
   },
   {
@@ -113,7 +114,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const typeDisability = row.original.typeDisability;
-      return <div className='text-sm capitalize'>{typeDisability}</div>;
+      return <div className='text-sm uppercase'>{typeDisability}</div>;
     },
   },
   {
@@ -123,20 +124,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       const zone = row.original.zone;
-      return <div className='text-sm capitalize'>{zone}</div>;
+      return <div className='text-sm uppercase'>{zone}</div>;
     },
   },
- /*  {
-    id: 'actions',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Acciones' />
-    ),
-    cell: ({ row }) => (
-      <ActionsCells<User>
-        data={row.original}
-        DeleteDialog={DeleteUserDialog}
-        EditDialog={EditUserDialog}
-      />
-    ),
-  }, */
 ];

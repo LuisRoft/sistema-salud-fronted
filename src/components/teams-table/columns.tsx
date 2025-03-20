@@ -6,13 +6,13 @@ import { z } from 'zod';
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
 import ActionsCells from '../actions-cells';
 import DeleteTeamDialog from './team/DeleteTeamDialog';
-import  EditTeamDialog from './team/EditTeamDialog';
+import EditTeamDialog from './team/EditTeamDialog';
 
 export const teamSchema = z.object({
   id: z.string(),
   teamName: z.string().min(1, 'El nombre del equipo es requerido'),
   patientCount: z.number().nonnegative(),
-  userCount: z.number().nonnegative(),  // ✅ Ahora `userCount` es parte del esquema
+  userCount: z.number().nonnegative(),
   patient: z.object({
     id: z.string(),
     document: z.string(),
@@ -25,8 +25,6 @@ export const teamSchema = z.object({
   }),
 });
 
-
-
 export type Team = z.infer<typeof teamSchema>;
 
 export const columns: ColumnDef<Team>[] = [
@@ -37,7 +35,7 @@ export const columns: ColumnDef<Team>[] = [
     ),
     cell: ({ row }) => {
       const teamName = row.original.teamName;
-      return <div className='text-sm capitalize'>{teamName}</div>;
+      return <div className='text-sm uppercase'>{teamName}</div>; // Cambiado a uppercase
     },
   },
   {
@@ -60,7 +58,6 @@ export const columns: ColumnDef<Team>[] = [
       return <div className='text-sm text-center'>{count}</div>;
     },
   },
-  
   {
     accessorKey: 'group',
     header: ({ column }) => (
@@ -68,7 +65,7 @@ export const columns: ColumnDef<Team>[] = [
     ),
     cell: ({ row }) => {
       const group = row.original.group;
-      return <div className='text-sm capitalize'>{group.groupName}</div>;
+      return <div className='text-sm uppercase'>{group.groupName}</div>; // Cambiado a uppercase
     },
   },
   {
@@ -80,21 +77,8 @@ export const columns: ColumnDef<Team>[] = [
       <ActionsCells<Team>
         data={row.original}
         DeleteDialog={DeleteTeamDialog}
-        EditDialog={(props) => <EditTeamDialog {...props} data={row.original} />}  // ✅ Ahora pasa `Team` directamente
+        EditDialog={(props) => <EditTeamDialog {...props} data={row.original} />}
       />
-
     ),
   },
-  
-
-  //   {
-  //     id: 'actions',
-  //     cell: ({ row }) => (
-  //       <ActionsCells<Team>
-  //         data={row.original}
-  //         DeleteDialog={DeleteTeamDialog}
-  //         EditDialog={EditTeamDialog}
-  //       />
-  //     ),
-  //   },
 ];

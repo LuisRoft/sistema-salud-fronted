@@ -16,7 +16,7 @@ export const adminSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido es requerido'),
   email: z.string().email('Debe ser un correo electrónico válido'),
-  career: z.union([z.string(), z.object({ careerName: z.string() })]).optional(), // 🔹 Ahora `career` puede ser una cadena o un objeto
+  career: z.union([z.string(), z.object({ careerName: z.string() })]).optional(),
 });
 
 export type Admin = z.infer<typeof adminSchema>;
@@ -34,18 +34,20 @@ export const columns: ColumnDef<Admin>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Nombre" />
     ),
-    cell: ({ row }) => (
-      <div className="text-sm capitalize">{row.original.name}</div>
-    ),
+    cell: ({ row }) => {
+      const name = row.original.name || '';
+      return <div className="text-sm uppercase">{name.toUpperCase()}</div>;
+    },
   },
   {
     accessorKey: 'lastName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Apellido" />
     ),
-    cell: ({ row }) => (
-      <div className="text-sm capitalize">{row.original.lastName}</div>
-    ),
+    cell: ({ row }) => {
+      const lastName = row.original.lastName || '';
+      return <div className="text-sm uppercase">{lastName.toUpperCase()}</div>;
+    },
   },
   {
     accessorKey: 'email',
@@ -53,19 +55,18 @@ export const columns: ColumnDef<Admin>[] = [
       <DataTableColumnHeader column={column} title="Correo Electrónico" />
     ),
   },
-    {
-      accessorKey: 'career',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Carrera" />
-      ),
-      cell: ({ row }) => {
-        const career = row.original.career;
-        return (
-          <div className="text-sm capitalize">
-            {career && typeof career === 'object' ? (career as { careerName: string }).careerName : "Sin Carrera"} {/* 🔹 Ahora verifica si `career` es un objeto */}
-          </div>
-
-      );
+  {
+    accessorKey: 'career',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Carrera" />
+    ),
+    cell: ({ row }) => {
+      const career = row.original.career;
+      const careerName =
+        career && typeof career === 'object'
+          ? (career as { careerName: string }).careerName
+          : 'Sin Carrera';
+      return <div className="text-sm uppercase">{careerName.toUpperCase()}</div>;
     },
   },
   {
