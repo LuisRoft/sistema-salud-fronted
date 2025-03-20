@@ -22,7 +22,17 @@ import { PatientSelector } from '@/components/shared/patient-selector';
 
 const labFormSchema = z.object({
   numero_de_archivo: z.string().min(1, 'Campo obligatorio'),
+  cedula: z.string().optional(),
+  primer_nombre: z.string().min(1, 'Campo obligatorio'),
+  primer_apellido: z.string().min(1, 'Campo obligatorio'),
+  segundo_nombre: z.string().optional(),
+  segundo_apellido: z.string().optional(),
   diagnostico_descripcion1: z.string().min(1, 'Campo obligatorio'),
+  gender: z.string().min(1, 'Campo obligatorio'),
+  birthday: z.string().min(1, 'Campo obligatorio'),
+  typeDisability: z.string().min(1, 'Campo obligatorio'),
+  percentageDisability: z.string().min(1, 'Campo obligatorio'),
+  zone: z.string().min(1, 'Campo obligatorio'),
   diagnostico_cie1: z.string().min(1, 'Campo obligatorio'),
   diagnostico_descripcion2: z.string().min(1, 'Campo obligatorio'),
   diagnostico_cie2: z.string().min(1, 'Campo obligatorio'),
@@ -50,6 +60,7 @@ const labFormSchema = z.object({
     coloracion_zhiel_nielsen: z.string(),
   }).optional(),
 });
+
 type LabFormValues = z.infer<typeof labFormSchema>;
 
 export default function LabRequestForm() {
@@ -63,8 +74,20 @@ export default function LabRequestForm() {
   });
 
   const handlePatientSelect = (patient: any) => {
-    setValue('numero_de_archivo', String(patient.document));
+    console.log("Selecting patient: ", patient);
+    setValue('cedula', String(patient.document || ''));
+    setValue('primer_nombre', String(patient.name || ''));
+    setValue('primer_apellido', String(patient.lastName || ''));
+    setValue('segundo_nombre', String(patient.secondName || ''));
+    setValue('segundo_apellido', String(patient.secondLastName || ''));
+    setValue('gender', String(patient.gender || ''));
+    setValue('birthday', String(patient.birthday || ''));
+    setValue('typeDisability', String(patient.typeDisability || ''));
+    setValue('percentageDisability', String(patient.percentageDisability || ''));
+    setValue('zone', String(patient.zone || ''));
+    setValue('patientId', String(patient.id || ''));
   };
+  
 
   /** 🔹 Fetch session data (userId y patientId) */
   useEffect(() => {
@@ -139,8 +162,11 @@ export default function LabRequestForm() {
         });
         return;
       }
-
-      const patientId = sessionData.user.team?.patient?.id;
+  
+      const token = sessionData.user.access_token;
+  
+      // Verificamos si el patientId ya fue obtenido en el handlePatientSelect
+      const patientId = getValues("patientId");
       if (!patientId) {
         toast({
           title: "Error",
@@ -149,30 +175,57 @@ export default function LabRequestForm() {
         });
         return;
       }
-
+  
       // Extraer el ID del usuario del token JWT
-      const token = sessionData.user.access_token;
       const tokenParts = token.split('.');
       const payload = JSON.parse(atob(tokenParts[1]));
       const userId = payload.id;
-
+  
       console.log('User ID from token:', userId);
-
+  
+      // Filtrar campos visuales que no deben enviarse al backend
+      const {
+        primer_nombre,
+        primer_apellido,
+        segundo_nombre,
+        segundo_apellido,
+        gender,
+        birthday,
+        typeDisability,
+        percentageDisability,
+        zone,
+        cedula, // 👈 Excluir la cédula
+        ...filteredData
+      } = data;
+  
       const formattedData = {
-        ...data,
+        ...filteredData,
         userId: userId,
-        patientId: patientId // Usar el patientId validado
+        patientId: patientId
       };
-
+  
       console.log('Datos a enviar:', formattedData);
-
+  
+      // Hacemos la solicitud al backend
       const response = await createLaboratoryRequest(formattedData, token);
-      toast({
-        title: 'Éxito',
-        description: 'Pedido de laboratorio creado correctamente',
-      });
+  
+      if (response) {
+        toast({
+          title: 'Éxito',
+          description: 'Pedido de laboratorio creado correctamente',
+          variant: 'default',
+        });
+        console.log("✅ Solicitud creada con éxito:", response);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'No se pudo crear la solicitud',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al crear el pedido de laboratorio';
+      console.error("❌ Error al crear la solicitud:", errorMessage);
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -180,6 +233,7 @@ export default function LabRequestForm() {
       });
     }
   };
+  
 
   /** 🔹 Muestra errores en la consola para debugging */
   useEffect(() => {
@@ -198,68 +252,84 @@ export default function LabRequestForm() {
         <h2 className='mb-6 text-2xl font-bold'>
         </h2>
 
-          {/* Sección A: Datos del Paciente */}
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
-            A. Datos del Paciente
-          </h2>
+{/* Sección A: Datos del Paciente */}
+<h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
+  A. Datos del Paciente
+</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Número de Archivo
-              </Label>
-              <Input 
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
-                {...register('numero_de_archivo')} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Diagnóstico 1
-              </Label>
-              <Input 
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
-                {...register('diagnostico_descripcion1')} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                CIE 1
-              </Label>
-              <Input 
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
-                {...register('diagnostico_cie1')} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Diagnóstico 2
-              </Label>
-              <Input 
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
-                {...register('diagnostico_descripcion2')} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                CIE 2
-              </Label>
-              <Input 
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
-                {...register('diagnostico_cie2')} 
-              />
-            </div>
-          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      Número de Archivo
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('numero_de_archivo')} 
+    />
+  </div>
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      Cédula
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('cedula')} 
+      readOnly
+    />
+  </div>
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      Diagnóstico 1
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('diagnostico_descripcion1')} 
+    />
+  </div>
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      CIE 1
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('diagnostico_cie1')} 
+    />
+  </div>
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      Diagnóstico 2
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('diagnostico_descripcion2')} 
+    />
+  </div>
+  <div className="space-y-2">
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      CIE 2
+    </Label>
+    <Input 
+      className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-transparent focus:border-blue-500 
+               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+      {...register('diagnostico_cie2')} 
+    />
+  </div>
+</div>
+
+
+
+
 
           {/* Sección B: Servicio y Prioridad */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md mt-8">
