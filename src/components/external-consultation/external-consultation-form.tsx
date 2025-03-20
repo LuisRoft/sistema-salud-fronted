@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { PatientSelector } from '../shared/patient-selector';
 import { Patient } from '@/services/patientService';
+import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
 
 // Esquema de validación con Zod
 const formSchema = z.object({
@@ -116,7 +117,9 @@ const formSchema = z.object({
     malformacion: z.boolean(),
     otro: z.string().optional(),
   }),
+  patientId: z.string().optional(), 
 });
+
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -124,6 +127,19 @@ export default function ExternalConsultationForm() {
   const { data: session } = useSession();
   const { toast } = useToast();
   const patient = session?.user?.team?.patient;
+  const [diagnosticos, setDiagnosticos] = useState([{ desc: '', cie: '', presuntivo: false, definitivo: false }]);
+
+
+  const agregarDiagnostico = () => {
+    setDiagnosticos([...diagnosticos, { desc: '', cie: '', presuntivo: false, definitivo: false }]);
+  };  
+
+const eliminarDiagnostico = (index: number) => {
+  const nuevosDiagnosticos = [...diagnosticos];
+  nuevosDiagnosticos.splice(index, 1);
+  setDiagnosticos(nuevosDiagnosticos);
+};
+
 
   // Obtener los datos guardados del localStorage
   const getSavedFormData = () => {
@@ -1112,18 +1128,125 @@ export default function ExternalConsultationForm() {
           </section>
 
           {/* Sección I: Diagnóstico */}
-          <section className='mb-4'>
-            <h3 className='mb-4 text-xl font-semibold'>I. Diagnóstico</h3>
-            <div className='space-y-2'>
-              <Label>Diagnóstico</Label>
-              <Input {...register('diagnostico')} />
-              {errors.diagnostico && (
-                <p className='text-sm text-red-600 dark:text-red-400'>
-                  {errors.diagnostico.message}
-                </p>
-              )}
-            </div>
-          </section>
+<section className='mb-4'>
+  <h3 className='mb-4 text-xl font-semibold'>I. Diagnóstico</h3>
+  <div className='space-y-2'>
+    <Label>Diagnóstico</Label>
+    <Input {...register('diagnostico')} />
+    {errors.diagnostico && (
+      <p className='text-sm text-red-600 dark:text-red-400'>
+        {errors.diagnostico.message}
+      </p>
+    )}
+  </div>
+</section>
+
+{/* Sección I: Diagnósticos Dinámicos */}
+<section className='mb-4'>
+  <div className='flex items-center justify-end mb-2'>
+    <Button
+      type='button'
+      onClick={agregarDiagnostico}
+      variant='outline'
+      className='flex items-center gap-2 rounded-md border border-blue-500 text-blue-400 hover:bg-blue-800 hover:text-white px-4 py-2'
+    >
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
+        viewBox='0 0 24 24'
+        strokeWidth={2}
+        stroke='currentColor'
+        className='w-5 h-5'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          d='M12 4.5v15m7.5-7.5h-15'
+        />
+      </svg>
+      Agregar Diagnóstico
+    </Button>
+  </div>
+
+  {diagnosticos.map((diag, index) => (
+    <div
+      key={index}
+      className='relative grid grid-cols-2 gap-x-4 gap-y-2 rounded border bg-input p-4 mb-2'
+    >
+      <div className='space-y-2'>
+        <Label>Descripción del Diagnóstico</Label>
+        <Input
+          value={diag.desc}
+          onChange={(e) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].desc = e.target.value;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+          placeholder='Ej: Hipertensión esencial'
+          className='bg-zinc-50 dark:bg-gray-800'
+        />
+      </div>
+
+      <div className='space-y-2'>
+        <Label>Código CIE</Label>
+        <AutocompleteCIE
+          onSelect={(cie, desc) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].cie = cie;
+            nuevosDiagnosticos[index].desc = desc;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+        />
+      </div>
+
+      {/* Opciones de Diagnóstico: Presuntivo y Definitivo */}
+      <div className='flex space-x-4'>
+        <label className='flex items-center space-x-2'>
+          <input
+            type='checkbox'
+            checked={diag.presuntivo || false}
+            onChange={(e) => {
+              const nuevosDiagnosticos = [...diagnosticos];
+              nuevosDiagnosticos[index].presuntivo = e.target.checked;
+              setDiagnosticos(nuevosDiagnosticos);
+            }}
+          />
+          <span>Presuntivo</span>
+        </label>
+        <label className='flex items-center space-x-2'>
+          <input
+            type='checkbox'
+            checked={diag.definitivo || false}
+            onChange={(e) => {
+              const nuevosDiagnosticos = [...diagnosticos];
+              nuevosDiagnosticos[index].definitivo = e.target.checked;
+              setDiagnosticos(nuevosDiagnosticos);
+            }}
+          />
+          <span>Definitivo</span>
+        </label>
+      </div>
+
+      {/* Botón de Eliminar */}
+      <Button
+        type='button'
+        variant='ghost'
+        size='icon'
+        className='absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+        onClick={() => eliminarDiagnostico(index)}
+      >
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='currentColor'
+          viewBox='0 0 24 24'
+          className='w-6 h-6'
+        >
+          <path d='M9 3v1H4v2h16V4h-5V3H9zM7 8v12c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V8H7zm4 2h2v8h-2v-8z' />
+        </svg>
+      </Button>
+    </div>
+  ))}
+</section>
 
           {/* Sección J: Plan de Tratamiento */}
           <section className='mb-4'>

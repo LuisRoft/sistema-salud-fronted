@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { createInternalConsultation } from '@/services/internalConsultation.service';
 import { useState } from 'react';
 import { PatientSelector } from '@/components/shared/patient-selector';
+import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
 
 const formSchema = z.object({
   numeroDeArchivo: z.number().min(1, 'Campo obligatorio'),
@@ -21,15 +22,16 @@ const formSchema = z.object({
   especialidadConsultada: z.string().min(1, 'Campo obligatorio'),
   esUrgente: z.boolean(),
   cuadroClinicoActual: z.string().min(1, 'Campo obligatorio'),
-  examenesResultados: z.array(z.string()),
-  diagnosticosDesc: z.array(z.string()),
-  diagnosticosCie: z.array(z.string()),
-  diagnosticosPresuntivo: z.array(z.boolean()),
-  diagnosticosDefinitivo: z.array(z.boolean()),
-  planTratamiento: z.string().min(1, 'Campo obligatorio'),
-  cuadroClinicoInterconsulta: z.string().min(1, 'Campo obligatorio'),
-  planDiagnosticoPropuesto: z.string(),
-  planTerapeuticoPropuesto: z.string(),
+  examenesResultados: z.array(z.string()).optional(),
+  diagnosticoGeneral: z.string().min(1, 'Campo obligatorio'), // Campo agregado
+  diagnosticosDesc: z.array(z.string()).optional(),
+  diagnosticosCie: z.array(z.string()).optional(),
+  diagnosticosPresuntivo: z.array(z.boolean()).optional(),
+  diagnosticosDefinitivo: z.array(z.boolean()).optional(),
+  planTratamiento: z.string().min(1, 'Campo obligatorio'), // Campo agregado
+  cuadroClinicoInterconsulta: z.string().optional(), // Campo agregado
+  planDiagnosticoPropuesto: z.string().optional(), // Campo agregado
+  planTerapeuticoPropuesto: z.string().min(1, 'Campo obligatorio'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,24 +56,25 @@ export default function InternalConsultationForm() {
       esUrgente: false,
       cuadroClinicoActual: '',
       examenesResultados: [],
+      diagnosticoGeneral: '', 
       diagnosticosDesc: [],
       diagnosticosCie: [],
       diagnosticosPresuntivo: [],
       diagnosticosDefinitivo: [],
-      planTratamiento: '',
-      cuadroClinicoInterconsulta: '',
-      planDiagnosticoPropuesto: '',
+      planTratamiento: '', // Valor predeterminado agregado
+      cuadroClinicoInterconsulta: '', // Valor predeterminado agregado
+      planDiagnosticoPropuesto: '', // Valor predeterminado agregado
       planTerapeuticoPropuesto: '',
     },
   });
-
+   
   const handlePatientSelect = (patient: any) => {
     setValue('numeroDeArchivo', Number(patient.document));
     setValue('fecha', patient.birthday);
     setValue('cuadroClinicoActual', patient.typeDisability);
   };
 
-  const [diagnosticos, setDiagnosticos] = useState([
+  const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; presuntivo: boolean; definitivo: boolean; }[]>([
     { desc: '', cie: '', presuntivo: false, definitivo: false },
   ]);
   const [examenes, setExamenes] = useState(['']);
@@ -83,10 +86,22 @@ export default function InternalConsultationForm() {
     ]);
   };
 
+  const eliminarDiagnostico = (index: number) => {
+  const nuevosDiagnosticos = [...diagnosticos];
+  nuevosDiagnosticos.splice(index, 1);
+  setDiagnosticos(nuevosDiagnosticos);
+};
+
   const agregarExamen = () => {
     setExamenes([...examenes, '']);
   };
 
+  const eliminarExamen = (index: number) => {
+    const nuevosExamenes = [...examenes];
+    nuevosExamenes.splice(index, 1);
+    setExamenes(nuevosExamenes);
+  };
+  
   const onSubmit = async (data: FormValues) => {
     try {
       const sessionData = await getSession();
@@ -127,13 +142,13 @@ export default function InternalConsultationForm() {
         diagnosticosCie: diagnosticos.map((d) => d.cie).filter(Boolean),
         diagnosticosPresuntivo: diagnosticos.map((d) => d.presuntivo),
         diagnosticosDefinitivo: diagnosticos.map((d) => d.definitivo),
-        planTratamiento: data.planTratamiento.trim(),
-        cuadroClinicoInterconsulta: data.cuadroClinicoInterconsulta.trim(),
-        planDiagnosticoPropuesto: data.planDiagnosticoPropuesto.trim(),
-        planTerapeuticoPropuesto: data.planTerapeuticoPropuesto.trim(),
+        planTratamiento: data.planTratamiento?.trim() ?? '', // Manejo de valor undefined
+        cuadroClinicoInterconsulta: data.cuadroClinicoInterconsulta?.trim() ?? '', // Manejo de valor undefined
+        planDiagnosticoPropuesto: data.planDiagnosticoPropuesto?.trim() ?? '', // Manejo de valor undefined
+        planTerapeuticoPropuesto: data.planTerapeuticoPropuesto?.trim() ?? '',
         user: userId,
         patient: patientId,
-      };
+      };      
 
       console.log('📝 Datos formateados a enviar:', formattedData);
 
@@ -269,101 +284,192 @@ export default function InternalConsultationForm() {
           </div>
         </section>
 
-        {/* Sección D: Diagnósticos */}
-        <section className='space-y-4'>
-          <div className='flex items-center justify-between'>
-            <h3 className='text-xl font-semibold'>D. Diagnósticos</h3>
-            <Button
-              type='button'
-              onClick={agregarDiagnostico}
-              variant='outline'
-            >
-              Agregar Diagnóstico
-            </Button>
-          </div>
+{/* Sección D: Diagnóstico General */}
+<section className='mb-4'>
+  <h3 className='mb-4 text-xl font-semibold'>D. Diagnóstico</h3>
+  <div className='space-y-2'>
+    <Label>Diagnóstico General</Label>
+    <Input {...register('diagnosticoGeneral')} />
+    {errors.diagnosticoGeneral && (
+      <p className='text-sm text-red-600 dark:text-red-400'>
+        {errors.diagnosticoGeneral.message}
+      </p>
+    )}
+  </div>
+</section>
 
-          {diagnosticos.map((diag, index) => (
-            <div
-              key={index}
-              className='grid grid-cols-2 gap-x-4 gap-y-2 rounded border bg-input p-4'
-            >
-              <div className='space-y-2'>
-                <Label>Diagnóstico {index + 1}</Label>
-                <Textarea
-                  value={diag.desc}
-                  onChange={(e) => {
-                    const newDiags = [...diagnosticos];
-                    newDiags[index].desc = e.target.value;
-                    setDiagnosticos(newDiags);
-                  }}
-                  placeholder='Ej: Hipertensión esencial'
-                  className='bg-zinc-50 dark:bg-gray-800'
-                />
-              </div>
-              <div className='space-y-2'>
-                <Label>Código CIE</Label>
-                <Input
-                  value={diag.cie}
-                  onChange={(e) => {
-                    const newDiags = [...diagnosticos];
-                    newDiags[index].cie = e.target.value;
-                    setDiagnosticos(newDiags);
-                  }}
-                  placeholder='Ej: I10'
-                  className='bg-zinc-50 dark:bg-gray-800'
-                />
-              </div>
-              <div className='flex space-x-4'>
-                <label className='flex items-center space-x-2'>
-                  <input
-                    type='checkbox'
-                    checked={diag.presuntivo}
-                    onChange={(e) => {
-                      const newDiags = [...diagnosticos];
-                      newDiags[index].presuntivo = e.target.checked;
-                      setDiagnosticos(newDiags);
-                    }}
-                  />
-                  <span>Presuntivo</span>
-                </label>
-                <label className='flex items-center space-x-2'>
-                  <input
-                    type='checkbox'
-                    checked={diag.definitivo}
-                    onChange={(e) => {
-                      const newDiags = [...diagnosticos];
-                      newDiags[index].definitivo = e.target.checked;
-                      setDiagnosticos(newDiags);
-                    }}
-                  />
-                  <span>Definitivo</span>
-                </label>
-              </div>
-            </div>
-          ))}
-        </section>
+{/* Sección II: Diagnósticos Dinámicos */}
+<section className='mb-4'>
+  <div className='flex items-center justify-end mb-2'>
+    <Button
+      type='button'
+      onClick={agregarDiagnostico}
+      variant='outline'
+      className='flex items-center gap-2 rounded-md border border-blue-500 text-blue-400 hover:bg-blue-800 hover:text-white px-4 py-2'
+    >
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
+        viewBox='0 0 24 24'
+        strokeWidth={2}
+        stroke='currentColor'
+        className='w-5 h-5'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          d='M12 4.5v15m7.5-7.5h-15'
+        />
+      </svg>
+      Agregar Diagnóstico
+    </Button>
+  </div>
+
+  {diagnosticos.map((diag, index) => (
+    <div
+      key={index}
+      className='relative grid grid-cols-2 gap-x-4 gap-y-2 rounded border bg-input p-4 mb-2'
+    >
+      <div className='space-y-2'>
+        <Label>Descripción del Diagnóstico</Label>
+        <Input
+          value={diag.desc}
+          onChange={(e) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].desc = e.target.value;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+          placeholder='Ej: Hipertensión esencial'
+          className='bg-zinc-50 dark:bg-gray-800'
+        />
+      </div>
+
+      <div className='space-y-2'>
+  <Label>Código CIE</Label>
+  <AutocompleteCIE
+    onSelect={(cie, desc) => {
+      const nuevosDiagnosticos = [...diagnosticos];
+      nuevosDiagnosticos[index].cie = cie;
+      nuevosDiagnosticos[index].desc = desc;
+      setDiagnosticos(nuevosDiagnosticos);
+    }}
+  />
+</div>
+
+      {/* Opciones de Diagnóstico: Presuntivo y Definitivo */}
+      <div className='flex space-x-4'>
+        <label className='flex items-center space-x-2'>
+          <input
+            type='checkbox'
+            checked={diag.presuntivo || false}
+            onChange={(e) => {
+              const nuevosDiagnosticos = [...diagnosticos];
+              nuevosDiagnosticos[index].presuntivo = e.target.checked;
+              setDiagnosticos(nuevosDiagnosticos);
+            }}
+          />
+          <span>Presuntivo</span>
+        </label>
+        <label className='flex items-center space-x-2'>
+          <input
+            type='checkbox'
+            checked={diag.definitivo || false}
+            onChange={(e) => {
+              const nuevosDiagnosticos = [...diagnosticos];
+              nuevosDiagnosticos[index].definitivo = e.target.checked;
+              setDiagnosticos(nuevosDiagnosticos);
+            }}
+          />
+          <span>Definitivo</span>
+        </label>
+      </div>
+
+      {/* Botón de Eliminar */}
+      <Button
+        type='button'
+        variant='ghost'
+        size='icon'
+        className='absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+        onClick={() => eliminarDiagnostico(index)}
+      >
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='currentColor'
+          viewBox='0 0 24 24'
+          className='w-6 h-6'
+        >
+          <path d='M9 3v1H4v2h16V4h-5V3H9zM7 8v12c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V8H7zm4 2h2v8h-2v-8z' />
+        </svg>
+      </Button>
+    </div>
+  ))}
+</section>
+
 
         {/* Sección: Exámenes */}
         <section className='space-y-4'>
-          <div className='flex items-center justify-between'>
-            <h3 className='text-xl font-semibold'>Exámenes y Resultados</h3>
-            <Button type='button' onClick={agregarExamen} variant='outline'>
-              Agregar Examen
-            </Button>
-          </div>
+  <div className='flex items-center justify-between'>
+    <h3 className='text-xl font-semibold'>Exámenes y Resultados</h3>
+    {/* Botón de Agregar Examen */}
+    <Button
+      type='button'
+      onClick={agregarExamen}
+      variant='outline'
+      className='flex items-center gap-2 rounded-md border border-green-500 text-green-400 hover:bg-green-800 hover:text-white px-4 py-2'
+    >
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
+        viewBox='0 0 24 24'
+        strokeWidth={2}
+        stroke='currentColor'
+        className='w-5 h-5'
+      >
+        <path
+          strokeLinecap='round'
+          strokeLinejoin='round'
+          d='M12 4.5v15m7.5-7.5h-15'
+        />
+      </svg>
+      Agregar Examen
+    </Button>
+  </div>
 
-          {examenes.map((examen, index) => (
-            <div key={index} className='flex gap-4'>
-              <Input
-                value={examen}
-                onChange={(e) => {
-                  const newExamenes = [...examenes];
-                  newExamenes[index] = e.target.value;
-                  setExamenes(newExamenes);
-                }}
-                placeholder='Ej: Hemograma normal'
-              />
-            </div>
+  {examenes.map((examen, index) => (
+    <div
+      key={index}
+      className='relative flex items-center gap-4 rounded border bg-input p-4'
+    >
+      <Input
+        value={examen}
+        onChange={(e) => {
+          const nuevosExamenes = [...examenes];
+          nuevosExamenes[index] = e.target.value;
+          setExamenes(nuevosExamenes);
+        }}
+        placeholder='Ej: Hemograma normal'
+        className='flex-1'
+      />
+
+      {/* Botón de Eliminar Examen */}
+      <Button
+        type='button'
+        variant='ghost'
+        size='icon'
+        className='ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20'
+        onClick={() => eliminarExamen(index)}
+      >
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='currentColor'
+          viewBox='0 0 24 24'
+          className='w-6 h-6'
+        >
+          <path d='M9 3v1H4v2h16V4h-5V3H9zM7 8v12c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V8H7zm4 2h2v8h-2v-8z' />
+        </svg>
+      </Button>
+    </div>
+
           ))}
         </section>
 
