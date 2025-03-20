@@ -9,13 +9,22 @@ interface Patient {
   name: string;
   lastName: string;
   email: string;
-  birthDate: string;
+  birthday: string; // Cambiado para que coincida con los datos reales
   gender: string;
   phone: string;
   address: string;
+  caregiver?: {
+    name: string;
+    lastName: string;
+  };
+  typeBeneficiary: string;
+  typeDisability: string;
+  percentageDisability: number;
+  zone: string;
+  isActive: boolean;
 }
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<Patient>[] = [
   {
     accessorKey: 'document',
     header: 'Cédula',
@@ -29,24 +38,27 @@ export const columns: ColumnDef<any>[] = [
     header: 'Apellido',
   },
   {
-    accessorKey: 'birthday',
+    accessorKey: 'birthday', // Actualizado para que coincida con los datos recibidos
     header: 'Fecha de Nacimiento',
     cell: ({ row }) => {
-      const date = new Date(row.getValue('birthday'));
-      return date.toLocaleDateString('es-ES', {
+      const date = row.getValue('birthday');
+      if (!date || date === 'Invalid Date') return 'Fecha no disponible';
+      const parsedDate = new Date(date);
+      return parsedDate.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       });
-    }
+    },
   },
   {
     accessorKey: 'gender',
     header: 'Género',
     cell: ({ row }) => {
       const gender = row.getValue('gender');
+      if (!gender) return 'No especificado';
       return gender === 'male' ? 'Masculino' : 'Femenino';
-    }
+    },
   },
   {
     accessorKey: 'caregiver',
@@ -54,7 +66,7 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       const caregiver = row.original.caregiver;
       return caregiver ? `${caregiver.name} ${caregiver.lastName}` : 'No asignado';
-    }
+    },
   },
   {
     accessorKey: 'typeBeneficiary',
@@ -67,7 +79,10 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: 'percentageDisability',
     header: 'Porcentaje de Discapacidad',
-    cell: ({ row }) => `${row.getValue('percentageDisability')}%`
+    cell: ({ row }) => {
+      const percentage = row.getValue('percentageDisability');
+      return percentage !== undefined ? `${percentage}%` : '0%';
+    },
   },
   {
     accessorKey: 'zone',
@@ -79,6 +94,6 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue('isActive');
       return isActive ? 'Activo' : 'Inactivo';
-    }
-  }
-]; 
+    },
+  },
+];

@@ -8,10 +8,17 @@ import TableSkeleton from '@/components/table-skeleton';
 export default function UsersPage() {
   const { data: session, status } = useSession();
   const teamData = session?.user?.team;
-  const patients = teamData?.patient
-  ? Object.values(teamData.patient) // ✅ Convertir el objeto indexado en un array
-  : [];
 
+  // Filtrar los pacientes excluyendo el array de cuidadores
+  const patients = teamData?.patient
+    ? Object.values(teamData.patient).filter(patient => 
+        patient && typeof patient === 'object' && !Array.isArray(patient))
+    : [];
+
+  // 🔍 Log para verificar los datos recibidos después de filtrar
+  console.log('Session Data:', session);
+  console.log('Team Data:', teamData);
+  console.log('Filtered Patients:', patients);
 
   if (status === 'loading') {
     return <TableSkeleton rows={0} columns={0} />;
@@ -35,11 +42,10 @@ export default function UsersPage() {
         <>
           <div className="mb-6">
             <p className="text-muted-foreground">Pacientes asignados:</p>
-
           </div>
           <DataTable 
             columns={columns} 
-            data={patients} // ✅ Pasamos la lista de pacientes
+            data={patients} // ✅ Pasamos la lista de pacientes filtrada
             pageIndex={0}
             setPageIndex={() => {}}
             pageSize={10}
@@ -52,5 +58,4 @@ export default function UsersPage() {
       )}
     </div>
   );
-  
-} 
+}

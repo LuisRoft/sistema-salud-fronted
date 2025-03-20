@@ -19,7 +19,7 @@ export const columns: ColumnDef<Manager>[] = [
       <DataTableColumnHeader column={column} title='Nombre' />
     ),
     cell: ({ row }) => {
-      const fullName = row.original.name.toLowerCase();
+      const fullName = row.original.name.toUpperCase();
       return <div className='text-sm capitalize'>{fullName}</div>;
     },
   },
@@ -29,7 +29,7 @@ export const columns: ColumnDef<Manager>[] = [
       <DataTableColumnHeader column={column} title='Apellido' />
     ),
     cell: ({ row }) => {
-      const lastName = row.original.lastName.toLowerCase();
+      const lastName = row.original.lastName.toUpperCase();
       return <div className='text-sm capitalize'>{lastName}</div>;
     },
   },
