@@ -13,6 +13,7 @@ import { createInternalConsultation } from '@/services/internalConsultation.serv
 import { useState } from 'react';
 import { PatientSelector } from '@/components/shared/patient-selector';
 import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
+import { Patient } from '@/services/patientService';
 
 const formSchema = z.object({
   numeroDeArchivo: z.number().min(1, 'Campo obligatorio'),
@@ -32,6 +33,7 @@ const formSchema = z.object({
   cuadroClinicoInterconsulta: z.string().optional(), // Campo agregado
   planDiagnosticoPropuesto: z.string().optional(), // Campo agregado
   planTerapeuticoPropuesto: z.string().min(1, 'Campo obligatorio'),
+  patientId: z.string().min(1, 'Campo obligatorio'), // Agregado aquí
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,6 +41,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function InternalConsultationForm() {
   const { data: session } = useSession();
   const { toast } = useToast();
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   const {
     register,
@@ -68,11 +71,16 @@ export default function InternalConsultationForm() {
     },
   });
    
-  const handlePatientSelect = (patient: any) => {
+  const handlePatientSelect = (patient: Patient) => {
+    console.log('Paciente seleccionado:', patient); // Verificar el objeto completo
+    setSelectedPatient(patient); // Guardar el paciente en el estado
     setValue('numeroDeArchivo', Number(patient.document));
     setValue('fecha', patient.birthday);
     setValue('cuadroClinicoActual', patient.typeDisability);
+    setValue('patientId', patient.id); // Utilizar el objeto `patient` directamente
   };
+  
+  
 
   const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; presuntivo: boolean; definitivo: boolean; }[]>([
     { desc: '', cie: '', presuntivo: false, definitivo: false },
@@ -113,22 +121,21 @@ export default function InternalConsultationForm() {
         });
         return;
       }
-
-      const token = sessionData.user.access_token;
-      const tokenParts = token.split('.');
-      const payload = JSON.parse(atob(tokenParts[1]));
-      const userId = payload.id;
-
-      const patientId = sessionData.user.team?.patient?.id;
-      if (!patientId) {
+  
+      if (!selectedPatient) {
         toast({
           title: 'Error',
-          description: 'No se pudo obtener el ID del paciente',
+          description: 'No se ha seleccionado un paciente',
           variant: 'destructive',
         });
         return;
       }
-
+  
+      const token = sessionData.user.access_token;
+      const tokenParts = token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.id;
+  
       const formattedData = {
         numeroDeArchivo: Number(data.numeroDeArchivo),
         fecha: data.fecha,
@@ -142,19 +149,19 @@ export default function InternalConsultationForm() {
         diagnosticosCie: diagnosticos.map((d) => d.cie).filter(Boolean),
         diagnosticosPresuntivo: diagnosticos.map((d) => d.presuntivo),
         diagnosticosDefinitivo: diagnosticos.map((d) => d.definitivo),
-        planTratamiento: data.planTratamiento?.trim() ?? '', // Manejo de valor undefined
-        cuadroClinicoInterconsulta: data.cuadroClinicoInterconsulta?.trim() ?? '', // Manejo de valor undefined
-        planDiagnosticoPropuesto: data.planDiagnosticoPropuesto?.trim() ?? '', // Manejo de valor undefined
+        planTratamiento: data.planTratamiento?.trim() ?? '',
+        cuadroClinicoInterconsulta: data.cuadroClinicoInterconsulta?.trim() ?? '',
+        planDiagnosticoPropuesto: data.planDiagnosticoPropuesto?.trim() ?? '',
         planTerapeuticoPropuesto: data.planTerapeuticoPropuesto?.trim() ?? '',
         user: userId,
-        patient: patientId,
-      };      
-
+        patient: selectedPatient?.id, // Verificar que el paciente esté seleccionado
+      };
+  
       console.log('📝 Datos formateados a enviar:', formattedData);
-
+  
       const response = await createInternalConsultation(formattedData, token);
       console.log('✅ Respuesta del servidor:', response);
-
+  
       toast({
         title: 'Éxito',
         description: 'Interconsulta creada correctamente',
@@ -175,7 +182,8 @@ export default function InternalConsultationForm() {
       });
     }
   };
-
+  
+  
   return (
     <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
       <div className='flex items-center justify-between mb-6'>

@@ -25,6 +25,7 @@ import { PatientSelector } from '../shared/patient-selector';
 import { Patient } from '@/services/patientService';
 import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
 
+
 // Esquema de validación con Zod
 const formSchema = z.object({
   institucionSistema: z.string().min(1, 'Campo obligatorio'),
@@ -42,9 +43,26 @@ const formSchema = z.object({
   motivoConsulta: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaPrimera: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaSubsecuente: z.string().optional(),
-  antecedentesPatologicosPersonales: z.array(z.string()).optional(),
+
+
+  antecedentesPatologicosPersonales: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      return val.split(',').map((item) => item.trim());
+    }
+    return Array.isArray(val) ? val : [];
+  }, z.array(z.string()).optional().default([])),
+  
+  
+  
   antecedentesPatologicosPersonalesDesc: z.string().optional(),
-  antecedentesPatologicosFamiliares: z.array(z.string()).optional(),
+
+    antecedentesPatologicosFamiliares: z.preprocess((val) => {
+      if (typeof val === 'string') {
+        return val.split(',').map((item) => item.trim());
+      }
+      return Array.isArray(val) ? val : [];
+    }, z.array(z.string()).optional().default([])),
+  
   antecedentesPatologicosFamiliaresDesc: z.string().optional(),
   enfermedadActual: z.string().min(1, 'Campo obligatorio'),
   constantesVitales: z.object({
@@ -128,6 +146,8 @@ export default function ExternalConsultationForm() {
   const { toast } = useToast();
   const patient = session?.user?.team?.patient;
   const [diagnosticos, setDiagnosticos] = useState([{ desc: '', cie: '', presuntivo: false, definitivo: false }]);
+
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
 
   const agregarDiagnostico = () => {
@@ -260,26 +280,32 @@ const eliminarDiagnostico = (index: number) => {
   }, [formData]);
 
   const handlePatientSelect = (patient: Patient) => {
-    // Auto-fill patient data
+    console.log('Paciente seleccionado:', patient);
+    setSelectedPatient(patient);
     setValue('primerApellido', patient.lastName);
     setValue('primerNombre', patient.name);
     setValue('sexo', patient.gender);
     setValue('numeroArchivo', patient.document);
     setValue('numeroHistoriaClinica', patient.document);
-
-    // Calculate age from birthday if available
+  
+    // Calcular la edad a partir de la fecha de nacimiento
     if (patient.birthday) {
       const birthDate = new Date(patient.birthday);
       const today = new Date();
       const age = today.getFullYear() - birthDate.getFullYear();
       setValue('edad', age);
     }
-
-    // Store patient ID for submission
-    setValue('patientId', patient.id);
+  
+    // Almacenar el ID del paciente para el envío
+    if (selectedPatient) {
+      setValue('patientId', selectedPatient.id);
+    }
   };
+  
 
   const onSubmit = async (data: any) => {
+    console.log("Datos recibidos del formulario:", data);
+
     try {
       if (!session?.user) {
         toast({
@@ -298,12 +324,13 @@ const eliminarDiagnostico = (index: number) => {
 
       console.log('User ID from token:', userId);
 
-      if (!userId || !patient?.id) {
+      if (!userId || !selectedPatient?.id) {
         toast({
           title: 'Error',
           description: 'No se pudo obtener el ID del usuario o paciente',
           variant: 'destructive',
         });
+        console.error('ID del paciente no encontrado:', selectedPatient);
         return;
       }
 
@@ -333,13 +360,12 @@ const eliminarDiagnostico = (index: number) => {
         motivoConsultaPrimera:
           data.motivoConsulta || data.motivoConsultaPrimera || '',
         motivoConsultaSubsecuente: data.motivoConsultaSubsecuente || '',
-        antecedentesPatologicosPersonales:
-          data.antecedentesPatologicosPersonales || [],
+        antecedentesPatologicosPersonales: Array.isArray(data.antecedentesPatologicosPersonales)? data.antecedentesPatologicosPersonales: [],
         antecedentesPatologicosPersonalesDesc:
           data.antecedentesPatologicosPersonalesDesc ||
           'Sin antecedentes personales',
-        antecedentesPatologicosFamiliares:
-          data.antecedentesPatologicosFamiliares || [],
+          antecedentesPatologicosFamiliares: Array.isArray(data.antecedentesPatologicosFamiliares)
+          ? data.antecedentesPatologicosFamiliares: [],
         antecedentesPatologicosFamiliaresDesc:
           data.antecedentesPatologicosFamiliaresDesc ||
           'Sin antecedentes familiares',
@@ -351,9 +377,7 @@ const eliminarDiagnostico = (index: number) => {
           cardiopatia: Boolean(data.antecedentesPersonales?.cardiopatia),
           hipertension: Boolean(data.antecedentesPersonales?.hipertension),
           ebyec: Boolean(data.antecedentesPersonales?.ebyec),
-          problemaMetabolico: Boolean(
-            data.antecedentesPersonales?.problemaMetabolico
-          ),
+          problemaMetabolico: Boolean(data.antecedentesPersonales?.problemaMetabolico),
           cancer: Boolean(data.antecedentesPersonales?.cancer),
           tuberculosis: Boolean(data.antecedentesPersonales?.tuberculosis),
           enfMental: Boolean(data.antecedentesPersonales?.enfMental),
@@ -437,12 +461,13 @@ const eliminarDiagnostico = (index: number) => {
 
         // IDs
         user: userId,
-        patient: patient.id,
+        patient: selectedPatient ? selectedPatient.id : null,
       };
 
       console.log('Datos a enviar:', formattedData);
 
       const response = await createInitialConsultation(formattedData);
+      localStorage.removeItem('consultationFormData');
       toast({
         title: 'Éxito',
         description: 'Consulta creada correctamente',
@@ -655,10 +680,19 @@ const eliminarDiagnostico = (index: number) => {
                     <div className='space-y-2'>
                       <Label>Lista de Antecedentes</Label>
                       <Input
-                        type='text'
-                        {...register('antecedentesPatologicosPersonales')}
-                        placeholder='Separar con comas (ej: Diabetes, Hipertensión)'
-                      />
+  type='text'
+  {...register('antecedentesPatologicosPersonales', {
+    setValueAs: (val) => {
+      if (typeof val === 'string' && val.trim() !== '') {
+        return val.split(',').map((item) => item.trim());
+      }
+      return [];
+    }
+  })}
+  placeholder='Separar con comas (ej: Diabetes, Hipertensión)'
+/>
+
+
                     </div>
                     <div className='space-y-2'>
                       <Label>Descripción</Label>
@@ -676,20 +710,26 @@ const eliminarDiagnostico = (index: number) => {
                     </h4>
                     <div className='grid grid-cols-3 gap-2 gap-y-3'>
                       <div className='flex items-center space-x-2'>
-                        <Checkbox
-                          {...register('antecedentesPersonales.cardiopatia')}
-                        />
+                      <Checkbox
+  {...register('antecedentesPersonales.cardiopatia', {
+    setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+  })}
+/>
                         <Label>Cardiopatía</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.hipertension')}
+                          {...register('antecedentesPersonales.hipertension', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Hipertensión</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.ebyec')}
+                          {...register('antecedentesPersonales.ebyec', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>EBYEC</Label>
                       </div>
@@ -697,37 +737,49 @@ const eliminarDiagnostico = (index: number) => {
                         <Checkbox
                           {...register(
                             'antecedentesPersonales.problemaMetabolico'
-                          )}
-                        />
+                            , {
+                              setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                            })}
+                          />
                         <Label>Problema Metabólico</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.cancer')}
+                          {...register('antecedentesPersonales.cancer', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Cáncer</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.tuberculosis')}
+                          {...register('antecedentesPersonales.tuberculosis', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Tuberculosis</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.enfMental')}
+                          {...register('antecedentesPersonales.enfMental', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Enfermedad Mental</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.enfInfecciosa')}
+                          {...register('antecedentesPersonales.enfInfecciosa', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Enfermedad Infecciosa</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesPersonales.malformacion')}
+                          {...register('antecedentesPersonales.malformacion', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Malformación</Label>
                       </div>
@@ -744,10 +796,17 @@ const eliminarDiagnostico = (index: number) => {
                     <div className='space-y-2'>
                       <Label>Lista de Antecedentes</Label>
                       <Input
-                        type='text'
-                        {...register('antecedentesPatologicosFamiliares')}
-                        placeholder='Separar con comas (ej: Cáncer, Diabetes)'
-                      />
+  type='text'
+  {...register('antecedentesPatologicosFamiliares', {
+    setValueAs: (val) => {
+      if (typeof val === 'string' && val.trim() !== '') {
+        return val.split(',').map((item) => item.trim());
+      }
+      return [];
+    }
+  })}
+  placeholder='Separar con comas (ej: Cáncer, Diabetes)'
+/>
                     </div>
                     <div className='space-y-2'>
                       <Label>Descripción</Label>
@@ -766,19 +825,25 @@ const eliminarDiagnostico = (index: number) => {
                     <div className='grid grid-cols-3 gap-2 gap-y-3'>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.cardiopatia')}
+                          {...register('antecedentesFamiliares.cardiopatia', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Cardiopatía</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.hipertension')}
+                          {...register('antecedentesFamiliares.hipertension', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Hipertensión</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.ebyec')}
+                          {...register('antecedentesFamiliares.ebyec', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>EBYEC</Label>
                       </div>
@@ -786,38 +851,50 @@ const eliminarDiagnostico = (index: number) => {
                         <Checkbox
                           {...register(
                             'antecedentesFamiliares.problemaMetabolico'
-                          )}
-                        />
+                            , {
+                              setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                            })}
+                          />
                         <Label>Problema Metabólico</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.cancer')}
+                          {...register('antecedentesFamiliares.cancer', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Cáncer</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.tuberculosis')}
+                          {...register('antecedentesFamiliares.tuberculosis', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Tuberculosis</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.enfMental')}
+                          {...register('antecedentesFamiliares.enfMental', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Enfermedad Mental</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.enfInfecciosa')}
+                          {...register('antecedentesFamiliares.enfInfecciosa', {
+                            setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+                          })}
                         />
                         <Label>Enfermedad Infecciosa</Label>
                       </div>
                       <div className='flex items-center space-x-2'>
                         <Checkbox
-                          {...register('antecedentesFamiliares.malformacion')}
-                        />
+                          {...register('antecedentesFamiliares.malformacion', {
+    setValueAs: (v) => !!v, // Convertir a booleano explícitamente
+  })}
+/>
                         <Label>Malformación</Label>
                       </div>
                     </div>
@@ -856,7 +933,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.temperatura', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.temperatura && (
@@ -879,7 +955,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.frecuenciaCardiaca', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.frecuenciaCardiaca && (
@@ -893,7 +968,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.frecuenciaRespiratoria', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.frecuenciaRespiratoria && (
@@ -907,7 +981,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.peso', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.peso && (
@@ -921,7 +994,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.talla', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.talla && (
@@ -935,7 +1007,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.imc', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.imc && (
@@ -949,7 +1020,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.perimetroAbdominal', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.perimetroAbdominal && (
@@ -963,7 +1033,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.hemoglobinaCapilar', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.hemoglobinaCapilar && (
@@ -977,7 +1046,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.glucosaCapilar', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.glucosaCapilar && (
@@ -991,7 +1059,6 @@ const eliminarDiagnostico = (index: number) => {
                 <Input
                   type='number'
                   {...register('constantesVitales.pulsioximetria', {
-                    valueAsNumber: true,
                   })}
                 />
                 {errors.constantesVitales?.pulsioximetria && (

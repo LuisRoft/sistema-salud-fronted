@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getSession } from 'next-auth/react';
 import { DataTable } from '../ui/data-table';
-import { columns } from './columns';
+import { columns, ConsultationHistory } from './columns';
 import TableSkeleton from '../table-skeleton';
 import { getAllConsultations } from '@/services/consultationHistory.service';
 import { ConsultationFilters } from './consultation-filters';
 import { Button } from '../ui/button';
 import { Download } from 'lucide-react';
 import { downloadAllConsultations } from '@/services/downloadService';
+import { toast } from '@/hooks/use-toast';
 
 export default function ConsultationHistoryTable() {
   const [pageIndex, setPageIndex] = useState(0);

@@ -91,17 +91,18 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
             </div>
           ) : (
             <div className="grid gap-2 max-h-[60vh] overflow-y-auto p-2">
-              {patients.map((patient) => (
-                <Button
-                  key={patient.id}
-                  variant="outline"
-                  className="justify-start text-left"
-                  onClick={() => {
-                    console.log('Selecting patient:', patient);
-                    onSelect(patient);
-                    setOpen(false);
-                  }}
-                >
+           {patients.map((patient, index) => (
+            <Button
+              key={`${patient.id}-${index}`}  // <-- Combina el id y el índice para asegurar unicidad
+              variant="outline"
+              className="justify-start text-left"
+              onClick={() => {
+                console.log('Selecting patient:', patient);
+                onSelect(patient);
+                setOpen(false);
+              }}
+            >
+
                   <div>
                     <strong>{patient.lastName}, {patient.name}</strong>
                     <div className="text-sm text-gray-500">
