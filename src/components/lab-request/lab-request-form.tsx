@@ -271,8 +271,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('numero_de_archivo')} 
     />
   </div>
@@ -282,8 +282,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('cedula')} 
       readOnly
     />
@@ -294,8 +294,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('diagnostico_descripcion1')} 
     />
   </div>
@@ -305,8 +305,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('diagnostico_cie1')} 
     />
   </div>
@@ -316,8 +316,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('diagnostico_descripcion2')} 
     />
   </div>
@@ -327,8 +327,8 @@ export default function LabRequestForm() {
     </Label>
     <Input 
       className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-transparent focus:border-blue-500 
-               dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
       {...register('diagnostico_cie2')} 
     />
   </div>
@@ -339,17 +339,13 @@ export default function LabRequestForm() {
   <Input 
     type="date"
     className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-transparent focus:border-blue-500 
-             dark:focus:border-transparent text-gray-900 dark:text-gray-100" 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100" 
     {...register('fecha')} 
   />
 </div>
 
 </div>
-
-
-
-
 
           {/* Sección B: Servicio y Prioridad */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md mt-8">

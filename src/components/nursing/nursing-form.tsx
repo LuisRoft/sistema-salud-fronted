@@ -15,10 +15,12 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { createNursingForm } from '@/services/nursingService';
 import { AxiosError } from 'axios';
 import { PatientSelector } from '@/components/shared/patient-selector';
+import AutocompleteSelector from '@/components/shared/AutoCompleteSelect';
 
 
 // Esquema para validación
 const nursingFormSchema = z.object({
+  fecha: z.string().min(1, 'Campo requerido'),
   // NANDA
   nanda_dominio: z.string().min(1, 'Campo requerido'),
   nanda_clase: z.string().min(1, 'Campo requerido'),
@@ -64,6 +66,7 @@ export default function NursingNNNForm() {
     resolver: zodResolver(nursingFormSchema),
     mode: "onChange",
     defaultValues: {
+      fecha: new Date().toISOString().split('T')[0],  // valor por defecto para la fecha
       noc_indicador: [{ value: '' }],
       noc_rango: [{ value: '' }],
       noc_diana_inicial: [{ value: '' }],
@@ -176,6 +179,7 @@ export default function NursingNNNForm() {
   const onSubmit = async (data: NursingFormValues) => {
     try {
       const formattedData = {
+        fecha: data.fecha,
         nanda_dominio: data.nanda_dominio,
         nanda_clase: data.nanda_clase,
         nanda_etiqueta_diagnostica: data.nanda_etiqueta_diagnostica,
@@ -225,12 +229,27 @@ export default function NursingNNNForm() {
   return (
     <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
       <div className='flex items-center justify-between mb-6'>
-        <h2 className='text-2xl font-bold'>Formulario de Enfermería NNN (NANDA-NOC-NIC)</h2>
+        <h2 className='text-2xl font-bold'>Formulario de Enfermería (NANDA-NOC-NIC)</h2>
         <PatientSelector onSelect={handlePatientSelect} />
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         <h2 className='mb-6 text-2xl font-bold'>
         </h2>
+        <div className="space-y-2">
+  <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+    Fecha
+  </Label>
+  <Input
+    type="date"
+    className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+               dark:border-gray-700 focus:border-blue-500 
+               dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
+    {...register('fecha')}
+  />
+  {errors.fecha && (
+    <p className="text-sm text-red-500">{errors.fecha.message}</p>
+  )}
+</div>
 
           {/* Sección A: NANDA - Diagnóstico de Enfermería */}
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
@@ -244,8 +263,8 @@ export default function NursingNNNForm() {
               </Label>
               <Input
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('nanda_dominio')}
               />
               {errors.nanda_dominio && (
@@ -258,8 +277,8 @@ export default function NursingNNNForm() {
               </Label>
               <Input
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('nanda_clase')}
               />
               {errors.nanda_clase && (
@@ -270,11 +289,10 @@ export default function NursingNNNForm() {
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 Etiqueta Diagnóstica
               </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
-                {...register('nanda_etiqueta_diagnostica')}
+              <AutocompleteSelector
+                jsonPath="/nanda.json"
+                placeholder="Buscar etiqueta diagnóstica NANDA"
+                onSelect={(value, label) => setValue('nanda_etiqueta_diagnostica', label)}
               />
               {errors.nanda_etiqueta_diagnostica && (
                 <p className="text-sm text-red-500">{errors.nanda_etiqueta_diagnostica.message}</p>
@@ -286,8 +304,8 @@ export default function NursingNNNForm() {
               </Label>
               <Input
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('nanda_factor_relacionado')}
               />
               {errors.nanda_factor_relacionado && (
@@ -300,8 +318,8 @@ export default function NursingNNNForm() {
               </Label>
               <Textarea
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100 min-h-32"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('nanda_planteamiento_del_diagnostico')}
               />
               {errors.nanda_planteamiento_del_diagnostico && (
@@ -316,15 +334,14 @@ export default function NursingNNNForm() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
+          <div className="space-y-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 Resultado NOC
               </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
-                {...register('noc_resultado_noc')}
+              <AutocompleteSelector
+                jsonPath="/noc.json"
+                placeholder="Buscar resultado NOC"
+                onSelect={(value, label) => setValue('noc_resultado_noc', label)}
               />
               {errors.noc_resultado_noc && (
                 <p className="text-sm text-red-500">{errors.noc_resultado_noc.message}</p>
@@ -336,8 +353,8 @@ export default function NursingNNNForm() {
               </Label>
               <Input
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('noc_dominio')}
               />
               {errors.noc_dominio && (
@@ -350,8 +367,8 @@ export default function NursingNNNForm() {
               </Label>
               <Input
                 className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-                         dark:border-transparent focus:border-blue-500 
-                         dark:focus:border-transparent text-gray-900 dark:text-gray-100"
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                 {...register('noc_clase')}
               />
               {errors.noc_clase && (
@@ -472,13 +489,14 @@ export default function NursingNNNForm() {
 
             {nicIntervencion.fields.map((field, index) => (
               <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
-                <div>
+               <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
                     Intervención
                   </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`nic_intervencion.${index}.value`)}
+                  <AutocompleteSelector
+                    jsonPath="/nic.json"
+                    placeholder="Buscar intervención NIC"
+                    onSelect={(value, label) => setValue(`nic_intervencion.${index}.value`, label)}
                   />
                 </div>
                 <div>
@@ -486,7 +504,9 @@ export default function NursingNNNForm() {
                     Clase
                   </Label>
                   <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
+                    className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
+             dark:border-gray-700 focus:border-blue-500 
+             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
                     {...register(`nic_clase.${index}.value`)}
                   />
                 </div>

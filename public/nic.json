@@ -1,0 +1,2878 @@
+[
+    {
+        "value": "5612",
+        "label": "5612-Enseñanza: ejercicio prescrito"
+    },
+    {
+        "value": "0140 Favorecimiento de la mecánica corporal",
+        "label": "0140 Favorecimiento de la mecánica corporal"
+    },
+    {
+        "value": "0200 Favorecimiento del ejercicio",
+        "label": "0200 Favorecimiento del ejercicio"
+    },
+    {
+        "value": "0201 Favorecimiento del ejercicio: entrenamiento de fuerza",
+        "label": "0201 Favorecimiento del ejercicio: entrenamiento de fuerza"
+    },
+    {
+        "value": "0202 Favorecimiento del ejercicio: estiramientos",
+        "label": "0202 Favorecimiento del ejercicio: estiramientos"
+    },
+    {
+        "value": "0180 Manejo de la energía",
+        "label": "0180 Manejo de la energía"
+    },
+    {
+        "value": "0221 Terapia de ejercicios: ambulación",
+        "label": "0221 Terapia de ejercicios: ambulación"
+    },
+    {
+        "value": "0226 Terapia de ejercicios: control muscular",
+        "label": "0226 Terapia de ejercicios: control muscular"
+    },
+    {
+        "value": "0222 Terapia de ejercicios: equilibrio",
+        "label": "0222 Terapia de ejercicios: equilibrio"
+    },
+    {
+        "value": "0224 Terapia de ejercicios: movilidad articular",
+        "label": "0224 Terapia de ejercicios: movilidad articular"
+    },
+    {
+        "value": "0466 Administración de enema",
+        "label": "0466 Administración de enema"
+    },
+    {
+        "value": "1804 Ayuda con el autocuidado: micción/defecación",
+        "label": "1804 Ayuda con el autocuidado: micción/defecación"
+    },
+    {
+        "value": "0410 Cuidados de la incontinencia intestinal",
+        "label": "0410 Cuidados de la incontinencia intestinal"
+    },
+    {
+        "value": "0412 Cuidados de la incontinencia intestinal: encopresis",
+        "label": "0412 Cuidados de la incontinencia intestinal: encopresis"
+    },
+    {
+        "value": "0610 Cuidados de la incontinencia urinaria",
+        "label": "0610 Cuidados de la incontinencia urinaria"
+    },
+    {
+        "value": "0612 Cuidados de la incontinencia urinaria: enuresis",
+        "label": "0612 Cuidados de la incontinencia urinaria: enuresis"
+    },
+    {
+        "value": "0480 Cuidados de la ostomía",
+        "label": "0480 Cuidados de la ostomía"
+    },
+    {
+        "value": "0620 Cuidados de la retención urinaria",
+        "label": "0620 Cuidados de la retención urinaria"
+    },
+    {
+        "value": "1876 Cuidados del drenaje: urinario",
+        "label": "1876 Cuidados del drenaje: urinario"
+    },
+    {
+        "value": "0470 Disminución de la flatulencia",
+        "label": "0470 Disminución de la flatulencia"
+    },
+    {
+        "value": "0565 Ecografía: vejiga urinaria",
+        "label": "0565 Ecografía: vejiga urinaria"
+    },
+    {
+        "value": "0560 Ejercicios del suelo pélvico",
+        "label": "0560 Ejercicios del suelo pélvico"
+    },
+    {
+        "value": "0570 Entrenamiento de la vejiga urinaria",
+        "label": "0570 Entrenamiento de la vejiga urinaria"
+    },
+    {
+        "value": "0600 Entrenamiento del hábito urinario",
+        "label": "0600 Entrenamiento del hábito urinario"
+    },
+    {
+        "value": "0550 Irrigación de la vejiga urinaria",
+        "label": "0550 Irrigación de la vejiga urinaria"
+    },
+    {
+        "value": "0460 Manejo de la diarrea",
+        "label": "0460 Manejo de la diarrea"
+    },
+    {
+        "value": "0590 Manejo de la eliminación urinaria",
+        "label": "0590 Manejo de la eliminación urinaria"
+    },
+    {
+        "value": "0450 Manejo del estreñimiento",
+        "label": "0450 Manejo del estreñimiento"
+    },
+    {
+        "value": "0630 Manejo del pesario",
+        "label": "0630 Manejo del pesario"
+    },
+    {
+        "value": "0490 Manejo del prolapso rectal",
+        "label": "0490 Manejo del prolapso rectal"
+    },
+    {
+        "value": "0430 Manejo intestinal",
+        "label": "0430 Manejo intestinal"
+    },
+    {
+        "value": "0640 Micción estimulada",
+        "label": "0640 Micción estimulada"
+    },
+    {
+        "value": "0580 Sondaje vesical",
+        "label": "0580 Sondaje vesical"
+    },
+    {
+        "value": "0581 Sondaje vesical: externo",
+        "label": "0581 Sondaje vesical: externo"
+    },
+    {
+        "value": "0582 Sondaje vesical: intermitente",
+        "label": "0582 Sondaje vesical: intermitente"
+    },
+    {
+        "value": "1806 Ayuda con el autocuidado: transferencia",
+        "label": "1806 Ayuda con el autocuidado: transferencia"
+    },
+    {
+        "value": "0840 Cambio de posición",
+        "label": "0840 Cambio de posición"
+    },
+    {
+        "value": "0846 Cambio de posición: silla de ruedas",
+        "label": "0846 Cambio de posición: silla de ruedas"
+    },
+    {
+        "value": "0762 Cuidados de los yesos: mantenimiento",
+        "label": "0762 Cuidados de los yesos: mantenimiento"
+    },
+    {
+        "value": "0764 Cuidados de los yesos: yeso húmedo",
+        "label": "0764 Cuidados de los yesos: yeso húmedo"
+    },
+    {
+        "value": "0940 Cuidados de tracción/inmovilización",
+        "label": "0940 Cuidados de tracción/inmovilización"
+    },
+    {
+        "value": "0740 Cuidados del paciente encamado",
+        "label": "0740 Cuidados del paciente encamado"
+    },
+    {
+        "value": "0910 Inmovilización",
+        "label": "0910 Inmovilización"
+    },
+    {
+        "value": "6580 Restricción física",
+        "label": "6580 Restricción física"
+    },
+    {
+        "value": "0910 Transferencia",
+        "label": "0910 Transferencia"
+    },
+    {
+        "value": "1200 Administración de nutrición parenteral total (NPT)",
+        "label": "1200 Administración de nutrición parenteral total (NPT)"
+    },
+    {
+        "value": "1050 Alimentación",
+        "label": "1050 Alimentación"
+    },
+    {
+        "value": "1056 Alimentación entera por sonda",
+        "label": "1056 Alimentación entera por sonda"
+    },
+    {
+        "value": "5246 Asesoramiento nutricional",
+        "label": "5246 Asesoramiento nutricional"
+    },
+    {
+        "value": "1240 Ayuda para ganar peso",
+        "label": "1240 Ayuda para ganar peso"
+    },
+    {
+        "value": "1280 Ayuda para perder peso",
+        "label": "1280 Ayuda para perder peso"
+    },
+    {
+        "value": "1874 Cuidados del drenaje: gastrointestinal",
+        "label": "1874 Cuidados del drenaje: gastrointestinal"
+    },
+    {
+        "value": "5614 Enseñanza: dieta prescrita",
+        "label": "5614 Enseñanza: dieta prescrita"
+    },
+    {
+        "value": "1020 Etapas en la dieta",
+        "label": "1020 Etapas en la dieta"
+    },
+    {
+        "value": "1024 Etapas en la dieta: cirugía para la pérdida de peso",
+        "label": "1024 Etapas en la dieta: cirugía para la pérdida de peso"
+    },
+    {
+        "value": "1100 Manejo de la nutrición",
+        "label": "1100 Manejo de la nutrición"
+    },
+    {
+        "value": "1030 Manejo de los trastornos de la alimentación",
+        "label": "1030 Manejo de los trastornos de la alimentación"
+    },
+    {
+        "value": "1260 Manejo del peso",
+        "label": "1260 Manejo del peso"
+    },
+    {
+        "value": "1160 Monitorización nutricional",
+        "label": "1160 Monitorización nutricional"
+    },
+    {
+        "value": "1080 Sondaje nasogástrico",
+        "label": "1080 Sondaje nasogástrico"
+    },
+    {
+        "value": "1860 Terapia de deglución",
+        "label": "1860 Terapia de deglución"
+    },
+    {
+        "value": "1120 Terapia nutricional",
+        "label": "1120 Terapia nutricional"
+    },
+    {
+        "value": "1320 Acupresión",
+        "label": "1320 Acupresión"
+    },
+    {
+        "value": "1380 Aplicación de calor o frío",
+        "label": "1380 Aplicación de calor o frío"
+    },
+    {
+        "value": "1330 Aromaterapia",
+        "label": "1330 Aromaterapia"
+    },
+    {
+        "value": "1340 Estimulación cutánea",
+        "label": "1340 Estimulación cutánea"
+    },
+    {
+        "value": "1540 Estimulación nerviosa eléctrica transcutánea (TENS)",
+        "label": "1540 Estimulación nerviosa eléctrica transcutánea (TENS)"
+    },
+    {
+        "value": "1360 Extubación endotraqueal: paliativa",
+        "label": "1360 Extubación endotraqueal: paliativa"
+    },
+    {
+        "value": "1450 Manejo de las náuseas",
+        "label": "1450 Manejo de las náuseas"
+    },
+    {
+        "value": "6482 Manejo del confort",
+        "label": "6482 Manejo del confort"
+    },
+    {
+        "value": "1410 Manejo del dolor: agudo",
+        "label": "1410 Manejo del dolor: agudo"
+    },
+    {
+        "value": "1415 Manejo del dolor: crónico",
+        "label": "1415 Manejo del dolor: crónico"
+    },
+    {
+        "value": "6855 Manejo del dolor de parto",
+        "label": "6855 Manejo del dolor de parto"
+    },
+    {
+        "value": "3550 Manejo del prurito",
+        "label": "3550 Manejo del prurito"
+    },
+    {
+        "value": "1440 Manejo del síndrome premenstrual (SPM)",
+        "label": "1440 Manejo del síndrome premenstrual (SPM)"
+    },
+    {
+        "value": "1570 Manejo del vómito",
+        "label": "1570 Manejo del vómito"
+    },
+    {
+        "value": "1480 Masaje",
+        "label": "1480 Masaje"
+    },
+    {
+        "value": "1310 Masaje abdominal",
+        "label": "1310 Masaje abdominal"
+    },
+    {
+        "value": "1350 Prevención de la sequedad ocular",
+        "label": "1350 Prevención de la sequedad ocular"
+    },
+    {
+        "value": "1520 Reiki",
+        "label": "1520 Reiki"
+    },
+    {
+        "value": "1460 Relajación muscular progresiva",
+        "label": "1460 Relajación muscular progresiva"
+    },
+    {
+        "value": "1390 Tacto curativo",
+        "label": "1390 Tacto curativo"
+    },
+    {
+        "value": "5465 Tacto terapéutico",
+        "label": "5465 Tacto terapéutico"
+    },
+    {
+        "value": "1050 Alimentación",
+        "label": "1050 Alimentación"
+    },
+    {
+        "value": "1800 Ayuda con el autocuidado",
+        "label": "1800 Ayuda con el autocuidado"
+    },
+    {
+        "value": "1804 Ayuda con el autocuidado: micción/defecación",
+        "label": "1804 Ayuda con el autocuidado: micción/defecación"
+    },
+    {
+        "value": "1806 Ayuda con el autocuidado: transferencia",
+        "label": "1806 Ayuda con el autocuidado: transferencia"
+    },
+    {
+        "value": "1610 Baño",
+        "label": "1610 Baño"
+    },
+    {
+        "value": "1620 Cuidados de las lentes de contacto",
+        "label": "1620 Cuidados de las lentes de contacto"
+    },
+    {
+        "value": "1680 Cuidados de las uñas",
+        "label": "1680 Cuidados de las uñas"
+    },
+    {
+        "value": "1640 Cuidados de los oídos",
+        "label": "1640 Cuidados de los oídos"
+    },
+    {
+        "value": "1650 Cuidados de los ojos",
+        "label": "1650 Cuidados de los ojos"
+    },
+    {
+        "value": "1660 Cuidados de los pies",
+        "label": "1660 Cuidados de los pies"
+    },
+    {
+        "value": "1670 Cuidados del cabello y del cuero cabelludo",
+        "label": "1670 Cuidados del cabello y del cuero cabelludo"
+    },
+    {
+        "value": "1870 Cuidados del drenaje",
+        "label": "1870 Cuidados del drenaje"
+    },
+    {
+        "value": "1750 Cuidados perineales",
+        "label": "1750 Cuidados perineales"
+    },
+    {
+        "value": "1770 Cuidados post mortem",
+        "label": "1770 Cuidados post mortem"
+    },
+    {
+        "value": "1720 Favorecimiento de la salud oral",
+        "label": "1720 Favorecimiento de la salud oral"
+    },
+    {
+        "value": "1645 Irrigación de los oídos",
+        "label": "1645 Irrigación de los oídos"
+    },
+    {
+        "value": "1655 Irrigación de los ojos",
+        "label": "1655 Irrigación de los ojos"
+    },
+    {
+        "value": "6462 Manejo de la demencia: baño",
+        "label": "6462 Manejo de la demencia: baño"
+    },
+    {
+        "value": "1710 Mantenimiento de la salud oral",
+        "label": "1710 Mantenimiento de la salud oral"
+    },
+    {
+        "value": "1665 Mejora de la capacidad funcional",
+        "label": "1665 Mejora de la capacidad funcional"
+    },
+    {
+        "value": "1850 Mejora del sueño",
+        "label": "1850 Mejora del sueño"
+    },
+    {
+        "value": "1730 Restablecimiento de la salud oral",
+        "label": "1730 Restablecimiento de la salud oral"
+    },
+    {
+        "value": "1860 Terapia de deglución",
+        "label": "1860 Terapia de deglución"
+    },
+    {
+        "value": "1630 Vestir",
+        "label": "1630 Vestir"
+    },
+    {
+        "value": "1200 Administración de nutrición parenteral total (NPT)",
+        "label": "1200 Administración de nutrición parenteral total (NPT)"
+    },
+    {
+        "value": "2000 Manejo de electrólitos",
+        "label": "2000 Manejo de electrólitos"
+    },
+    {
+        "value": "2001 Manejo de electrólitos: hipercalcemia",
+        "label": "2001 Manejo de electrólitos: hipercalcemia"
+    },
+    {
+        "value": "2005 Manejo de electrólitos: hiperfosfatemia",
+        "label": "2005 Manejo de electrólitos: hiperfosfatemia"
+    },
+    {
+        "value": "2003 Manejo de electrólitos: hipermagnesemia",
+        "label": "2003 Manejo de electrólitos: hipermagnesemia"
+    },
+    {
+        "value": "2004 Manejo de electrólitos: hipernatremia",
+        "label": "2004 Manejo de electrólitos: hipernatremia"
+    },
+    {
+        "value": "2002 Manejo de electrólitos: hiperpotasemia",
+        "label": "2002 Manejo de electrólitos: hiperpotasemia"
+    },
+    {
+        "value": "2006 Manejo de electrólitos: hipocalcemia",
+        "label": "2006 Manejo de electrólitos: hipocalcemia"
+    },
+    {
+        "value": "2010 Manejo de electrólitos: hipofosfatemia",
+        "label": "2010 Manejo de electrólitos: hipofosfatemia"
+    },
+    {
+        "value": "2008 Manejo de electrólitos: hipomagnesemia",
+        "label": "2008 Manejo de electrólitos: hipomagnesemia"
+    },
+    {
+        "value": "2009 Manejo de electrólitos: hiponatremia",
+        "label": "2009 Manejo de electrólitos: hiponatremia"
+    },
+    {
+        "value": "2007 Manejo de electrólitos: hipopotasemia",
+        "label": "2007 Manejo de electrólitos: hipopotasemia"
+    },
+    {
+        "value": "2120 Manejo de la hiperglucemia",
+        "label": "2120 Manejo de la hiperglucemia"
+    },
+    {
+        "value": "2125 Manejo de la hiperlipidemia",
+        "label": "2125 Manejo de la hiperlipidemia"
+    },
+    {
+        "value": "2130 Manejo de la hipoglucemia",
+        "label": "2130 Manejo de la hipoglucemia"
+    },
+    {
+        "value": "2080 Manejo de líquidos/electrólitos",
+        "label": "2080 Manejo de líquidos/electrólitos"
+    },
+    {
+        "value": "1910 Manejo del equilibrio ácido",
+        "label": "1910 Manejo del equilibrio ácido-base"
+    },
+    {
+        "value": "1911 Manejo del equilibrio ácido",
+        "label": "1911 Manejo del equilibrio ácido-base: acidosis metabólica"
+    },
+    {
+        "value": "1913 Manejo del quilibrio ácido",
+        "label": "1913 Manejo del quilibrio ácido-base: acidosis respiratoria"
+    },
+    {
+        "value": "1912 Manejo del equilibrio ácido",
+        "label": "1912 Manejo del equilibrio ácido-base: alcalosis metabólica"
+    },
+    {
+        "value": "1914 Manejo del equilibrio ácido",
+        "label": "1914 Manejo del equilibrio ácido-base: alcalosis respiratoria"
+    },
+    {
+        "value": "2020 Monitorización de electrólitos",
+        "label": "2020 Monitorización de electrólitos"
+    },
+    {
+        "value": "1920 Monitorización del equilibrio ácido base",
+        "label": "1920 Monitorización del equilibrio ácido base"
+    },
+    {
+        "value": "4232 Punción arterial: muestra de sangre arterial",
+        "label": "4232 Punción arterial: muestra de sangre arterial"
+    },
+    {
+        "value": "2150 Terapia de diálisis peritoneal",
+        "label": "2150 Terapia de diálisis peritoneal"
+    },
+    {
+        "value": "2100 Terapia de hemodiálisis",
+        "label": "2100 Terapia de hemodiálisis"
+    },
+    {
+        "value": "2110 Terapia de hemofiltración",
+        "label": "2110 Terapia de hemofiltración"
+    },
+    {
+        "value": "2210 Administración de analgésicos",
+        "label": "2210 Administración de analgésicos"
+    },
+    {
+        "value": "2214 Administración de analgésicos: intraespinal",
+        "label": "2214 Administración de analgésicos: intraespinal"
+    },
+    {
+        "value": "2840 Administración de anestesia",
+        "label": "2840 Administración de anestesia"
+    },
+    {
+        "value": "2300 Administración de medicación",
+        "label": "2300 Administración de medicación"
+    },
+    {
+        "value": "2316 Administración de medicación: cutánea",
+        "label": "2316 Administración de medicación: cutánea"
+    },
+    {
+        "value": "2322 Administración de medicación: disco intraocular",
+        "label": "2322 Administración de medicación: disco intraocular"
+    },
+    {
+        "value": "2301 Administración de medicación: enteral",
+        "label": "2301 Administración de medicación: enteral"
+    },
+    {
+        "value": "2321 Administración de medicación: infusión subcutánea continua",
+        "label": "2321 Administración de medicación: infusión subcutánea continua"
+    },
+    {
+        "value": "2311 Administración de medicación: inhalatoria",
+        "label": "2311 Administración de medicación: inhalatoria"
+    },
+    {
+        "value": "2312 Administración de medicación: intradérmica",
+        "label": "2312 Administración de medicación: intradérmica"
+    },
+    {
+        "value": "2319 Administración de medicación: intraespinal",
+        "label": "2319 Administración de medicación: intraespinal"
+    },
+    {
+        "value": "2313 Administración de medicación: intramuscular",
+        "label": "2313 Administración de medicación: intramuscular"
+    },
+    {
+        "value": "2303 Administración de medicación: intraósea",
+        "label": "2303 Administración de medicación: intraósea"
+    },
+    {
+        "value": "2302 Administración de medicación: intrapleural",
+        "label": "2302 Administración de medicación: intrapleural"
+    },
+    {
+        "value": "2314 Administración de medicación: intravenosa",
+        "label": "2314 Administración de medicación: intravenosa"
+    },
+    {
+        "value": "2320 Administración de medicación: nasal",
+        "label": "2320 Administración de medicación: nasal"
+    },
+    {
+        "value": "2310 Administración de medicación: oftálmica",
+        "label": "2310 Administración de medicación: oftálmica"
+    },
+    {
+        "value": "2304 Administración de medicación: oral",
+        "label": "2304 Administración de medicación: oral"
+    },
+    {
+        "value": "2308 Administración de medicación: ótica",
+        "label": "2308 Administración de medicación: ótica"
+    },
+    {
+        "value": "2315 Administración de medicación: rectal",
+        "label": "2315 Administración de medicación: rectal"
+    },
+    {
+        "value": "2307 Administración de medicación: reservorio",
+        "label": "2307 Administración de medicación: reservorio"
+    },
+    {
+        "value": "2317 Administración de medicación: subcutánea",
+        "label": "2317 Administración de medicación: subcutánea"
+    },
+    {
+        "value": "2318 Administración de medicación: vaginal",
+        "label": "2318 Administración de medicación: vaginal"
+    },
+    {
+        "value": "2400 Asistencia en la analgesia controlada por el paciente (ACP)",
+        "label": "2400 Asistencia en la analgesia controlada por el paciente (ACP)"
+    },
+    {
+        "value": "2395 Conciliación de medicación",
+        "label": "2395 Conciliación de medicación"
+    },
+    {
+        "value": "2370 Desprescripción de medicación",
+        "label": "2370 Desprescripción de medicación"
+    },
+    {
+        "value": "5616 Enseñanza: medicamentos prescritos",
+        "label": "5616 Enseñanza: medicamentos prescritos"
+    },
+    {
+        "value": "2420 Fitoterapia",
+        "label": "2420 Fitoterapia"
+    },
+    {
+        "value": "2380 Manejo de la medicación",
+        "label": "2380 Manejo de la medicación"
+    },
+    {
+        "value": "2385 Manejo de la medicación: cannabis medicinal",
+        "label": "2385 Manejo de la medicación: cannabis medicinal"
+    },
+    {
+        "value": "2398 Manejo de la medicación: dispositivo de infusión portátil",
+        "label": "2398 Manejo de la medicación: dispositivo de infusión portátil"
+    },
+    {
+        "value": "2240 Manejo de la quimioterapia",
+        "label": "2240 Manejo de la quimioterapia"
+    },
+    {
+        "value": "2260 Manejo de la sedación",
+        "label": "2260 Manejo de la sedación"
+    },
+    {
+        "value": "4270 Manejo de la terapia trombolítica",
+        "label": "4270 Manejo de la terapia trombolítica"
+    },
+    {
+        "value": "4054 Manejo del acceso venosa central: inserción central",
+        "label": "4054 Manejo del acceso venosa central: inserción central"
+    },
+    {
+        "value": "4220 Manejo del acceso venoso central: inserción periférica",
+        "label": "4220 Manejo del acceso venoso central: inserción periférica"
+    },
+    {
+        "value": "2390 Prescripción de medicación",
+        "label": "2390 Prescripción de medicación"
+    },
+    {
+        "value": "6430 Restricción química",
+        "label": "6430 Restricción química"
+    },
+    {
+        "value": "2280 Terapia de sustitución hormonal",
+        "label": "2280 Terapia de sustitución hormonal"
+    },
+    {
+        "value": "2430 Terapia hormonal para personas transgénero",
+        "label": "2430 Terapia hormonal para personas transgénero"
+    },
+    {
+        "value": "0844 Cambio de posición: neurológico",
+        "label": "0844 Cambio de posición: neurológico"
+    },
+    {
+        "value": "1878 Cuidados del drenaje: ventriculostomía/lumbar",
+        "label": "1878 Cuidados del drenaje: ventriculostomía/lumbar"
+    },
+    {
+        "value": "2550 Favorecimiento de la perfusión cerebral",
+        "label": "2550 Favorecimiento de la perfusión cerebral"
+    },
+    {
+        "value": "2760 Manejo de la desatención unilateral",
+        "label": "2760 Manejo de la desatención unilateral"
+    },
+    {
+        "value": "2560 Manejo de la disreflexia",
+        "label": "2560 Manejo de la disreflexia"
+    },
+    {
+        "value": "2660 Manejo de la sensibilidad periférica alterada",
+        "label": "2660 Manejo de la sensibilidad periférica alterada"
+    },
+    {
+        "value": "2570 Manejo de la terapia electroconvulsiva",
+        "label": "2570 Manejo de la terapia electroconvulsiva"
+    },
+    {
+        "value": "2680 Manejo de las convulsiones",
+        "label": "2680 Manejo de las convulsiones"
+    },
+    {
+        "value": "2540 Manejo del edema cerebral",
+        "label": "2540 Manejo del edema cerebral"
+    },
+    {
+        "value": "2590 Monitorización de la presión intracraneal (PIC)",
+        "label": "2590 Monitorización de la presión intracraneal (PIC)"
+    },
+    {
+        "value": "2620 Monitorización neurológica",
+        "label": "2620 Monitorización neurológica"
+    },
+    {
+        "value": "2720 Precauciones en la hemorragia subaracnoidea",
+        "label": "2720 Precauciones en la hemorragia subaracnoidea"
+    },
+    {
+        "value": "2690 Precauciones en las convulsiones",
+        "label": "2690 Precauciones en las convulsiones"
+    },
+    {
+        "value": "2840 Administración de anestesia",
+        "label": "2840 Administración de anestesia"
+    },
+    {
+        "value": "2900 Asistencia quirúrgica",
+        "label": "2900 Asistencia quirúrgica"
+    },
+    {
+        "value": "2860 Autotransfusión",
+        "label": "2860 Autotransfusión"
+    },
+    {
+        "value": "0842 Cambio de posición: intraoperatorio",
+        "label": "0842 Cambio de posición: intraoperatorio"
+    },
+    {
+        "value": "6545 Control de infecciones: intraoperatorio",
+        "label": "6545 Control de infecciones: intraoperatorio"
+    },
+    {
+        "value": "2880 Coordinación preoperatoria",
+        "label": "2880 Coordinación preoperatoria"
+    },
+    {
+        "value": "3000 Cuidados de la circuncisión",
+        "label": "3000 Cuidados de la circuncisión"
+    },
+    {
+        "value": "3583 Cuidados de la piel: zona del injerto",
+        "label": "3583 Cuidados de la piel: zona del injerto"
+    },
+    {
+        "value": "3582 Cuidados de la piel: zona donante",
+        "label": "3582 Cuidados de la piel: zona donante"
+    },
+    {
+        "value": "2870 Cuidados post anestesia",
+        "label": "2870 Cuidados post anestesia"
+    },
+    {
+        "value": "5610 Enseñanza: preoperatoria",
+        "label": "5610 Enseñanza: preoperatoria"
+    },
+    {
+        "value": "2910 Manejo de la instrumentación quirúrgica",
+        "label": "2910 Manejo de la instrumentación quirúrgica"
+    },
+    {
+        "value": "2865 Manejo del torniquete neumático",
+        "label": "2865 Manejo del torniquete neumático"
+    },
+    {
+        "value": "6560 Precauciones con el láser",
+        "label": "6560 Precauciones con el láser"
+    },
+    {
+        "value": "2920 Precauciones quirúrgicas",
+        "label": "2920 Precauciones quirúrgicas"
+    },
+    {
+        "value": "2930 Preparación quirúrgica",
+        "label": "2930 Preparación quirúrgica"
+    },
+    {
+        "value": "3902 Regulación de la temperatura: perioperatoria",
+        "label": "3902 Regulación de la temperatura: perioperatoria"
+    },
+    {
+        "value": "3160 Aspiración de la vía aérea",
+        "label": "3160 Aspiración de la vía aérea"
+    },
+    {
+        "value": "3390 Ayuda a la ventilación",
+        "label": "3390 Ayuda a la ventilación"
+    },
+    {
+        "value": "3330 Cambio de posición: decúbito prono",
+        "label": "3330 Cambio de posición: decúbito prono"
+    },
+    {
+        "value": "1872 Cuidados del drenaje: torácico",
+        "label": "1872 Cuidados del drenaje: torácico"
+    },
+    {
+        "value": "4106 Cuidados del embolismo: pulmonar",
+        "label": "4106 Cuidados del embolismo: pulmonar"
+    },
+    {
+        "value": "3310 Destete de la ventilación mecánica",
+        "label": "3310 Destete de la ventilación mecánica"
+    },
+    {
+        "value": "3270 Extubación endotraqueal",
+        "label": "3270 Extubación endotraqueal"
+    },
+    {
+        "value": "3230 Fisioterapia torácica",
+        "label": "3230 Fisioterapia torácica"
+    },
+    {
+        "value": "3340 Inducción e intubación en secuencia rápida",
+        "label": "3340 Inducción e intubación en secuencia rápida"
+    },
+    {
+        "value": "3120 Intubación y estabilización de la vía aérea",
+        "label": "3120 Intubación y estabilización de la vía aérea"
+    },
+    {
+        "value": "3316 Irrigación nasal",
+        "label": "3316 Irrigación nasal"
+    },
+    {
+        "value": "6412 Manejo de la anafilaxia",
+        "label": "6412 Manejo de la anafilaxia"
+    },
+    {
+        "value": "3300 Manejo de la ventilación mecánica: invasiva",
+        "label": "3300 Manejo de la ventilación mecánica: invasiva"
+    },
+    {
+        "value": "3302 Manejo de la ventilación mecánica: no invasiva",
+        "label": "3302 Manejo de la ventilación mecánica: no invasiva"
+    },
+    {
+        "value": "3304 Manejo de la ventilación mecánica: prevención de la neumonía",
+        "label": "3304 Manejo de la ventilación mecánica: prevención de la neumonía"
+    },
+    {
+        "value": "3140 Manejo de la vía aérea",
+        "label": "3140 Manejo de la vía aérea"
+    },
+    {
+        "value": "3180 Manejo de la vía aérea artificial",
+        "label": "3180 Manejo de la vía aérea artificial"
+    },
+    {
+        "value": "3210 Manejo del asma",
+        "label": "3210 Manejo del asma"
+    },
+    {
+        "value": "1913 Manejo del equilibrio ácido",
+        "label": "1913 Manejo del equilibrio ácido-base: acidosis respiratoria"
+    },
+    {
+        "value": "1914 Manejo del equilibrio ácido",
+        "label": "1914 Manejo del equilibrio ácido-base: alcalosis respiratoria"
+    },
+    {
+        "value": "3250 Mejora de la tos",
+        "label": "3250 Mejora de la tos"
+    },
+    {
+        "value": "3350 Monitorización respiratoria",
+        "label": "3350 Monitorización respiratoria"
+    },
+    {
+        "value": "3320 Oxigenoterapia",
+        "label": "3320 Oxigenoterapia"
+    },
+    {
+        "value": "3200 Precauciones en la aspiración",
+        "label": "3200 Precauciones en la aspiración"
+    },
+    {
+        "value": "0480 Cuidados de la ostomía",
+        "label": "0480 Cuidados de la ostomía"
+    },
+    {
+        "value": "3570 Cuidados de la piel: productos absorbentes",
+        "label": "3570 Cuidados de la piel: productos absorbentes"
+    },
+    {
+        "value": "3584 Cuidados de la piel: tratamiento tópico",
+        "label": "3584 Cuidados de la piel: tratamiento tópico"
+    },
+    {
+        "value": "3583 Cuidados de la piel: zona del injerto",
+        "label": "3583 Cuidados de la piel: zona del injerto"
+    },
+    {
+        "value": "3582 Cuidados de la piel: zona donante",
+        "label": "3582 Cuidados de la piel: zona donante"
+    },
+    {
+        "value": "3420 Cuidados de las amputaciones",
+        "label": "3420 Cuidados de las amputaciones"
+    },
+    {
+        "value": "3660 Cuidados de las heridas",
+        "label": "3660 Cuidados de las heridas"
+    },
+    {
+        "value": "3664 Cuidados de las heridas: ausencia de cicatrización",
+        "label": "3664 Cuidados de las heridas: ausencia de cicatrización"
+    },
+    {
+        "value": "3662 Cuidados de las heridas: drenaje cerrado",
+        "label": "3662 Cuidados de las heridas: drenaje cerrado"
+    },
+    {
+        "value": "3670 Cuidados de las heridas: protección",
+        "label": "3670 Cuidados de las heridas: protección"
+    },
+    {
+        "value": "3661 Cuidados de las heridas: quemaduras",
+        "label": "3661 Cuidados de las heridas: quemaduras"
+    },
+    {
+        "value": "3520 Cuidados de las lesiones por presión",
+        "label": "3520 Cuidados de las lesiones por presión"
+    },
+    {
+        "value": "3440 Cuidados del sitio de incisión",
+        "label": "3440 Cuidados del sitio de incisión"
+    },
+    {
+        "value": "3510 Fototerapia: piel",
+        "label": "3510 Fototerapia: piel"
+    },
+    {
+        "value": "3680 Irrigación de heridas",
+        "label": "3680 Irrigación de heridas"
+    },
+    {
+        "value": "3550 Manejo del prurito",
+        "label": "3550 Manejo del prurito"
+    },
+    {
+        "value": "3480 Monitorización de las extremidades inferiores",
+        "label": "3480 Monitorización de las extremidades inferiores"
+    },
+    {
+        "value": "3540 Prevención de las lesiones por presión",
+        "label": "3540 Prevención de las lesiones por presión"
+    },
+    {
+        "value": "3620 Sutura",
+        "label": "3620 Sutura"
+    },
+    {
+        "value": "3460 Terapia con sanguijuelas",
+        "label": "3460 Terapia con sanguijuelas"
+    },
+    {
+        "value": "3590 Vigilancia de la piel",
+        "label": "3590 Vigilancia de la piel"
+    },
+    {
+        "value": "3786 Manejo de la hipertermia",
+        "label": "3786 Manejo de la hipertermia"
+    },
+    {
+        "value": "3800 Manejo de la hipotermia",
+        "label": "3800 Manejo de la hipotermia"
+    },
+    {
+        "value": "3920 Manejo de la termorregulación",
+        "label": "3920 Manejo de la termorregulación"
+    },
+    {
+        "value": "3840 Precauciones en la hipertermia maligna",
+        "label": "3840 Precauciones en la hipertermia maligna"
+    },
+    {
+        "value": "3900 Regulación de la temperatura",
+        "label": "3900 Regulación de la temperatura"
+    },
+    {
+        "value": "3902 Regulación de la temperatura: perioperatoria",
+        "label": "3902 Regulación de la temperatura: perioperatoria"
+    },
+    {
+        "value": "3910 Regulación de la temperatura: recién nacido",
+        "label": "3910 Regulación de la temperatura: recién nacido"
+    },
+    {
+        "value": "3790 Terapia de inducción de hipotermia",
+        "label": "3790 Terapia de inducción de hipotermia"
+    },
+    {
+        "value": "4030 Administración de hemoderivados",
+        "label": "4030 Administración de hemoderivados"
+    },
+    {
+        "value": "2860 Autotransfusión",
+        "label": "2860 Autotransfusión"
+    },
+    {
+        "value": "4040 Cuidados cardíacos",
+        "label": "4040 Cuidados cardíacos"
+    },
+    {
+        "value": "4044 Cuidados cardíacos: agudos",
+        "label": "4044 Cuidados cardíacos: agudos"
+    },
+    {
+        "value": "4046 Cuidados cardíacos: rehabilitación",
+        "label": "4046 Cuidados cardíacos: rehabilitación"
+    },
+    {
+        "value": "4064 Cuidados circulatorios: dispositivo de ayuda mecánico",
+        "label": "4064 Cuidados circulatorios: dispositivo de ayuda mecánico"
+    },
+    {
+        "value": "4062 Cuidados circulatorios: insuficiencia arterial",
+        "label": "4062 Cuidados circulatorios: insuficiencia arterial"
+    },
+    {
+        "value": "4066 Cuidados circulatorios: insuficiencia venosa",
+        "label": "4066 Cuidados circulatorios: insuficiencia venosa"
+    },
+    {
+        "value": "4104 Cuidados del embolismo: periférico",
+        "label": "4104 Cuidados del embolismo: periférico"
+    },
+    {
+        "value": "4106 Cuidados del embolismo: pulmonar",
+        "label": "4106 Cuidados del embolismo: pulmonar"
+    },
+    {
+        "value": "4020 Disminución de la hemorragia",
+        "label": "4020 Disminución de la hemorragia"
+    },
+    {
+        "value": "4022 Disminución de la hemorragia: digestiva",
+        "label": "4022 Disminución de la hemorragia: digestiva"
+    },
+    {
+        "value": "4024 Disminución de la hemorragia: epistaxis",
+        "label": "4024 Disminución de la hemorragia: epistaxis"
+    },
+    {
+        "value": "4028 Disminución de la hemorragia: heridas",
+        "label": "4028 Disminución de la hemorragia: heridas"
+    },
+    {
+        "value": "4021 Disminución de la hemorragia: útero anteparto",
+        "label": "4021 Disminución de la hemorragia: útero anteparto"
+    },
+    {
+        "value": "4026 Disminución de la hemorragia: útero posparto",
+        "label": "4026 Disminución de la hemorragia: útero posparto"
+    },
+    {
+        "value": "4234 Flebotomía: donación de sangre",
+        "label": "4234 Flebotomía: donación de sangre"
+    },
+    {
+        "value": "4238 Flebotomía: muestra de sangre venosa",
+        "label": "4238 Flebotomía: muestra de sangre venosa"
+    },
+    {
+        "value": "4266 Infusión de células madre",
+        "label": "4266 Infusión de células madre"
+    },
+    {
+        "value": "4090 Manejo de la arritmia",
+        "label": "4090 Manejo de la arritmia"
+    },
+    {
+        "value": "4162 Manejo de la hipertensión",
+        "label": "4162 Manejo de la hipertensión"
+    },
+    {
+        "value": "4170 Manejo de la hipervolemia",
+        "label": "4170 Manejo de la hipervolemia"
+    },
+    {
+        "value": "4175 Manejo de la hipotensión",
+        "label": "4175 Manejo de la hipotensión"
+    },
+    {
+        "value": "4180 Manejo de la hipovolemia",
+        "label": "4180 Manejo de la hipovolemia"
+    },
+    {
+        "value": "4270 Manejo de la terapia trombolítica",
+        "label": "4270 Manejo de la terapia trombolítica"
+    },
+    {
+        "value": "4120 Manejo de líquidos",
+        "label": "4120 Manejo de líquidos"
+    },
+    {
+        "value": "2080 Manejo de líquidos/electrólitos",
+        "label": "2080 Manejo de líquidos/electrólitos"
+    },
+    {
+        "value": "4054 Manejo del acceso venoso central: inserción central",
+        "label": "4054 Manejo del acceso venoso central: inserción central"
+    },
+    {
+        "value": "4220 Manejo del acceso venoso central: inserción periférica",
+        "label": "4220 Manejo del acceso venoso central: inserción periférica"
+    },
+    {
+        "value": "4095 Manejo del desfibrilador: externo",
+        "label": "4095 Manejo del desfibrilador: externo"
+    },
+    {
+        "value": "4096 Manejo del desfibrilador: interno",
+        "label": "4096 Manejo del desfibrilador: interno"
+    },
+    {
+        "value": "4091 Manejo del marcapasos: permanente",
+        "label": "4091 Manejo del marcapasos: permanente"
+    },
+    {
+        "value": "4092 Manejo del marcapasos: temporal",
+        "label": "4092 Manejo del marcapasos: temporal"
+    },
+    {
+        "value": "4050 Manejo del riesgo cardíaco",
+        "label": "4050 Manejo del riesgo cardíaco"
+    },
+    {
+        "value": "4250 Manejo del shock",
+        "label": "4250 Manejo del shock"
+    },
+    {
+        "value": "4254 Manejo del shock: cardíaco",
+        "label": "4254 Manejo del shock: cardíaco"
+    },
+    {
+        "value": "4255 Manejo del shock: sepsis",
+        "label": "4255 Manejo del shock: sepsis"
+    },
+    {
+        "value": "4256 Manejo del shock: vasogénico",
+        "label": "4256 Manejo del shock: vasogénico"
+    },
+    {
+        "value": "4258 Manejo del shock: volumen",
+        "label": "4258 Manejo del shock: volumen"
+    },
+    {
+        "value": "4240 Mantenimiento del acceso para diálisis",
+        "label": "4240 Mantenimiento del acceso para diálisis"
+    },
+    {
+        "value": "4130 Monitorización de líquidos",
+        "label": "4130 Monitorización de líquidos"
+    },
+    {
+        "value": "4210 Monitorización hemodinámica invasiva",
+        "label": "4210 Monitorización hemodinámica invasiva"
+    },
+    {
+        "value": "4035 Muestra de sangre capilar",
+        "label": "4035 Muestra de sangre capilar"
+    },
+    {
+        "value": "4070 Precauciones circulatorias",
+        "label": "4070 Precauciones circulatorias"
+    },
+    {
+        "value": "4170 Precauciones en el embolismo",
+        "label": "4170 Precauciones en el embolismo"
+    },
+    {
+        "value": "4010 Prevención de hemorragias",
+        "label": "4010 Prevención de hemorragias"
+    },
+    {
+        "value": "4260 Prevención del shock",
+        "label": "4260 Prevención del shock"
+    },
+    {
+        "value": "4232 Punción arterial: muestra de sangre arterial",
+        "label": "4232 Punción arterial: muestra de sangre arterial"
+    },
+    {
+        "value": "4190 Punción intravenosa",
+        "label": "4190 Punción intravenosa"
+    },
+    {
+        "value": "4150 Regulación hemodinámica",
+        "label": "4150 Regulación hemodinámica"
+    },
+    {
+        "value": "4140 Reposición de líquidos",
+        "label": "4140 Reposición de líquidos"
+    },
+    {
+        "value": "4200 Terapia intravenosa",
+        "label": "4200 Terapia intravenosa"
+    },
+    {
+        "value": "4115 Terapia mediante oxigenación con membrana extracorpórea",
+        "label": "4115 Terapia mediante oxigenación con membrana extracorpórea"
+    },
+    {
+        "value": "4420 Acuerdo sobre la conducta",
+        "label": "4420 Acuerdo sobre la conducta"
+    },
+    {
+        "value": "4330 Arteterapia",
+        "label": "4330 Arteterapia"
+    },
+    {
+        "value": "4470 Ayuda en la modificación de sí mismo",
+        "label": "4470 Ayuda en la modificación de sí mismo"
+    },
+    {
+        "value": "4490 Ayuda para dejar de fumar",
+        "label": "4490 Ayuda para dejar de fumar"
+    },
+    {
+        "value": "4364 Elogio",
+        "label": "4364 Elogio"
+    },
+    {
+        "value": "4340 Entrenamiento de la asertividad",
+        "label": "4340 Entrenamiento de la asertividad"
+    },
+    {
+        "value": "4370 Entrenamiento para controlar los impulsos",
+        "label": "4370 Entrenamiento para controlar los impulsos"
+    },
+    {
+        "value": "4395 Entrevista motivacional",
+        "label": "4395 Entrevista motivacional"
+    },
+    {
+        "value": "4380 Establecimiento de limites",
+        "label": "4380 Establecimiento de limites"
+    },
+    {
+        "value": "4410 Establecimiento de objetivos comunes",
+        "label": "4410 Establecimiento de objetivos comunes"
+    },
+    {
+        "value": "4480 Facilitación de la autorresponsabilidad",
+        "label": "4480 Facilitación de la autorresponsabilidad"
+    },
+    {
+        "value": "6926 Fototerapia: regulación del estado de ánimo",
+        "label": "6926 Fototerapia: regulación del estado de ánimo"
+    },
+    {
+        "value": "4430 Ludoterapia",
+        "label": "4430 Ludoterapia"
+    },
+    {
+        "value": "4350 Manejo de la conducta",
+        "label": "4350 Manejo de la conducta"
+    },
+    {
+        "value": "4354 Manejo de la conducta: autolesión",
+        "label": "4354 Manejo de la conducta: autolesión"
+    },
+    {
+        "value": "4352 Manejo de la conducta: falta de atención e hiperactividad",
+        "label": "4352 Manejo de la conducta: falta de atención e hiperactividad"
+    },
+    {
+        "value": "4356 Manejo de la conducta: sexual",
+        "label": "4356 Manejo de la conducta: sexual"
+    },
+    {
+        "value": "4360 Modificación de la conducta",
+        "label": "4360 Modificación de la conducta"
+    },
+    {
+        "value": "4362 Modificación de la conducta: habilidades sociales",
+        "label": "4362 Modificación de la conducta: habilidades sociales"
+    },
+    {
+        "value": "4400 Musicoterapia",
+        "label": "4400 Musicoterapia"
+    },
+    {
+        "value": "4500 Prevención del consumo de sustancias nocivas",
+        "label": "4500 Prevención del consumo de sustancias nocivas"
+    },
+    {
+        "value": "4320 Terapia asistida con animales",
+        "label": "4320 Terapia asistida con animales"
+    },
+    {
+        "value": "4390 Terapia con el entorno",
+        "label": "4390 Terapia con el entorno"
+    },
+    {
+        "value": "4310 Terapia de actividad",
+        "label": "4310 Terapia de actividad"
+    },
+    {
+        "value": "4367 Terapia de baile",
+        "label": "4367 Terapia de baile"
+    },
+    {
+        "value": "4368 Terapia de jardinería",
+        "label": "4368 Terapia de jardinería"
+    },
+    {
+        "value": "4510 Tratamiento del consumo de sustancias nocivas",
+        "label": "4510 Tratamiento del consumo de sustancias nocivas"
+    },
+    {
+        "value": "4514 Tratamiento del consumo de sustancias nocivas: abstinencia de las drogas",
+        "label": "4514 Tratamiento del consumo de sustancias nocivas: abstinencia de las drogas"
+    },
+    {
+        "value": "4512 Tratamiento del consumo de sustancias nocivas: abstinencia",
+        "label": "4512 Tratamiento del consumo de sustancias nocivas: abstinencia"
+    },
+    {
+        "value": "del alcohol",
+        "label": "del alcohol"
+    },
+    {
+        "value": "4516 Tratamiento del consumo de sustancias nocivas: sobredosis",
+        "label": "4516 Tratamiento del consumo de sustancias nocivas: sobredosis"
+    },
+    {
+        "value": "4640 Ayuda para el control de la ira",
+        "label": "4640 Ayuda para el control de la ira"
+    },
+    {
+        "value": "4680 Biblioterapia",
+        "label": "4680 Biblioterapia"
+    },
+    {
+        "value": "4760 Entrenamiento de la memoria",
+        "label": "4760 Entrenamiento de la memoria"
+    },
+    {
+        "value": "4720 Estimulación cognitiva",
+        "label": "4720 Estimulación cognitiva"
+    },
+    {
+        "value": "5520 Facilitación del aprendizaje",
+        "label": "5520 Facilitación del aprendizaje"
+    },
+    {
+        "value": "4740 Llevar un diario",
+        "label": "4740 Llevar un diario"
+    },
+    {
+        "value": "4820 Orientación en la realidad",
+        "label": "4820 Orientación en la realidad"
+    },
+    {
+        "value": "4700 Reestructuración cognitiva",
+        "label": "4700 Reestructuración cognitiva"
+    },
+    {
+        "value": "4730 Reflexión guiada",
+        "label": "4730 Reflexión guiada"
+    },
+    {
+        "value": "4860 Terapia de reminiscencia",
+        "label": "4860 Terapia de reminiscencia"
+    },
+    {
+        "value": "4330 Arteterapia",
+        "label": "4330 Arteterapia"
+    },
+    {
+        "value": "6675 Cribado visual",
+        "label": "6675 Cribado visual"
+    },
+    {
+        "value": "5000 Desarrollo de interacciones empáticas",
+        "label": "5000 Desarrollo de interacciones empáticas"
+    },
+    {
+        "value": "4920 Escucha activa",
+        "label": "4920 Escucha activa"
+    },
+    {
+        "value": "4430 Ludoterapia",
+        "label": "4430 Ludoterapia"
+    },
+    {
+        "value": "5020 Mediación de conflictos",
+        "label": "5020 Mediación de conflictos"
+    },
+    {
+        "value": "4974 Mejora de la comunicación: déficit auditivo",
+        "label": "4974 Mejora de la comunicación: déficit auditivo"
+    },
+    {
+        "value": "4976 Mejora de la comunicación: déficit del habla",
+        "label": "4976 Mejora de la comunicación: déficit del habla"
+    },
+    {
+        "value": "4978 Mejora de la comunicación: déficit visual",
+        "label": "4978 Mejora de la comunicación: déficit visual"
+    },
+    {
+        "value": "5100 Mejora de la socialización",
+        "label": "5100 Mejora de la socialización"
+    },
+    {
+        "value": "4400 Musicoterapia",
+        "label": "4400 Musicoterapia"
+    },
+    {
+        "value": "4320 Terapia asistida con animales",
+        "label": "4320 Terapia asistida con animales"
+    },
+    {
+        "value": "5328 Visitas domiciliarias de apoyo",
+        "label": "5328 Visitas domiciliarias de apoyo"
+    },
+    {
+        "value": "5270 Apoyo emocional",
+        "label": "5270 Apoyo emocional"
+    },
+    {
+        "value": "5250 Apoyo en la toma de decisiones",
+        "label": "5250 Apoyo en la toma de decisiones"
+    },
+    {
+        "value": "5420 Apoyo espiritual",
+        "label": "5420 Apoyo espiritual"
+    },
+    {
+        "value": "5240 Asesoramiento",
+        "label": "5240 Asesoramiento"
+    },
+    {
+        "value": "5248 Asesoramiento sexual",
+        "label": "5248 Asesoramiento sexual"
+    },
+    {
+        "value": "5480 Clarificación de valores",
+        "label": "5480 Clarificación de valores"
+    },
+    {
+        "value": "5242 Consejo genético",
+        "label": "5242 Consejo genético"
+    },
+    {
+        "value": "5460 Contacto",
+        "label": "5460 Contacto"
+    },
+    {
+        "value": "5215 Cuidados en el duelo",
+        "label": "5215 Cuidados en el duelo"
+    },
+    {
+        "value": "5260 Cuidados en la agonía",
+        "label": "5260 Cuidados en la agonía"
+    },
+    {
+        "value": "5310 Dar esperanza",
+        "label": "5310 Dar esperanza"
+    },
+    {
+        "value": "5470 Declarar la verdad al paciente",
+        "label": "5470 Declarar la verdad al paciente"
+    },
+    {
+        "value": "5350 Disminución del estrés por traslado",
+        "label": "5350 Disminución del estrés por traslado"
+    },
+    {
+        "value": "5305 Entrenamiento en salud",
+        "label": "5305 Entrenamiento en salud"
+    },
+    {
+        "value": "5290 Facilitación de la superación de la aflicción",
+        "label": "5290 Facilitación de la superación de la aflicción"
+    },
+    {
+        "value": "5294 Facilitación de la superación de la aflicción: muerte perinatal",
+        "label": "5294 Facilitación de la superación de la aflicción: muerte perinatal"
+    },
+    {
+        "value": "5300 Facilitación de la superación de la culpa",
+        "label": "5300 Facilitación de la superación de la culpa"
+    },
+    {
+        "value": "5426 Facilitación del crecimiento espiritual",
+        "label": "5426 Facilitación del crecimiento espiritual"
+    },
+    {
+        "value": "5280 Facilitación del perdón",
+        "label": "5280 Facilitación del perdón"
+    },
+    {
+        "value": "5430 Grupo de apoyo",
+        "label": "5430 Grupo de apoyo"
+    },
+    {
+        "value": "5320 Humor",
+        "label": "5320 Humor"
+    },
+    {
+        "value": "6160 Intervención en caso de crisis",
+        "label": "6160 Intervención en caso de crisis"
+    },
+    {
+        "value": "5424 Manejo de la práctica religiosa",
+        "label": "5424 Manejo de la práctica religiosa"
+    },
+    {
+        "value": "5330 Manejo del estado de ánimo",
+        "label": "5330 Manejo del estado de ánimo"
+    },
+    {
+        "value": "5390 Mejora de la autoconciencia",
+        "label": "5390 Mejora de la autoconciencia"
+    },
+    {
+        "value": "5395 Mejora de la autoeficacia",
+        "label": "5395 Mejora de la autoeficacia"
+    },
+    {
+        "value": "5400 Mejora de la autoestima",
+        "label": "5400 Mejora de la autoestima"
+    },
+    {
+        "value": "5220 Mejora de la imagen corporal",
+        "label": "5220 Mejora de la imagen corporal"
+    },
+    {
+        "value": "5326 Mejora de las aptitudes para la vida diaria",
+        "label": "5326 Mejora de las aptitudes para la vida diaria"
+    },
+    {
+        "value": "5440 Mejora de los sistemas de apoyo",
+        "label": "5440 Mejora de los sistemas de apoyo"
+    },
+    {
+        "value": "5370 Mejora de roles",
+        "label": "5370 Mejora de roles"
+    },
+    {
+        "value": "5230 Mejora del afrontamiento",
+        "label": "5230 Mejora del afrontamiento"
+    },
+    {
+        "value": "5210 Orientación anticipatoria",
+        "label": "5210 Orientación anticipatoria"
+    },
+    {
+        "value": "5340 Presencia",
+        "label": "5340 Presencia"
+    },
+    {
+        "value": "5235 Prevención de las recidivas",
+        "label": "5235 Prevención de las recidivas"
+    },
+    {
+        "value": "5360 Terapia de entretenimiento",
+        "label": "5360 Terapia de entretenimiento"
+    },
+    {
+        "value": "5450 Terapia de grupo",
+        "label": "5450 Terapia de grupo"
+    },
+    {
+        "value": "5422 Terapia de la adicción a la religión",
+        "label": "5422 Terapia de la adicción a la religión"
+    },
+    {
+        "value": "5410 Terapia del trauma: niño",
+        "label": "5410 Terapia del trauma: niño"
+    },
+    {
+        "value": "5328 Visitas domiciliarias de apoyo",
+        "label": "5328 Visitas domiciliarias de apoyo"
+    },
+    {
+        "value": "5510 Educación para la salud",
+        "label": "5510 Educación para la salud"
+    },
+    {
+        "value": "5562 Educación parental: adolescentes",
+        "label": "5562 Educación parental: adolescentes"
+    },
+    {
+        "value": "5566 Educación parental: crianza familiar de los niños",
+        "label": "5566 Educación parental: crianza familiar de los niños"
+    },
+    {
+        "value": "5568 Educación parental: lactante",
+        "label": "5568 Educación parental: lactante"
+    },
+    {
+        "value": "5649 Enseñanza: control de infecciones",
+        "label": "5649 Enseñanza: control de infecciones"
+    },
+    {
+        "value": "5655 Enseñanza: desarrollo del lactante (0",
+        "label": "5655 Enseñanza: desarrollo del lactante (0-3 meses)"
+    },
+    {
+        "value": "5658 Enseñanza: desarrollo del lactante (4",
+        "label": "5658 Enseñanza: desarrollo del lactante (4-6 meses)"
+    },
+    {
+        "value": "5656 Enseñanza: desarrollo del lactante (7",
+        "label": "5656 Enseñanza: desarrollo del lactante (7-9 meses)"
+    },
+    {
+        "value": "5657 Enseñanza: desarrollo del lactante (10",
+        "label": "5657 Enseñanza: desarrollo del lactante (10-12 meses)"
+    },
+    {
+        "value": "5680 Enseñanza desarrollo en la primera infancia (1",
+        "label": "5680 Enseñanza desarrollo en la primera infancia (1-5 años)"
+    },
+    {
+        "value": "5650 Enseñanza: desarrollo en la infancia media (6",
+        "label": "5650 Enseñanza: desarrollo en la infancia media (6-12 años)"
+    },
+    {
+        "value": "5670 Enseñanza: desarrollo del adolescente (12",
+        "label": "5670 Enseñanza: desarrollo del adolescente (12-21 años)"
+    },
+    {
+        "value": "5614 Enseñanza: dieta prescrita",
+        "label": "5614 Enseñanza: dieta prescrita"
+    },
+    {
+        "value": "5612 Enseñanza: ejercicio prescrito",
+        "label": "5612 Enseñanza: ejercicio prescrito"
+    },
+    {
+        "value": "5634 Enseñanza: entrenamiento del control de esfínteres",
+        "label": "5634 Enseñanza: entrenamiento del control de esfínteres"
+    },
+    {
+        "value": "5604 Enseñanza: grupo",
+        "label": "5604 Enseñanza: grupo"
+    },
+    {
+        "value": "5620 Enseñanza: habilidad psicomotora",
+        "label": "5620 Enseñanza: habilidad psicomotora"
+    },
+    {
+        "value": "5606 Enseñanza: individual",
+        "label": "5606 Enseñanza: individual"
+    },
+    {
+        "value": "5616 Enseñanza: Medicamentos prescritos",
+        "label": "5616 Enseñanza: Medicamentos prescritos"
+    },
+    {
+        "value": "5640 Enseñanza: nutrición del lactante (0",
+        "label": "5640 Enseñanza: nutrición del lactante (0-3 meses)"
+    },
+    {
+        "value": "5641 Enseñanza: nutrición del lactante (4",
+        "label": "5641 Enseñanza: nutrición del lactante (4-6 meses)"
+    },
+    {
+        "value": "5642 Enseñanza: nutrición del lactante (7",
+        "label": "5642 Enseñanza: nutrición del lactante (7-9 meses)"
+    },
+    {
+        "value": "5643 Enseñanza: nutrición del lactante (10",
+        "label": "5643 Enseñanza: nutrición del lactante (10-12 meses)"
+    },
+    {
+        "value": "5660 Enseñanza: nutrición del niño (13",
+        "label": "5660 Enseñanza: nutrición del niño (13-18 meses)"
+    },
+    {
+        "value": "5661 Enseñanza: nutrición del niño (19",
+        "label": "5661 Enseñanza: nutrición del niño (19-24 meses)"
+    },
+    {
+        "value": "5662 Enseñanza: nutrición del niño (25",
+        "label": "5662 Enseñanza: nutrición del niño (25-36 meses)"
+    },
+    {
+        "value": "5682 Enseñanza: nutrición en la primera infancia (1",
+        "label": "5682 Enseñanza: nutrición en la primera infancia (1-5 años)"
+    },
+    {
+        "value": "5652 Enseñanza: nutrición en la infancia media (6",
+        "label": "5652 Enseñanza: nutrición en la infancia media (6-12 años)"
+    },
+    {
+        "value": "5672 Enseñanza: nutrición del adolescente (12",
+        "label": "5672 Enseñanza: nutrición del adolescente (12-21 años)"
+    },
+    {
+        "value": "5610 Enseñanza: preoperatoria",
+        "label": "5610 Enseñanza: preoperatoria"
+    },
+    {
+        "value": "5618 Enseñanza: procedimientos o tratamientos",
+        "label": "5618 Enseñanza: procedimientos o tratamientos"
+    },
+    {
+        "value": "5602 Enseñanza: proceso de enfermedad",
+        "label": "5602 Enseñanza: proceso de enfermedad"
+    },
+    {
+        "value": "5622 Enseñanza: relaciones sexuales seguras",
+        "label": "5622 Enseñanza: relaciones sexuales seguras"
+    },
+    {
+        "value": "5645 Enseñanza: seguridad del lactante (0",
+        "label": "5645 Enseñanza: seguridad del lactante (0-3 meses)"
+    },
+    {
+        "value": "5646 Enseñanza: seguridad del lactante (4",
+        "label": "5646 Enseñanza: seguridad del lactante (4-6 meses)"
+    },
+    {
+        "value": "5647 Enseñanza: seguridad del lactante (7",
+        "label": "5647 Enseñanza: seguridad del lactante (7-9 meses)"
+    },
+    {
+        "value": "5648 Enseñanza: seguridad del lactante (10",
+        "label": "5648 Enseñanza: seguridad del lactante (10-12 meses)"
+    },
+    {
+        "value": "5665 Enseñanza: seguridad del niño (13",
+        "label": "5665 Enseñanza: seguridad del niño (13-18 meses)"
+    },
+    {
+        "value": "5666 Enseñanza: seguridad del niño (19",
+        "label": "5666 Enseñanza: seguridad del niño (19-24 meses)"
+    },
+    {
+        "value": "5667 Enseñanza: seguridad del niño (25",
+        "label": "5667 Enseñanza: seguridad del niño (25-36 meses)"
+    },
+    {
+        "value": "5684 Enseñanza: seguridad en la primera infancia (1",
+        "label": "5684 Enseñanza: seguridad en la primera infancia (1-5 años)"
+    },
+    {
+        "value": "5654 Enseñanza: seguridad en la infancia media (6",
+        "label": "5654 Enseñanza: seguridad en la infancia media (6- 12 años)"
+    },
+    {
+        "value": "5674 Enseñanza: seguridad del adolescente (12",
+        "label": "5674 Enseñanza: seguridad del adolescente (12-21 años)"
+    },
+    {
+        "value": "5624 Enseñanza: sexualidad",
+        "label": "5624 Enseñanza: sexualidad"
+    },
+    {
+        "value": "5520 Facilitación del aprendizaje",
+        "label": "5520 Facilitación del aprendizaje"
+    },
+    {
+        "value": "5580 Información preparatoria: sensorial",
+        "label": "5580 Información preparatoria: sensorial"
+    },
+    {
+        "value": "2240 Manejo de la quimioterapia",
+        "label": "2240 Manejo de la quimioterapia"
+    },
+    {
+        "value": "5515 Mejora de la alfabetización en salud",
+        "label": "5515 Mejora de la alfabetización en salud"
+    },
+    {
+        "value": "6784 Planificación familiar: anticoncepción",
+        "label": "6784 Planificación familiar: anticoncepción"
+    },
+    {
+        "value": "5860 Biorretroalimentación",
+        "label": "5860 Biorretroalimentación"
+    },
+    {
+        "value": "5820 Disminución de la ansiedad",
+        "label": "5820 Disminución de la ansiedad"
+    },
+    {
+        "value": "5900 Distracción",
+        "label": "5900 Distracción"
+    },
+    {
+        "value": "5840 Entrenamiento autógeno",
+        "label": "5840 Entrenamiento autógeno"
+    },
+    {
+        "value": "5922 Facilitación de la autohipnosis",
+        "label": "5922 Facilitación de la autohipnosis"
+    },
+    {
+        "value": "5960 Facilitación de la meditación",
+        "label": "5960 Facilitación de la meditación"
+    },
+    {
+        "value": "5920 Hipnosis",
+        "label": "5920 Hipnosis"
+    },
+    {
+        "value": "5880 Técnica de relajación",
+        "label": "5880 Técnica de relajación"
+    },
+    {
+        "value": "6040 Terapia de relajación",
+        "label": "6040 Terapia de relajación"
+    },
+    {
+        "value": "6000 Visualización guiada",
+        "label": "6000 Visualización guiada"
+    },
+    {
+        "value": "6050 Yoga",
+        "label": "6050 Yoga"
+    },
+    {
+        "value": "5930 Yoga de la risa",
+        "label": "5930 Yoga de la risa"
+    },
+    {
+        "value": "6300 Cuidados del trauma por una agresión sexual",
+        "label": "6300 Cuidados del trauma por una agresión sexual"
+    },
+    {
+        "value": "6200 Cuidados en la emergencia",
+        "label": "6200 Cuidados en la emergencia"
+    },
+    {
+        "value": "7170 Facilitación de la presencia de la familia",
+        "label": "7170 Facilitación de la presencia de la familia"
+    },
+    {
+        "value": "6160 Intervención en caso de crisis",
+        "label": "6160 Intervención en caso de crisis"
+    },
+    {
+        "value": "6140 Manejo de la parada cardiorrespiratoria",
+        "label": "6140 Manejo de la parada cardiorrespiratoria"
+    },
+    {
+        "value": "6170 Manejo del apaciguamiento",
+        "label": "6170 Manejo del apaciguamiento"
+    },
+    {
+        "value": "4095 Manejo del desfibrilador: externo",
+        "label": "4095 Manejo del desfibrilador: externo"
+    },
+    {
+        "value": "6260 Obtención de órganos",
+        "label": "6260 Obtención de órganos"
+    },
+    {
+        "value": "3840 Precauciones en la hipertermia maligna",
+        "label": "3840 Precauciones en la hipertermia maligna"
+    },
+    {
+        "value": "6340 Prevención del suicidio",
+        "label": "6340 Prevención del suicidio"
+    },
+    {
+        "value": "6240 Primeros auxilios",
+        "label": "6240 Primeros auxilios"
+    },
+    {
+        "value": "6320 Reanimación",
+        "label": "6320 Reanimación"
+    },
+    {
+        "value": "6362 Triaje: catástrofe en la comunidad",
+        "label": "6362 Triaje: catástrofe en la comunidad"
+    },
+    {
+        "value": "6364 Triaje: centro de urgencias",
+        "label": "6364 Triaje: centro de urgencias"
+    },
+    {
+        "value": "6366 Triaje: telecomunicación",
+        "label": "6366 Triaje: telecomunicación"
+    },
+    {
+        "value": "6576 Acompañamiento físico",
+        "label": "6576 Acompañamiento físico"
+    },
+    {
+        "value": "6630 Aislamiento",
+        "label": "6630 Aislamiento"
+    },
+    {
+        "value": "6400 Apoyo en la protección contra abusos",
+        "label": "6400 Apoyo en la protección contra abusos"
+    },
+    {
+        "value": "6404 Apoyo en la protección contra abusos: ancianos",
+        "label": "6404 Apoyo en la protección contra abusos: ancianos"
+    },
+    {
+        "value": "6402 Apoyo en la protección contra abusos: niños",
+        "label": "6402 Apoyo en la protección contra abusos: niños"
+    },
+    {
+        "value": "6403 Apoyo en la protección contra abusos: pareja",
+        "label": "6403 Apoyo en la protección contra abusos: pareja"
+    },
+    {
+        "value": "6408 Apoyo en la protección contra abusos: religioso",
+        "label": "6408 Apoyo en la protección contra abusos: religioso"
+    },
+    {
+        "value": "2395 Conciliación de medicación",
+        "label": "2395 Conciliación de medicación"
+    },
+    {
+        "value": "6540 Control de infecciones",
+        "label": "6540 Control de infecciones"
+    },
+    {
+        "value": "6520 Cribado de salud",
+        "label": "6520 Cribado de salud"
+    },
+    {
+        "value": "6675 Cribado visual",
+        "label": "6675 Cribado visual"
+    },
+    {
+        "value": "6525 Detección de la trata de seres humanos",
+        "label": "6525 Detección de la trata de seres humanos"
+    },
+    {
+        "value": "5649 Enseñanza: control de infecciones",
+        "label": "5649 Enseñanza: control de infecciones"
+    },
+    {
+        "value": "6648 Enseñanza: prevención de las lesiones deportivas",
+        "label": "6648 Enseñanza: prevención de las lesiones deportivas"
+    },
+    {
+        "value": "6522 Exploración mamaria",
+        "label": "6522 Exploración mamaria"
+    },
+    {
+        "value": "6596 Facilitación de la cuarentena",
+        "label": "6596 Facilitación de la cuarentena"
+    },
+    {
+        "value": "6594 Facilitación del distanciamiento físico",
+        "label": "6594 Facilitación del distanciamiento físico"
+    },
+    {
+        "value": "9050 Favorecimiento de la seguridad en el vehículo",
+        "label": "9050 Favorecimiento de la seguridad en el vehículo"
+    },
+    {
+        "value": "6610 Identificación de riesgos",
+        "label": "6610 Identificación de riesgos"
+    },
+    {
+        "value": "6620 Identificación de riesgos: enfermedades infecciosas",
+        "label": "6620 Identificación de riesgos: enfermedades infecciosas"
+    },
+    {
+        "value": "6574 Identificación del paciente",
+        "label": "6574 Identificación del paciente"
+    },
+    {
+        "value": "6480 Manejo ambiental",
+        "label": "6480 Manejo ambiental"
+    },
+    {
+        "value": "6487 Manejo ambiental: prevención de la violencia",
+        "label": "6487 Manejo ambiental: prevención de la violencia"
+    },
+    {
+        "value": "6486 Manejo ambiental: seguridad",
+        "label": "6486 Manejo ambiental: seguridad"
+    },
+    {
+        "value": "6410 Manejo de la alergia",
+        "label": "6410 Manejo de la alergia"
+    },
+    {
+        "value": "6412 Manejo de la anafilaxia",
+        "label": "6412 Manejo de la anafilaxia"
+    },
+    {
+        "value": "6460 Manejo de la demencia",
+        "label": "6460 Manejo de la demencia"
+    },
+    {
+        "value": "6462 Manejo de la demencia: baño",
+        "label": "6462 Manejo de la demencia: baño"
+    },
+    {
+        "value": "6466 Manejo de la demencia: deambulación errática",
+        "label": "6466 Manejo de la demencia: deambulación errática"
+    },
+    {
+        "value": "6600 Manejo de la radioterapia",
+        "label": "6600 Manejo de la radioterapia"
+    },
+    {
+        "value": "6530 Manejo de la vacunación",
+        "label": "6530 Manejo de la vacunación"
+    },
+    {
+        "value": "3304 Manejo de la ventilación mecánica: prevención",
+        "label": "3304 Manejo de la ventilación mecánica: prevención"
+    },
+    {
+        "value": "de la neumonía",
+        "label": "de la neumonía"
+    },
+    {
+        "value": "6510 Manejo de las alucinaciones",
+        "label": "6510 Manejo de las alucinaciones"
+    },
+    {
+        "value": "2680 Manejo de las convulsiones",
+        "label": "2680 Manejo de las convulsiones"
+    },
+    {
+        "value": "6450 Manejo de las ideas delirantes",
+        "label": "6450 Manejo de las ideas delirantes"
+    },
+    {
+        "value": "6440 Manejo del delirium",
+        "label": "6440 Manejo del delirium"
+    },
+    {
+        "value": "6680 Monitorización de los signos vitales",
+        "label": "6680 Monitorización de los signos vitales"
+    },
+    {
+        "value": "6560 Precauciones con el láser",
+        "label": "6560 Precauciones con el láser"
+    },
+    {
+        "value": "6470 Precauciones contra fugas",
+        "label": "6470 Precauciones contra fugas"
+    },
+    {
+        "value": "6500 Precauciones en incendios provocados",
+        "label": "6500 Precauciones en incendios provocados"
+    },
+    {
+        "value": "6570 Precauciones en la alergia al látex",
+        "label": "6570 Precauciones en la alergia al látex"
+    },
+    {
+        "value": "3200 Precauciones en la aspiración",
+        "label": "3200 Precauciones en la aspiración"
+    },
+    {
+        "value": "6580 Precauciones en la neutropenia",
+        "label": "6580 Precauciones en la neutropenia"
+    },
+    {
+        "value": "6592 Precauciones en pandemias",
+        "label": "6592 Precauciones en pandemias"
+    },
+    {
+        "value": "2920 Precauciones quirúrgicas",
+        "label": "2920 Precauciones quirúrgicas"
+    },
+    {
+        "value": "6490 Prevención de caídas",
+        "label": "6490 Prevención de caídas"
+    },
+    {
+        "value": "3540 Prevención de las lesiones por presión",
+        "label": "3540 Prevención de las lesiones por presión"
+    },
+    {
+        "value": "6340 Prevención del suicidio",
+        "label": "6340 Prevención del suicidio"
+    },
+    {
+        "value": "6550 Protección contra las infecciones",
+        "label": "6550 Protección contra las infecciones"
+    },
+    {
+        "value": "6425 Registro corporal",
+        "label": "6425 Registro corporal"
+    },
+    {
+        "value": "6420 Restricción de zonas de movimiento",
+        "label": "6420 Restricción de zonas de movimiento"
+    },
+    {
+        "value": "6580 Restricción física",
+        "label": "6580 Restricción física"
+    },
+    {
+        "value": "6430 Restricción química",
+        "label": "6430 Restricción química"
+    },
+    {
+        "value": "6670 Terapia de validación",
+        "label": "6670 Terapia de validación"
+    },
+    {
+        "value": "6650 Vigilancia",
+        "label": "6650 Vigilancia"
+    },
+    {
+        "value": "6660 Vigilancia : monitorización con vídeo",
+        "label": "6660 Vigilancia : monitorización con vídeo"
+    },
+    {
+        "value": "6700 Amnioinfusión",
+        "label": "6700 Amnioinfusión"
+    },
+    {
+        "value": "6965 Apoyo al procedimiento: lactante",
+        "label": "6965 Apoyo al procedimiento: lactante"
+    },
+    {
+        "value": "5247 Asesoramiento antes de la concepción",
+        "label": "5247 Asesoramiento antes de la concepción"
+    },
+    {
+        "value": "5242 Consejo genético",
+        "label": "5242 Consejo genético"
+    },
+    {
+        "value": "6840 Cuidados de canguro (del niño prematuro)",
+        "label": "6840 Cuidados de canguro (del niño prematuro)"
+    },
+    {
+        "value": "3000 Cuidados de la circuncisión",
+        "label": "3000 Cuidados de la circuncisión"
+    },
+    {
+        "value": "1875 Cuidados del drenaje: umbilical",
+        "label": "1875 Cuidados del drenaje: umbilical"
+    },
+    {
+        "value": "6800 Cuidados del embarazo de alto riesgo",
+        "label": "6800 Cuidados del embarazo de alto riesgo"
+    },
+    {
+        "value": "6826 Cuidados del lactante: prematuro",
+        "label": "6826 Cuidados del lactante: prematuro"
+    },
+    {
+        "value": "6824 Cuidados del lactante: recién nacido",
+        "label": "6824 Cuidados del lactante: recién nacido"
+    },
+    {
+        "value": "6750 Cuidados del parto por cesárea",
+        "label": "6750 Cuidados del parto por cesárea"
+    },
+    {
+        "value": "6830 Cuidados intraparto",
+        "label": "6830 Cuidados intraparto"
+    },
+    {
+        "value": "6834 Cuidados intraparto: parto de alto riesgo",
+        "label": "6834 Cuidados intraparto: parto de alto riesgo"
+    },
+    {
+        "value": "6950 Cuidados por interrupción del embarazo",
+        "label": "6950 Cuidados por interrupción del embarazo"
+    },
+    {
+        "value": "6930 Cuidados posparto",
+        "label": "6930 Cuidados posparto"
+    },
+    {
+        "value": "6960 Cuidados prenatales",
+        "label": "6960 Cuidados prenatales"
+    },
+    {
+        "value": "4021 Disminución de la hemorragia: útero anteparto",
+        "label": "4021 Disminución de la hemorragia: útero anteparto"
+    },
+    {
+        "value": "4026 Disminución de la hemorragia: útero posparto",
+        "label": "4026 Disminución de la hemorragia: útero posparto"
+    },
+    {
+        "value": "6982 Ecografía: obstétrica y ginecológica",
+        "label": "6982 Ecografía: obstétrica y ginecológica"
+    },
+    {
+        "value": "5294 Facilitación de la superación de la aflicción: muerte perinatal",
+        "label": "5294 Facilitación de la superación de la aflicción: muerte perinatal"
+    },
+    {
+        "value": "7104 Favorecimiento de la integridad familiar: familia con recién nacido",
+        "label": "7104 Favorecimiento de la integridad familiar: familia con recién nacido"
+    },
+    {
+        "value": "6924 Fototerapia: neonato",
+        "label": "6924 Fototerapia: neonato"
+    },
+    {
+        "value": "6612 Identificación de riesgos: familia con recién nacido",
+        "label": "6612 Identificación de riesgos: familia con recién nacido"
+    },
+    {
+        "value": "6850 Inducción del parto",
+        "label": "6850 Inducción del parto"
+    },
+    {
+        "value": "7886 Manejo de la tecnología reproductiva",
+        "label": "7886 Manejo de la tecnología reproductiva"
+    },
+    {
+        "value": "6855 Manejo del dolor de parto",
+        "label": "6855 Manejo del dolor de parto"
+    },
+    {
+        "value": "6771 Monitorización fetal electrónica: antes del parto",
+        "label": "6771 Monitorización fetal electrónica: antes del parto"
+    },
+    {
+        "value": "6772 Monitorización fetal electrónica: durante el parto",
+        "label": "6772 Monitorización fetal electrónica: durante el parto"
+    },
+    {
+        "value": "6720 Parto",
+        "label": "6720 Parto"
+    },
+    {
+        "value": "6784 Planificación familiar: anticoncepción",
+        "label": "6784 Planificación familiar: anticoncepción"
+    },
+    {
+        "value": "6788 Planificación familiar: embarazo no deseado",
+        "label": "6788 Planificación familiar: embarazo no deseado"
+    },
+    {
+        "value": "6786 Planificación familiar: infertilidad",
+        "label": "6786 Planificación familiar: infertilidad"
+    },
+    {
+        "value": "6760 Preparación al parto",
+        "label": "6760 Preparación al parto"
+    },
+    {
+        "value": "7160 Preservación de la fertilidad",
+        "label": "7160 Preservación de la fertilidad"
+    },
+    {
+        "value": "6972 Reanimación: feto",
+        "label": "6972 Reanimación: feto"
+    },
+    {
+        "value": "6974 Reanimación: neonato",
+        "label": "6974 Reanimación: neonato"
+    },
+    {
+        "value": "6900 Succión no nutritiva",
+        "label": "6900 Succión no nutritiva"
+    },
+    {
+        "value": "6870 Supresión de la lactancia",
+        "label": "6870 Supresión de la lactancia"
+    },
+    {
+        "value": "6860 Supresión de las contracciones de parto",
+        "label": "6860 Supresión de las contracciones de parto"
+    },
+    {
+        "value": "6656 Vigilancia: al final del embarazo",
+        "label": "6656 Vigilancia: al final del embarazo"
+    },
+    {
+        "value": "1052 Alimentación con biberón",
+        "label": "1052 Alimentación con biberón"
+    },
+    {
+        "value": "8240 Alimentación con taza: recién nacido",
+        "label": "8240 Alimentación con taza: recién nacido"
+    },
+    {
+        "value": "7280 Apoyo de hermanos",
+        "label": "7280 Apoyo de hermanos"
+    },
+    {
+        "value": "6402 Apoyo en la protección contra abusos: niños",
+        "label": "6402 Apoyo en la protección contra abusos: niños"
+    },
+    {
+        "value": "5244 Asesoramiento en la lactancia",
+        "label": "5244 Asesoramiento en la lactancia"
+    },
+    {
+        "value": "0412 Cuidados de la incontinencia intestinal: encopresis",
+        "label": "0412 Cuidados de la incontinencia intestinal: encopresis"
+    },
+    {
+        "value": "0612 Cuidados de la incontinencia urinaria: enuresis",
+        "label": "0612 Cuidados de la incontinencia urinaria: enuresis"
+    },
+    {
+        "value": "8272 Cuidados del adolescente",
+        "label": "8272 Cuidados del adolescente"
+    },
+    {
+        "value": "6820 Cuidados del lactante",
+        "label": "6820 Cuidados del lactante"
+    },
+    {
+        "value": "6810 Cuidados del lactante: ayuda para la exploración ocular",
+        "label": "6810 Cuidados del lactante: ayuda para la exploración ocular"
+    },
+    {
+        "value": "8274 Cuidados del niño",
+        "label": "8274 Cuidados del niño"
+    },
+    {
+        "value": "5562 Educación parental: adolescentes",
+        "label": "5562 Educación parental: adolescentes"
+    },
+    {
+        "value": "5566 Educación parental: crianza familiar de los niños",
+        "label": "5566 Educación parental: crianza familiar de los niños"
+    },
+    {
+        "value": "5568 Educación parental: lactante",
+        "label": "5568 Educación parental: lactante"
+    },
+    {
+        "value": "5655 Enseñanza: desarrollo del lactante (0",
+        "label": "5655 Enseñanza: desarrollo del lactante (0-3 meses)"
+    },
+    {
+        "value": "5658 Enseñanza: desarrollo del lactante (4",
+        "label": "5658 Enseñanza: desarrollo del lactante (4-6 meses)"
+    },
+    {
+        "value": "5656 Enseñanza: desarrollo del lactante (7",
+        "label": "5656 Enseñanza: desarrollo del lactante (7-9 meses)"
+    },
+    {
+        "value": "5657 Enseñanza: desarrollo del lactante (I0",
+        "label": "5657 Enseñanza: desarrollo del lactante (I0-12 meses)"
+    },
+    {
+        "value": "5680 Enseñanza: desarrollo en la primera infancia (1",
+        "label": "5680 Enseñanza: desarrollo en la primera infancia (1-5 años)"
+    },
+    {
+        "value": "5650 Enseñanza: desarrollo en la infancia media (6",
+        "label": "5650 Enseñanza: desarrollo en la infancia media (6-12 años)"
+    },
+    {
+        "value": "5670 Enseñanza: desarrollo del adolescente (12",
+        "label": "5670 Enseñanza: desarrollo del adolescente (12-21 arios)"
+    },
+    {
+        "value": "5634 Enseñanza: entrenamiento del control de esfínteres",
+        "label": "5634 Enseñanza: entrenamiento del control de esfínteres"
+    },
+    {
+        "value": "5640 Enseñanza: nutrición del lactante (0",
+        "label": "5640 Enseñanza: nutrición del lactante (0-3 meses)"
+    },
+    {
+        "value": "5641 Enseñanza: nutrición del lactante (4",
+        "label": "5641 Enseñanza: nutrición del lactante (4-6 meses)"
+    },
+    {
+        "value": "5642 Enseñanza: nutrición del lactante (7",
+        "label": "5642 Enseñanza: nutrición del lactante (7-9 meses)"
+    },
+    {
+        "value": "5643 Enseñanza: nutrición del lactante (I0",
+        "label": "5643 Enseñanza: nutrición del lactante (I0-12 meses)"
+    },
+    {
+        "value": "5660 Enseñanza: nutrición del niño (13",
+        "label": "5660 Enseñanza: nutrición del niño (13-18 meses)"
+    },
+    {
+        "value": "5661 Enseñanza: nutrición del niño (19",
+        "label": "5661 Enseñanza: nutrición del niño (19-24 meses)"
+    },
+    {
+        "value": "5662 Enseñanza: nutrición del niño (25",
+        "label": "5662 Enseñanza: nutrición del niño (25-36 meses)"
+    },
+    {
+        "value": "5682 Enseñanza: nutrición en la primera infancia (1",
+        "label": "5682 Enseñanza: nutrición en la primera infancia (1 -5 años)"
+    },
+    {
+        "value": "5652 Enseñanza: nutrición en la infancia media (6",
+        "label": "5652 Enseñanza: nutrición en la infancia media (6-12 años)"
+    },
+    {
+        "value": "5672 Enseñanza: nutrición del adolescente (12",
+        "label": "5672 Enseñanza: nutrición del adolescente (12-21 años)"
+    },
+    {
+        "value": "6648 Enseñanza: prevención de las lesiones deportivas",
+        "label": "6648 Enseñanza: prevención de las lesiones deportivas"
+    },
+    {
+        "value": "5645 Enseñanza: seguridad del lactante (0",
+        "label": "5645 Enseñanza: seguridad del lactante (0-3 meses)"
+    },
+    {
+        "value": "5646 Enseñanza: seguridad del lactante (4",
+        "label": "5646 Enseñanza: seguridad del lactante (4-6 meses)"
+    },
+    {
+        "value": "5647 Enseñanza: seguridad del lactante (7",
+        "label": "5647 Enseñanza: seguridad del lactante (7-9 meses)"
+    },
+    {
+        "value": "5648 Enseñanza: seguridad del lactante (10",
+        "label": "5648 Enseñanza: seguridad del lactante (10-12 meses)"
+    },
+    {
+        "value": "5665 Enseñanza: seguridad del niño (13",
+        "label": "5665 Enseñanza: seguridad del niño (13-18 meses)"
+    },
+    {
+        "value": "5666 Enseñanza: seguridad del niño (19",
+        "label": "5666 Enseñanza: seguridad del niño (19-24 meses)"
+    },
+    {
+        "value": "5667 Enseñanza: seguridad del niño (25",
+        "label": "5667 Enseñanza: seguridad del niño (25-36 meses)"
+    },
+    {
+        "value": "5684 Enseñanza: seguridad en la primera infancia (1",
+        "label": "5684 Enseñanza: seguridad en la primera infancia (1-5 años)"
+    },
+    {
+        "value": "5654 Enseñanza: seguridad en la infancia media (6",
+        "label": "5654 Enseñanza: seguridad en la infancia media (6-12 años)"
+    },
+    {
+        "value": "5674 Enseñanza: seguridad del adolescente (12",
+        "label": "5674 Enseñanza: seguridad del adolescente (12-21 años)"
+    },
+    {
+        "value": "7200 Favorecimiento de la normalización",
+        "label": "7200 Favorecimiento de la normalización"
+    },
+    {
+        "value": "8340 Favorecimiento de la resiliencia",
+        "label": "8340 Favorecimiento de la resiliencia"
+    },
+    {
+        "value": "6710 Favorecimiento del apego",
+        "label": "6710 Favorecimiento del apego"
+    },
+    {
+        "value": "8300 Favorecimiento del rol parental",
+        "label": "8300 Favorecimiento del rol parental"
+    },
+    {
+        "value": "8278 Mejora del desarrollo: lactantes",
+        "label": "8278 Mejora del desarrollo: lactantes"
+    },
+    {
+        "value": "5210 Orientación anticipatoria",
+        "label": "5210 Orientación anticipatoria"
+    },
+    {
+        "value": "7140 Apoyo a la familia",
+        "label": "7140 Apoyo a la familia"
+    },
+    {
+        "value": "7040 Apoyo al cuidador",
+        "label": "7040 Apoyo al cuidador"
+    },
+    {
+        "value": "7180 Asistencia en el mantenimiento del hogar",
+        "label": "7180 Asistencia en el mantenimiento del hogar"
+    },
+    {
+        "value": "7260 Cuidados de relevo",
+        "label": "7260 Cuidados de relevo"
+    },
+    {
+        "value": "7170 Facilitación de la presencia de la familia",
+        "label": "7170 Facilitación de la presencia de la familia"
+    },
+    {
+        "value": "7110 Favorecimiento de la implicación familiar",
+        "label": "7110 Favorecimiento de la implicación familiar"
+    },
+    {
+        "value": "7100 Favorecimiento de la integridad familiar",
+        "label": "7100 Favorecimiento de la integridad familiar"
+    },
+    {
+        "value": "6614 ldentificación de riesgos: genéticos",
+        "label": "6614 ldentificación de riesgos: genéticos"
+    },
+    {
+        "value": "7130 Mantenimiento de procesos familiares",
+        "label": "7130 Mantenimiento de procesos familiares"
+    },
+    {
+        "value": "5370 Mejora de roles",
+        "label": "5370 Mejora de roles"
+    },
+    {
+        "value": "7120 Movilización familiar",
+        "label": "7120 Movilización familiar"
+    },
+    {
+        "value": "7150 Terapia familiar",
+        "label": "7150 Terapia familiar"
+    },
+    {
+        "value": "5250 Apoyo en la toma de decisiones",
+        "label": "5250 Apoyo en la toma de decisiones"
+    },
+    {
+        "value": "7500 Apoyo para la consecución del sustento",
+        "label": "7500 Apoyo para la consecución del sustento"
+    },
+    {
+        "value": "7410 Autorización de seguros",
+        "label": "7410 Autorización de seguros"
+    },
+    {
+        "value": "7380 Ayuda con recursos económicos",
+        "label": "7380 Ayuda con recursos económicos"
+    },
+    {
+        "value": "2880 Coordinación preoperatoria",
+        "label": "2880 Coordinación preoperatoria"
+    },
+    {
+        "value": "7310 Cuidados de enfermería al ingreso",
+        "label": "7310 Cuidados de enfermería al ingreso"
+    },
+    {
+        "value": "7560 Facilitación de las visitas",
+        "label": "7560 Facilitación de las visitas"
+    },
+    {
+        "value": "7440 Facilitación de los permisos",
+        "label": "7440 Facilitación de los permisos"
+    },
+    {
+        "value": "7320 Gestión de casos",
+        "label": "7320 Gestión de casos"
+    },
+    {
+        "value": "7330 Negociación de cuidados culturales",
+        "label": "7330 Negociación de cuidados culturales"
+    },
+    {
+        "value": "7400 Orientación en el sistema sanitario",
+        "label": "7400 Orientación en el sistema sanitario"
+    },
+    {
+        "value": "7300 Planificación anticipada de los cuidados",
+        "label": "7300 Planificación anticipada de los cuidados"
+    },
+    {
+        "value": "1370 Planificación para el alta",
+        "label": "1370 Planificación para el alta"
+    },
+    {
+        "value": "6485 Planificación para el alta: preparación del hogar",
+        "label": "6485 Planificación para el alta: preparación del hogar"
+    },
+    {
+        "value": "7470 Prevención del reingreso",
+        "label": "7470 Prevención del reingreso"
+    },
+    {
+        "value": "7460 Protección de los derechos del paciente",
+        "label": "7460 Protección de los derechos del paciente"
+    },
+    {
+        "value": "7680 Ayuda en la exploración",
+        "label": "7680 Ayuda en la exploración"
+    },
+    {
+        "value": "7685 Colaboración con otros profesionales sanitarios",
+        "label": "7685 Colaboración con otros profesionales sanitarios"
+    },
+    {
+        "value": "7620 Comprobación de sustancias controladas",
+        "label": "7620 Comprobación de sustancias controladas"
+    },
+    {
+        "value": "7630 Contención de los costes",
+        "label": "7630 Contención de los costes"
+    },
+    {
+        "value": "7800 Control de calidad",
+        "label": "7800 Control de calidad"
+    },
+    {
+        "value": "7650 Delegación",
+        "label": "7650 Delegación"
+    },
+    {
+        "value": "7640 Desarrollo de vías clínicas",
+        "label": "7640 Desarrollo de vías clínicas"
+    },
+    {
+        "value": "7700 Evaluación de compañeros",
+        "label": "7700 Evaluación de compañeros"
+    },
+    {
+        "value": "7760 Evaluación de productos",
+        "label": "7760 Evaluación de productos"
+    },
+    {
+        "value": "7770 Facilitación del desarrollo profesional",
+        "label": "7770 Facilitación del desarrollo profesional"
+    },
+    {
+        "value": "7840 Gestión de la cadena de suministro",
+        "label": "7840 Gestión de la cadena de suministro"
+    },
+    {
+        "value": "7850 Gestión de la competencia",
+        "label": "7850 Gestión de la competencia"
+    },
+    {
+        "value": "8550 Gestión de los recursos económicos",
+        "label": "8550 Gestión de los recursos económicos"
+    },
+    {
+        "value": "7690 Interpretación de datos de laboratorio",
+        "label": "7690 Interpretación de datos de laboratorio"
+    },
+    {
+        "value": "7880 Manejo de la tecnología",
+        "label": "7880 Manejo de la tecnología"
+    },
+    {
+        "value": "7820 Manejo de muestras",
+        "label": "7820 Manejo de muestras"
+    },
+    {
+        "value": "7615 Mejora de la colaboración",
+        "label": "7615 Mejora de la colaboración"
+    },
+    {
+        "value": "7722 Preceptor: empleado",
+        "label": "7722 Preceptor: empleado"
+    },
+    {
+        "value": "7726 Preceptor: estudiante",
+        "label": "7726 Preceptor: estudiante"
+    },
+    {
+        "value": "7610 Pruebas diagnósticas en el punto de atención",
+        "label": "7610 Pruebas diagnósticas en el punto de atención"
+    },
+    {
+        "value": "7810 Reunión de seguridad",
+        "label": "7810 Reunión de seguridad"
+    },
+    {
+        "value": "7660 Revisión del carro de emergencias",
+        "label": "7660 Revisión del carro de emergencias"
+    },
+    {
+        "value": "7830 Supervisión del personal",
+        "label": "7830 Supervisión del personal"
+    },
+    {
+        "value": "7892 Transporte: dentro del centro",
+        "label": "7892 Transporte: dentro del centro"
+    },
+    {
+        "value": "7890 Transporte: entre centros",
+        "label": "7890 Transporte: entre centros"
+    },
+    {
+        "value": "8070 Ayuda en el acceso a la historia clínica electrónica",
+        "label": "8070 Ayuda en el acceso a la historia clínica electrónica"
+    },
+    {
+        "value": "7910 Consulta",
+        "label": "7910 Consulta"
+    },
+    {
+        "value": "8180 Consulta mediante telecomunicación",
+        "label": "8180 Consulta mediante telecomunicación"
+    },
+    {
+        "value": "7930 Declaración",
+        "label": "7930 Declaración"
+    },
+    {
+        "value": "8100 Derivación",
+        "label": "8100 Derivación"
+    },
+    {
+        "value": "7920 Documentación",
+        "label": "7920 Documentación"
+    },
+    {
+        "value": "7926 Documentación: reuniones",
+        "label": "7926 Documentación: reuniones"
+    },
+    {
+        "value": "8130 Gestión del protocolo de investigación",
+        "label": "8130 Gestión del protocolo de investigación"
+    },
+    {
+        "value": "7980 Informe de incidencias",
+        "label": "7980 Informe de incidencias"
+    },
+    {
+        "value": "7960 Intercambio de información de cuidados de salud",
+        "label": "7960 Intercambio de información de cuidados de salud"
+    },
+    {
+        "value": "8080 Prescripción: pruebas diagnósticas",
+        "label": "8080 Prescripción: pruebas diagnósticas"
+    },
+    {
+        "value": "8086 Prescripción: tratamiento no farmacológico",
+        "label": "8086 Prescripción: tratamiento no farmacológico"
+    },
+    {
+        "value": "7940 Recogida de datos forenses",
+        "label": "7940 Recogida de datos forenses"
+    },
+    {
+        "value": "8020 Reunión multidisciplinar sobre cuidados",
+        "label": "8020 Reunión multidisciplinar sobre cuidados"
+    },
+    {
+        "value": "7970 Seguimiento de la política sanitaria",
+        "label": "7970 Seguimiento de la política sanitaria"
+    },
+    {
+        "value": "8190 Seguimiento tras el alta",
+        "label": "8190 Seguimiento tras el alta"
+    },
+    {
+        "value": "8060 Transcripción de órdenes",
+        "label": "8060 Transcripción de órdenes"
+    },
+    {
+        "value": "8140 Transferencia de cuidados del paciente",
+        "label": "8140 Transferencia de cuidados del paciente"
+    },
+    {
+        "value": "6658 Vigilancia: monitorización remota",
+        "label": "6658 Vigilancia: monitorización remota"
+    },
+    {
+        "value": "8510 Defensa de la salud de la comunidad",
+        "label": "8510 Defensa de la salud de la comunidad"
+    },
+    {
+        "value": "8500 Desarrollo de la salud de la comunidad",
+        "label": "8500 Desarrollo de la salud de la comunidad"
+    },
+    {
+        "value": "8700 Desarrollo de un programa",
+        "label": "8700 Desarrollo de un programa"
+    },
+    {
+        "value": "5510 Educación para la salud",
+        "label": "5510 Educación para la salud"
+    },
+    {
+        "value": "8740 Facilitación de la justicia social",
+        "label": "8740 Facilitación de la justicia social"
+    },
+    {
+        "value": "8720 Favorecimiento de la resiliencia: comunidad",
+        "label": "8720 Favorecimiento de la resiliencia: comunidad"
+    },
+    {
+        "value": "7320 Gestión de casos",
+        "label": "7320 Gestión de casos"
+    },
+    {
+        "value": "8550 Gestión de los recursos económicos",
+        "label": "8550 Gestión de los recursos económicos"
+    },
+    {
+        "value": "6530 Manejo de la vacunación",
+        "label": "6530 Manejo de la vacunación"
+    },
+    {
+        "value": "8750 Marketing social",
+        "label": "8750 Marketing social"
+    },
+    {
+        "value": "7970 Seguimiento de la política sanitaria",
+        "label": "7970 Seguimiento de la política sanitaria"
+    },
+    {
+        "value": "6520 Cribado de salud",
+        "label": "6520 Cribado de salud"
+    },
+    {
+        "value": "9050 Favorecimiento de la seguridad en el vehículo",
+        "label": "9050 Favorecimiento de la seguridad en el vehículo"
+    },
+    {
+        "value": "6610 Identificación de riesgos",
+        "label": "6610 Identificación de riesgos"
+    },
+    {
+        "value": "6484 Manejo ambiental: comunidad",
+        "label": "6484 Manejo ambiental: comunidad"
+    },
+    {
+        "value": "6489 Manejo ambiental: seguridad del trabajador",
+        "label": "6489 Manejo ambiental: seguridad del trabajador"
+    },
+    {
+        "value": "8820 Manejo de enfermedades transmisibles",
+        "label": "8820 Manejo de enfermedades transmisibles"
+    },
+    {
+        "value": "8810 Preparación ante el bioterrorismo",
+        "label": "8810 Preparación ante el bioterrorismo"
+    },
+    {
+        "value": "8840 Preparación para una catástrofe en la comunidad",
+        "label": "8840 Preparación para una catástrofe en la comunidad"
+    },
+    {
+        "value": "8880 Protección de riesgos ambientales",
+        "label": "8880 Protección de riesgos ambientales"
+    },
+    {
+        "value": "6652 Vigilancia: comunidad",
+        "label": "6652 Vigilancia: comunidad"
+    }
+]

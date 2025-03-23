@@ -1,0 +1,1246 @@
+[
+    {
+        "value": "00001",
+        "label": "00001 Desequilibrio nutricional por exceso"
+    },
+    {
+        "value": "00002",
+        "label": "00002 Desequilibrio nutricional por defecto"
+    },
+    {
+        "value": "00003",
+        "label": "00003 Riesgo de desequilibrio nutricional por exceso"
+    },
+    {
+        "value": "00004",
+        "label": "00004 Riesgo de infección"
+    },
+    {
+        "value": "00005",
+        "label": "00005 Riesgo de desequilibrio de la temperatura corporal"
+    },
+    {
+        "value": "00006",
+        "label": "00006 Hipotermia"
+    },
+    {
+        "value": "00007",
+        "label": "00007 Hipertermia"
+    },
+    {
+        "value": "00008",
+        "label": "00008 Termoregulación ineficaz"
+    },
+    {
+        "value": "00009",
+        "label": "00009 Disreflexia autónoma"
+    },
+    {
+        "value": "00010",
+        "label": "00010 Riesgo de disreflexia autónoma"
+    },
+    {
+        "value": "00011",
+        "label": "00011 Estreñimiento"
+    },
+    {
+        "value": "00012",
+        "label": "00012 Estreñimiento subjetivo"
+    },
+    {
+        "value": "00013",
+        "label": "00013 Diarrea"
+    },
+    {
+        "value": "00014",
+        "label": "00014 Incontinencia fecal"
+    },
+    {
+        "value": "00015",
+        "label": "00015 Riesgo de estreñimiento"
+    },
+    {
+        "value": "00016",
+        "label": "00016 Deterioro de la eliminación urinaria"
+    },
+    {
+        "value": "00017",
+        "label": "00017 Incontinencia urinaria de estrés"
+    },
+    {
+        "value": "00018",
+        "label": "00018 Incontinencia urinaria refleja"
+    },
+    {
+        "value": "00019",
+        "label": "00019 Incontinencia urinaria de urgencia"
+    },
+    {
+        "value": "00020",
+        "label": "00020 Incontinencia urinaria funcional"
+    },
+    {
+        "value": "00021",
+        "label": "00021 Incontinencia urinaria total"
+    },
+    {
+        "value": "00022",
+        "label": "00022 Riesgo de incontinencia urinaria de urgencia"
+    },
+    {
+        "value": "00023",
+        "label": "00023 Retención urinaria"
+    },
+    {
+        "value": "00024",
+        "label": "00024 Perfusión tisular inefectiva"
+    },
+    {
+        "value": "00025",
+        "label": "00025 Riesgo de desequilibrio de volumen de líquidos"
+    },
+    {
+        "value": "00026",
+        "label": "00026 Exceso de volumen de líquidos"
+    },
+    {
+        "value": "00027",
+        "label": "00027 Déficit de volumen de líquidos"
+    },
+    {
+        "value": "00028",
+        "label": "00028 Riesgo de déficit de volumen de líquidos"
+    },
+    {
+        "value": "00029",
+        "label": "00029 Disminución del gasto cardíaco"
+    },
+    {
+        "value": "00030",
+        "label": "00030 Deterioro del intercambio gaseoso"
+    },
+    {
+        "value": "00031",
+        "label": "00031 Limpieza ineficaz de las vías aéreas"
+    },
+    {
+        "value": "00032",
+        "label": "00032 Patrón respiratorio ineficaz"
+    },
+    {
+        "value": "00033",
+        "label": "00033 Deterioro de la respiración espontánea"
+    },
+    {
+        "value": "00034",
+        "label": "00034 Respuesta disfuncional al destete del respirador"
+    },
+    {
+        "value": "00035",
+        "label": "00035 Riesgo de lesión"
+    },
+    {
+        "value": "00036",
+        "label": "00036 Riesgo de asfixia"
+    },
+    {
+        "value": "00037",
+        "label": "00037 Riesgo de intoxicación"
+    },
+    {
+        "value": "00038",
+        "label": "00038 Riesgo de traumatismo"
+    },
+    {
+        "value": "00039",
+        "label": "00039 Riesgo de aspiración"
+    },
+    {
+        "value": "00040",
+        "label": "00040 Riesgo de síndrome de desuso"
+    },
+    {
+        "value": "00041",
+        "label": "00041 Respuesta alérgica al látex"
+    },
+    {
+        "value": "00042",
+        "label": "00042 Riesgo de respuesta alérgica al látex"
+    },
+    {
+        "value": "00043",
+        "label": "00043 Protección inefectiva"
+    },
+    {
+        "value": "00044",
+        "label": "00044 Deterioro de la integridad tisular"
+    },
+    {
+        "value": "00045",
+        "label": "00045 Deterioro de la mucosa oral"
+    },
+    {
+        "value": "00046",
+        "label": "00046 Deterioro de la integridad cutánea"
+    },
+    {
+        "value": "00047",
+        "label": "00047 Riesgo de deterioro de la integridad cutánea"
+    },
+    {
+        "value": "00048",
+        "label": "00048 Deterioro de la dentición"
+    },
+    {
+        "value": "00049",
+        "label": "00049 Capacidad adaptativa intracraneal disminuida"
+    },
+    {
+        "value": "00050",
+        "label": "00050 Perturbación del campo de energía"
+    },
+    {
+        "value": "00051",
+        "label": "00051 Deterioro de la comunicación verbal"
+    },
+    {
+        "value": "00052",
+        "label": "00052 Deterioro de la interacción social"
+    },
+    {
+        "value": "00053",
+        "label": "00053 Aislamiento social"
+    },
+    {
+        "value": "00054",
+        "label": "00054 Riesgo de soledad"
+    },
+    {
+        "value": "00055",
+        "label": "00055 Desempeño inefectivo del rol"
+    },
+    {
+        "value": "00056",
+        "label": "00056 Deterioro parental"
+    },
+    {
+        "value": "00057",
+        "label": "00057 Riesgo de deterioro parental"
+    },
+    {
+        "value": "00058",
+        "label": "00058 Riesgo de deterioro de la vinculación entre padres y el lactante/niño"
+    },
+    {
+        "value": "00059",
+        "label": "00059 Disfunción sexual"
+    },
+    {
+        "value": "00060",
+        "label": "00060 Interrupción de los procesos familiares"
+    },
+    {
+        "value": "00061",
+        "label": "00061 Cansancio en el desempeño del rol cuidador"
+    },
+    {
+        "value": "00062",
+        "label": "00062 Riesgo de cansancio en el desempeño del rol cuidador"
+    },
+    {
+        "value": "00063",
+        "label": "00063 Procesos familiares disfuncionales: alcoholismo"
+    },
+    {
+        "value": "00064",
+        "label": "00064 Conflicto del rol parental"
+    },
+    {
+        "value": "00065",
+        "label": "00065 Patrón sexual inefectivo"
+    },
+    {
+        "value": "00066",
+        "label": "00066 Sufrimiento espiritual"
+    },
+    {
+        "value": "00067",
+        "label": "00067 Riesgo de sufrimiento espiritual"
+    },
+    {
+        "value": "00068",
+        "label": "00068 Disposición para mejorar el bienestar espiritual"
+    },
+    {
+        "value": "00069",
+        "label": "00069 Afrontamiento inefectivo"
+    },
+    {
+        "value": "00070",
+        "label": "00070 Deterioro de la adaptación"
+    },
+    {
+        "value": "00071",
+        "label": "00071 Afrontamiento defensivo"
+    },
+    {
+        "value": "00072",
+        "label": "00072 Negación ineficaz"
+    },
+    {
+        "value": "00073",
+        "label": "00073 Afrontamiento familiar incapacitante"
+    },
+    {
+        "value": "00074",
+        "label": "00074 Afrontamiento familiar comprometido"
+    },
+    {
+        "value": "00075",
+        "label": "00075 Disposición para mejorar el afrontamiento familiar"
+    },
+    {
+        "value": "00076",
+        "label": "00076 Disposición para mejorar el afrontamiento de la comunidad"
+    },
+    {
+        "value": "00077",
+        "label": "00077 Afrontamiento inefectivo de la comunidad"
+    },
+    {
+        "value": "00078",
+        "label": "00078 Manejo inefectivo del régimen terapéutico"
+    },
+    {
+        "value": "00079",
+        "label": "00079 Incumplimiento del tratamiento (especificar)"
+    },
+    {
+        "value": "00080",
+        "label": "00080 Manejo inefectivo del régimen terapéutico familiar"
+    },
+    {
+        "value": "00081",
+        "label": "00081 Manejo inefectivo del régimen terapéutico de la comunidad"
+    },
+    {
+        "value": "00082",
+        "label": "00082 Manejo efectivo del régimen terapéutico"
+    },
+    {
+        "value": "00083",
+        "label": "00083 Conflicto en la toma de decisiones (especificar)"
+    },
+    {
+        "value": "00084",
+        "label": "00084 Conductas generadoras de salud (especificar)"
+    },
+    {
+        "value": "00085",
+        "label": "00085 Deterioro de la movilidad física"
+    },
+    {
+        "value": "00086",
+        "label": "00086 Riesgo de disfunción neurovascular periférica"
+    },
+    {
+        "value": "00087",
+        "label": "00087 Riesgo de lesión perioperatoria"
+    },
+    {
+        "value": "00088",
+        "label": "00088 Deterioro de la deambulación"
+    },
+    {
+        "value": "00089",
+        "label": "00089 Deterioro de la movilidad en silla de ruedas"
+    },
+    {
+        "value": "00090",
+        "label": "00090 Deterioro de la habilidad para la traslación"
+    },
+    {
+        "value": "00091",
+        "label": "00091 Deterioro de la movilidad en la cama"
+    },
+    {
+        "value": "00092",
+        "label": "00092 Intolerancia a la actividad"
+    },
+    {
+        "value": "00093",
+        "label": "00093 Fatiga"
+    },
+    {
+        "value": "00094",
+        "label": "00094 Riesgo de intolerancia a la actividad"
+    },
+    {
+        "value": "00095",
+        "label": "00095 Deterioro del patrón de sueño"
+    },
+    {
+        "value": "00096",
+        "label": "00096 Deprivación de sueño"
+    },
+    {
+        "value": "00097",
+        "label": "00097 Déficit de actividades recreativas"
+    },
+    {
+        "value": "00098",
+        "label": "00098 Deterioro del mantenimiento del hogar"
+    },
+    {
+        "value": "00099",
+        "label": "00099 Mantenimiento inefectivo de la salud"
+    },
+    {
+        "value": "00100",
+        "label": "00100 Retraso en la recuperación quirúrgica"
+    },
+    {
+        "value": "00101",
+        "label": "00101 Incapacidad del adulto para mantener su desarrollo"
+    },
+    {
+        "value": "00102",
+        "label": "00102 Déficit de autocuidado: alimentación"
+    },
+    {
+        "value": "00103",
+        "label": "00103 Deterioro de la deglución"
+    },
+    {
+        "value": "00104",
+        "label": "00104 Lactancia materna ineficaz"
+    },
+    {
+        "value": "00105",
+        "label": "00105 Interrupción de la lactancia materna"
+    },
+    {
+        "value": "00106",
+        "label": "00106 Lactancia materna eficaz"
+    },
+    {
+        "value": "00107",
+        "label": "00107 Patrón de alimentación ineficaz del lactante"
+    },
+    {
+        "value": "00108",
+        "label": "00108 Déficit de autocuidado: baño/higiene"
+    },
+    {
+        "value": "00109",
+        "label": "00109 Déficit de autocuidado: vestido/acicalamiento"
+    },
+    {
+        "value": "00110",
+        "label": "00110 Déficit de autocuidado: uso del orinal/wc"
+    },
+    {
+        "value": "00111",
+        "label": "00111 Retraso en el crecimiento y desarrollo"
+    },
+    {
+        "value": "00112",
+        "label": "00112 Riesgo de retraso en el desarrollo"
+    },
+    {
+        "value": "00113",
+        "label": "00113 Riesgo de crecimiento desproporcionado"
+    },
+    {
+        "value": "00114",
+        "label": "00114 Síndrome de estrés por traslado"
+    },
+    {
+        "value": "00115",
+        "label": "00115 Riesgo de conducta desorganizada del lactante"
+    },
+    {
+        "value": "00116",
+        "label": "00116 Conducta desorganizada del lactante"
+    },
+    {
+        "value": "00117",
+        "label": "00117 Disposición para mejorar la organización de la conducta del lactante"
+    },
+    {
+        "value": "00118",
+        "label": "00118 Trastorno de la imagen corporal"
+    },
+    {
+        "value": "00119",
+        "label": "00119 Baja autoestima crónica"
+    },
+    {
+        "value": "00120",
+        "label": "00120 Baja autoestima situacional"
+    },
+    {
+        "value": "00121",
+        "label": "00121 Trastorno de la identidad personal"
+    },
+    {
+        "value": "00122",
+        "label": "00122 Alteración de la percepción sensorial (especificar: visual, auditiva, cinestésica, gustativa, táctil, olfatoria)"
+    },
+    {
+        "value": "00123",
+        "label": "00123 Desatención unilateral"
+    },
+    {
+        "value": "00124",
+        "label": "00124 Desesperanza"
+    },
+    {
+        "value": "00125",
+        "label": "00125 Impotencia"
+    },
+    {
+        "value": "00126",
+        "label": "00126 Conocimientos deficientes (especificar)"
+    },
+    {
+        "value": "00127",
+        "label": "00127 Síndrome de deterioro en la interpretación del entorno"
+    },
+    {
+        "value": "00128",
+        "label": "00128 Confusión aguda"
+    },
+    {
+        "value": "00129",
+        "label": "00129 Confusión crónica"
+    },
+    {
+        "value": "00130",
+        "label": "00130 Trastorno de los procesos de pensamiento"
+    },
+    {
+        "value": "00131",
+        "label": "00131 Deterioro de la memoria"
+    },
+    {
+        "value": "00132",
+        "label": "00132 Dolor agudo"
+    },
+    {
+        "value": "00133",
+        "label": "00133 Dolor crónico"
+    },
+    {
+        "value": "00134",
+        "label": "00134 Náuseas"
+    },
+    {
+        "value": "00135",
+        "label": "00135 Duelo disfuncional"
+    },
+    {
+        "value": "00136",
+        "label": "00136 Duelo anticipado"
+    },
+    {
+        "value": "00137",
+        "label": "00137 Aflicción crónica"
+    },
+    {
+        "value": "00138",
+        "label": "00138 Riesgo de violencia dirigida a otros"
+    },
+    {
+        "value": "00139",
+        "label": "00139 Riesgo de automutilación"
+    },
+    {
+        "value": "00140",
+        "label": "00140 Riesgo de violencia autodirigida"
+    },
+    {
+        "value": "00141",
+        "label": "00141 Síndrome postraumático"
+    },
+    {
+        "value": "00142",
+        "label": "00142 Síndrome traumático de la violación"
+    },
+    {
+        "value": "00143",
+        "label": "00143 Síndrome traumático de la violación: reacción compuesta"
+    },
+    {
+        "value": "00144",
+        "label": "00144 Síndrome traumático de la violación: reacción silenciosa"
+    },
+    {
+        "value": "00145",
+        "label": "00145 Riesgo de síndrome postraumático"
+    },
+    {
+        "value": "00146",
+        "label": "00146 Ansiedad"
+    },
+    {
+        "value": "00147",
+        "label": "00147 Ansiedad ante la muerte"
+    },
+    {
+        "value": "00148",
+        "label": "00148 Temor"
+    },
+    {
+        "value": "00149",
+        "label": "00149 Riesgo de síndrome de estrés por traslado"
+    },
+    {
+        "value": "00150",
+        "label": "00150 Riesgo de suicidio"
+    },
+    {
+        "value": "00151",
+        "label": "00151 Automutilación"
+    },
+    {
+        "value": "00152",
+        "label": "00152 Riesgo de impotencia"
+    },
+    {
+        "value": "00153",
+        "label": "00153 Riesgo de baja autoestima situacional"
+    },
+    {
+        "value": "00154",
+        "label": "00154 Vagabundeo"
+    },
+    {
+        "value": "00155",
+        "label": "00155 Riesgo de caídas"
+    },
+    {
+        "value": "00156",
+        "label": "00156 Riesgo del síndrome de muerte súbita del lactante"
+    },
+    {
+        "value": "00157",
+        "label": "00157 Disposición para mejorar la comunicación"
+    },
+    {
+        "value": "00158",
+        "label": "00158 Disposición para mejorar el afrontamiento"
+    },
+    {
+        "value": "00159",
+        "label": "00159 Disposición para mejorar los procesos familiares"
+    },
+    {
+        "value": "00160",
+        "label": "00160 Disposición para mejorar el equilibrio del volumen de líquidos"
+    },
+    {
+        "value": "00161",
+        "label": "00161 Disposición para mejorar los conocimientos (especificar)"
+    },
+    {
+        "value": "00162",
+        "label": "00162 Disposición para mejorar el manejo del régimen terapéutico"
+    },
+    {
+        "value": "00163",
+        "label": "00163 Disposición para mejorar la nutrición"
+    },
+    {
+        "value": "00164",
+        "label": "00164 Disposición para mejorar el rol parental"
+    },
+    {
+        "value": "00165",
+        "label": "00165 Disposición para mejorar el sueño"
+    },
+    {
+        "value": "00166",
+        "label": "00166 Disposición para mejorar la eliminación urinaria"
+    },
+    {
+        "value": "00167",
+        "label": "00167 Disposición para mejorar el autoconcepto"
+    },
+    {
+        "value": "00168",
+        "label": "00168 Sedentarismo"
+    },
+    {
+        "value": "00169",
+        "label": "00169 Deterioro de la religiosidad"
+    },
+    {
+        "value": "00170",
+        "label": "00170 Riesgo de deterioro de la religiosidad"
+    },
+    {
+        "value": "00171",
+        "label": "00171 Disposición para mejorar la religiosidad"
+    },
+    {
+        "value": "00172",
+        "label": "00172 Riesgo de duelo disfuncional"
+    },
+    {
+        "value": "00173",
+        "label": "00173 Riesgo de confusión aguda"
+    },
+    {
+        "value": "00174",
+        "label": "00174 Riesgo de compromiso de la dignidad humana"
+    },
+    {
+        "value": "00175",
+        "label": "00175 Sufrimiento moral"
+    },
+    {
+        "value": "00176",
+        "label": "00176 Incontinencia urinaria por rebosamiento"
+    },
+    {
+        "value": "00177",
+        "label": "00177 Estrés por sobrecarga"
+    },
+    {
+        "value": "00178",
+        "label": "00178 Riesgo de deterioro de la función hepática"
+    },
+    {
+        "value": "00179",
+        "label": "00179 Riesgo de nivel de glucemia inestable"
+    },
+    {
+        "value": "00180",
+        "label": "00180 Riesgo de contaminación"
+    },
+    {
+        "value": "00181",
+        "label": "00181 Contaminación"
+    },
+    {
+        "value": "00182",
+        "label": "00182 Disposición para mejorar el autocuidado"
+    },
+    {
+        "value": "00183",
+        "label": "00183 Disposición para mejorar el confort"
+    },
+    {
+        "value": "00184",
+        "label": "00184 Disposición para mejorar la toma de decisiones"
+    },
+    {
+        "value": "00185",
+        "label": "00185 Disposición para mejorar la esperanza"
+    },
+    {
+        "value": "00186",
+        "label": "00186 Disposición para mejorar el estado de inmunización"
+    },
+    {
+        "value": "00187",
+        "label": "00187 Disposición para mejorar el poder"
+    },
+    {
+        "value": "00188",
+        "label": "00188 Tendencia a adoptar conductas de riesgo para la salud"
+    },
+    {
+        "value": "00193",
+        "label": "00193 Descuido personal"
+    },
+    {
+        "value": "00194",
+        "label": "00194 Ictericia neonatal"
+    },
+    {
+        "value": "00195",
+        "label": "00195 Riesgo de desequilibrio electrolítico"
+    },
+    {
+        "value": "00196",
+        "label": "00196 Motilidad gastrointestinal disfuncional"
+    },
+    {
+        "value": "00197",
+        "label": "00197 Riesgo de motilidad gastrointestinal disfuncional"
+    },
+    {
+        "value": "00198",
+        "label": "00198 Trastorno del patrón del sueño"
+    },
+    {
+        "value": "00199",
+        "label": "00199 Planificación ineficaz de las actividades"
+    },
+    {
+        "value": "00200",
+        "label": "00200 Riesgo de disminución de la perfusión tisular cardíaca"
+    },
+    {
+        "value": "00201",
+        "label": "00201 Riesgo de perfusión cerebral ineficaz"
+    },
+    {
+        "value": "00202",
+        "label": "00202 Riesgo de perfusión gastrointestinal ineficaz"
+    },
+    {
+        "value": "00203",
+        "label": "00203 Riesgo de perfusión renal ineficaz"
+    },
+    {
+        "value": "00204",
+        "label": "00204 Perfusión tisular periférica ineficaz"
+    },
+    {
+        "value": "00205",
+        "label": "00205 Riesgo de shock"
+    },
+    {
+        "value": "00206",
+        "label": "00206 Riesgo de sangrado"
+    },
+    {
+        "value": "00207",
+        "label": "00207 Disposición para mejorar las relaciones"
+    },
+    {
+        "value": "00208",
+        "label": "00208 Disposición para mejorar el proceso de maternidad"
+    },
+    {
+        "value": "00209",
+        "label": "00209 Riesgo de alteración de la díada materno-fetal"
+    },
+    {
+        "value": "00210",
+        "label": "00210 Deterioro de la capacidad de recuperación personal"
+    },
+    {
+        "value": "00211",
+        "label": "00211 Riesgo de compromiso de la capacidad de recuperación personal"
+    },
+    {
+        "value": "00212",
+        "label": "00212 Disposición para mejorar la capacidad de recuperación personal"
+    },
+    {
+        "value": "00213",
+        "label": "00213 Riesgo de traumatismo vascular"
+    },
+    {
+        "value": "00214",
+        "label": "00214 Disconfort"
+    },
+    {
+        "value": "00215",
+        "label": "00215 Salud deficiente de la comunidad"
+    },
+    {
+        "value": "00216",
+        "label": "00216 Insuficiente producción de leche materna"
+    },
+    {
+        "value": "00217",
+        "label": "00217 Riesgo de reacción alérgica"
+    },
+    {
+        "value": "00218",
+        "label": "00218 Riesgo de reacción adversa a medios de contraste yodado"
+    },
+    {
+        "value": "00219",
+        "label": "00219 Riesgo de sequedad ocular"
+    },
+    {
+        "value": "00220",
+        "label": "00220 Riesgo de lesión térmica"
+    },
+    {
+        "value": "00221",
+        "label": "00221 Proceso de maternidad ineficaz"
+    },
+    {
+        "value": "00222",
+        "label": "00222 Control de impulsos ineficaz"
+    },
+    {
+        "value": "00223",
+        "label": "00223 Relación ineficaz"
+    },
+    {
+        "value": "00224",
+        "label": "00224 Riesgo de baja autoestima crónica"
+    },
+    {
+        "value": "00225",
+        "label": "00225 Riesgo de trastorno de la identidad personal"
+    },
+    {
+        "value": "00226",
+        "label": "00226 Riesgo de planificación ineficaz de las actividades"
+    },
+    {
+        "value": "00227",
+        "label": "00227 Riesgo de proceso de maternidad ineficaz"
+    },
+    {
+        "value": "00228",
+        "label": "00228 Riesgo de perfusión tisular periférica ineficaz"
+    },
+    {
+        "value": "00229",
+        "label": "00229 Riesgo de relación ineficaz"
+    },
+    {
+        "value": "00230",
+        "label": "00230 Riesgo de hiperbilirrubinemia neonatal"
+    },
+    {
+        "value": "00231",
+        "label": "00231 Riesgo de síndrome de fragilidad del anciano"
+    },
+    {
+        "value": "00232",
+        "label": "00232 Obesidad"
+    },
+    {
+        "value": "00233",
+        "label": "00233 Sobrepeso"
+    },
+    {
+        "value": "00234",
+        "label": "00234 Riesgo de sobrepeso"
+    },
+    {
+        "value": "00235",
+        "label": "00235 Estreñimiento funcional crónico"
+    },
+    {
+        "value": "00236",
+        "label": "00236 Riesgo de estreñimiento funcional crónico"
+    },
+    {
+        "value": "00237",
+        "label": "00237 Deterioro de la sedestación"
+    },
+    {
+        "value": "00238",
+        "label": "00238 Deterioro de la bipedestación"
+    },
+    {
+        "value": "00240",
+        "label": "00240 Riesgo de disminución del gasto cardíaco"
+    },
+    {
+        "value": "00241",
+        "label": "00241 Deterioro de la regulación del estado de ánimo"
+    },
+    {
+        "value": "00242",
+        "label": "00242 Deterioro de la toma de decisiones independiente"
+    },
+    {
+        "value": "00243",
+        "label": "00243 Disposición para mejorar la toma de decisiones independiente"
+    },
+    {
+        "value": "00244",
+        "label": "00244 Riesgo de deterioro de la toma de decisiones independiente"
+    },
+    {
+        "value": "00245",
+        "label": "00245 Riesgo de lesión corneal"
+    },
+    {
+        "value": "00246",
+        "label": "00246 Riesgo de retraso en la recuperación quirúrgica"
+    },
+    {
+        "value": "00247",
+        "label": "00247 Riesgo de deterioro de la integridad de la membrana mucosa oral"
+    },
+    {
+        "value": "00248",
+        "label": "00248 Riesgo de deterioro de la integridad tisular"
+    },
+    {
+        "value": "00250",
+        "label": "00250 Riesgo de lesión del tracto urinario"
+    },
+    {
+        "value": "00251",
+        "label": "00251 Control emocional inestable"
+    },
+    {
+        "value": "00253",
+        "label": "00253 Riesgo de hipotermia"
+    },
+    {
+        "value": "00254",
+        "label": "00254 Riesgo de hipotermia perioperatoria"
+    },
+    {
+        "value": "00255",
+        "label": "00255 Síndrome de dolor crónico"
+    },
+    {
+        "value": "00256",
+        "label": "00256 Dolor de parto"
+    },
+    {
+        "value": "00257",
+        "label": "00257 Síndrome de fragilidad del anciano"
+    },
+    {
+        "value": "00258",
+        "label": "00258 Síndrome de abstinencia agudo"
+    },
+    {
+        "value": "00259",
+        "label": "00259 Riesgo de síndrome de abstinencia agudo"
+    },
+    {
+        "value": "00260",
+        "label": "00260 Riesgo de transición migratoria complicada"
+    },
+    {
+        "value": "00261",
+        "label": "00261 Riesgo de sequedad bucal"
+    },
+    {
+        "value": "00262",
+        "label": "00262 Disposición para mejorar la alfabetización en salud"
+    },
+    {
+        "value": "00264",
+        "label": "00264 Síndrome de abstinencia neonatal"
+    },
+    {
+        "value": "00265",
+        "label": "00265 Riesgo de lesión ocupacional"
+    },
+    {
+        "value": "00266",
+        "label": "00266 Riesgo de infección de la herida quirúrgica"
+    },
+    {
+        "value": "00267",
+        "label": "00267 Riesgo de tensión arterial inestable"
+    },
+    {
+        "value": "00269",
+        "label": "00269 Dinámica de comidas ineficaz del adolescente"
+    },
+    {
+        "value": "00270",
+        "label": "00270 Dinámica de comidas ineficaz del niño"
+    },
+    {
+        "value": "00271",
+        "label": "00271 Dinámica de alimentación ineficaz del lactante"
+    },
+    {
+        "value": "00272",
+        "label": "00272 Riesgo de mutilación genital femenina"
+    },
+    {
+        "value": "00273",
+        "label": "00273 Desequilibrio del campo energético"
+    },
+    {
+        "value": "00274",
+        "label": "00274 Riesgo de termorregulación ineficaz"
+    },
+    {
+        "value": "00276",
+        "label": "00276 Autogestión ineficaz de la salud"
+    },
+    {
+        "value": "00277",
+        "label": "00277 Autogestión ineficaz de la sequedad ocular"
+    },
+    {
+        "value": "00278",
+        "label": "00278 Autogestión ineficaz del edema linfático"
+    },
+    {
+        "value": "00279",
+        "label": "00279 Deterioro de los procesos de pensamiento"
+    },
+    {
+        "value": "00280",
+        "label": "00280 Hipotermia neonatal"
+    },
+    {
+        "value": "00281",
+        "label": "00281 Riesgo de autogestión ineficaz del edema linfático"
+    },
+    {
+        "value": "00282",
+        "label": "00282 Riesgo de hipotermia neonatal"
+    },
+    {
+        "value": "00283",
+        "label": "00283 Síndrome de deterioro de la identidad familiar"
+    },
+    {
+        "value": "00284",
+        "label": "00284 Riesgo de síndrome de deterioro de la identidad familiar"
+    },
+    {
+        "value": "00285",
+        "label": "00285 Disposición para mejorar el duelo"
+    },
+    {
+        "value": "00286",
+        "label": "00286 Riesgo de lesión por presión en el niño"
+    },
+    {
+        "value": "00287",
+        "label": "00287 Lesión por presión neonatal"
+    },
+    {
+        "value": "00288",
+        "label": "00288 Riesgo de lesión por presión neonatal"
+    },
+    {
+        "value": "00289",
+        "label": "00289 Riesgo de conducta suicida"
+    },
+    {
+        "value": "00290",
+        "label": "00290 Riesgo de intento de fuga"
+    },
+    {
+        "value": "00291",
+        "label": "00291 Riesgo de trombosis"
+    },
+    {
+        "value": "00292",
+        "label": "00292 Conductas ineficaces de mantenimiento de la salud"
+    },
+    {
+        "value": "00293",
+        "label": "00293 Disposición para mejorar la autogestión de la salud"
+    },
+    {
+        "value": "00294",
+        "label": "00294 Autogestión ineficaz de la salud familiar"
+    },
+    {
+        "value": "00295",
+        "label": "00295 Respuesta ineficaz de succión-deglución del lactante"
+    },
+    {
+        "value": "00296",
+        "label": "00296 Riesgo de síndrome metabólico"
+    },
+    {
+        "value": "00297",
+        "label": "00297 Incontinencia urinaria asociada a discapacidad"
+    },
+    {
+        "value": "00298",
+        "label": "00298 Disminución de la tolerancia a la actividad"
+    },
+    {
+        "value": "00299",
+        "label": "00299 Riesgo de disminución de la tolerancia a la actividad"
+    },
+    {
+        "value": "00300",
+        "label": "00300 Conductas ineficaces de mantenimiento del hogar"
+    },
+    {
+        "value": "00301",
+        "label": "00301 Duelo inadaptado"
+    },
+    {
+        "value": "00302",
+        "label": "00302 Riesgo de duelo inadaptado"
+    },
+    {
+        "value": "00303",
+        "label": "00303 Riesgo de caídas del adulto"
+    },
+    {
+        "value": "00304",
+        "label": "00304 Riesgo de lesión por presión en el adulto"
+    },
+    {
+        "value": "00305",
+        "label": "00305 Riesgo de retraso en el desarrollo del niño"
+    },
+    {
+        "value": "00306",
+        "label": "00306 Riesgo de caídas del niño"
+    },
+    {
+        "value": "00307",
+        "label": "00307 Disposición para mejorar el compromiso con el ejercicio"
+    },
+    {
+        "value": "00308",
+        "label": "00308 Riesgo de conductas ineficaces de mantenimiento del hogar"
+    },
+    {
+        "value": "00309",
+        "label": "00309 Disposición para mejorar las conductas de mantenimiento del hogar"
+    },
+    {
+        "value": "00310",
+        "label": "00310 Incontinencia urinaria mixta"
+    },
+    {
+        "value": "00311",
+        "label": "00311 Riesgo de deterioro de la función cardiovascular"
+    },
+    {
+        "value": "00312",
+        "label": "00312 Lesión por presión en el adulto"
+    },
+    {
+        "value": "00313",
+        "label": "00313 Lesión por presión en el niño"
+    },
+    {
+        "value": "00314",
+        "label": "00314 Retraso en el desarrollo del niño"
+    },
+    {
+        "value": "00315",
+        "label": "00315 Retraso del desarrollo motor del lactante"
+    },
+    {
+        "value": "00316",
+        "label": "00316 Riesgo de retraso del desarrollo motor del lactante"
+    },
+    {
+        "value": "00318",
+        "label": "00318 Respuesta ventilatoria disfuncional al destete del adulto"
+    },
+    {
+        "value": "00319",
+        "label": "00319 Deterioro de la continencia intestinal"
+    },
+    {
+        "value": "00320",
+        "label": "00320 Lesión del complejo pezón-areolar"
+    },
+    {
+        "value": "00321",
+        "label": "00321 Riesgo de lesión del complejo pezón-areolar"
+    },
+    {
+        "value": "00322",
+        "label": "00322 Riesgo de retención urinaria"
+    }
+]
