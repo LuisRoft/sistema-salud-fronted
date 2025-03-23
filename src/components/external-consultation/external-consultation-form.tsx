@@ -303,9 +303,7 @@ const eliminarDiagnostico = (index: number) => {
   };
   
 
-  const onSubmit = async (data: any) => {
-    console.log("Datos recibidos del formulario:", data);
-
+  const onSubmit = async (data: FormValues) => {
     try {
       if (!session?.user) {
         toast({
@@ -315,159 +313,78 @@ const eliminarDiagnostico = (index: number) => {
         });
         return;
       }
-
-      // Extraer el ID del usuario del token JWT
+  
       const token = session.user.access_token;
       const tokenParts = token.split('.');
       const payload = JSON.parse(atob(tokenParts[1]));
-      const userId = payload.id; // Este es el UUID que necesitamos: 5b33f942-102a-4621-94bc-343cfea257f0
-
-      console.log('User ID from token:', userId);
-
+      const userId = payload.id;
+  
       if (!userId || !selectedPatient?.id) {
         toast({
           title: 'Error',
           description: 'No se pudo obtener el ID del usuario o paciente',
           variant: 'destructive',
         });
-        console.error('ID del paciente no encontrado:', selectedPatient);
         return;
       }
-
-      // Obtener la hora actual en formato HH:mm
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
+  
       const formattedData = {
-        // Datos del establecimiento
-        institucionSistema: data.institucionSistema || '',
-        unicodigo: data.unicodigo || '',
-        establecimientoSalud: data.establecimientoSalud || '',
-        numeroHistoriaClinica: data.numeroHistoriaClinica || '',
-        numeroArchivo: data.numeroArchivo || '',
-        numeroHoja: data.numeroHoja || '',
-
-        // Datos del paciente
-        primerApellido: data.primerApellido || '',
-        segundoApellido: data.segundoApellido || '',
-        primerNombre: data.primerNombre || '',
-        segundoNombre: data.segundoNombre || '',
-        sexo: data.sexo || '',
-        edad: parseInt(data.edad) || 0,
-
-        // Datos de la consulta
-        motivoConsulta: data.motivoConsulta || data.motivoConsultaPrimera || '',
-        motivoConsultaPrimera:
-          data.motivoConsulta || data.motivoConsultaPrimera || '',
-        motivoConsultaSubsecuente: data.motivoConsultaSubsecuente || '',
-        antecedentesPatologicosPersonales: Array.isArray(data.antecedentesPatologicosPersonales)? data.antecedentesPatologicosPersonales: [],
-        antecedentesPatologicosPersonalesDesc:
-          data.antecedentesPatologicosPersonalesDesc ||
-          'Sin antecedentes personales',
-          antecedentesPatologicosFamiliares: Array.isArray(data.antecedentesPatologicosFamiliares)
-          ? data.antecedentesPatologicosFamiliares: [],
-        antecedentesPatologicosFamiliaresDesc:
-          data.antecedentesPatologicosFamiliaresDesc ||
-          'Sin antecedentes familiares',
+        motivoConsulta: data.motivoConsulta,
+        antecedentesPatologicosPersonales: data.antecedentesPatologicosPersonales || [],
+        antecedentesPatologicosPersonalesDesc: data.antecedentesPatologicosPersonalesDesc || '',
+        antecedentesPatologicosFamiliares: data.antecedentesPatologicosFamiliares || [],
+        antecedentesPatologicosFamiliaresDesc: data.antecedentesPatologicosFamiliaresDesc || '',
         enfermedadProblemaActual: data.enfermedadActual || '',
-        enfermedadActual: data.enfermedadActual || '',
-
-        // Antecedentes
-        antecedentesPersonales: {
-          cardiopatia: Boolean(data.antecedentesPersonales?.cardiopatia),
-          hipertension: Boolean(data.antecedentesPersonales?.hipertension),
-          ebyec: Boolean(data.antecedentesPersonales?.ebyec),
-          problemaMetabolico: Boolean(data.antecedentesPersonales?.problemaMetabolico),
-          cancer: Boolean(data.antecedentesPersonales?.cancer),
-          tuberculosis: Boolean(data.antecedentesPersonales?.tuberculosis),
-          enfMental: Boolean(data.antecedentesPersonales?.enfMental),
-          enfInfecciosa: Boolean(data.antecedentesPersonales?.enfInfecciosa),
-          malformacion: Boolean(data.antecedentesPersonales?.malformacion),
-          otro: data.antecedentesPersonales?.otro || '',
-        },
-
-        antecedentesFamiliares: {
-          cardiopatia: Boolean(data.antecedentesFamiliares?.cardiopatia),
-          hipertension: Boolean(data.antecedentesFamiliares?.hipertension),
-          ebyec: Boolean(data.antecedentesFamiliares?.ebyec),
-          problemaMetabolico: Boolean(
-            data.antecedentesFamiliares?.problemaMetabolico
-          ),
-          cancer: Boolean(data.antecedentesFamiliares?.cancer),
-          tuberculosis: Boolean(data.antecedentesFamiliares?.tuberculosis),
-          enfMental: Boolean(data.antecedentesFamiliares?.enfMental),
-          enfInfecciosa: Boolean(data.antecedentesFamiliares?.enfInfecciosa),
-          malformacion: Boolean(data.antecedentesFamiliares?.malformacion),
-          otro: data.antecedentesFamiliares?.otro || '',
-        },
-
-        // Datos CVA
-        cvaFecha: new Date().toISOString(),
-        cvaHora: currentTime,
-        cvaTemperatura: String(data.cvaTemperatura || ''),
-        cvaPresionArterial: data.cvaPresionArterial || '',
-        cvaPulso: String(data.cvaPulso || ''),
-        cvaFrecuenciaRespiratoria: String(data.cvaFrecuenciaRespiratoria || ''),
-        cvaPeso: String(data.cvaPeso || ''),
-        cvaTalla: String(data.cvaTalla || ''),
-        cvaImc: String(data.cvaImc || ''),
-        cvaPerimetroAbdominal: String(data.cvaPerimetroAbdominal || ''),
-        cvaHemoglobinaCapilar: String(data.cvaHemoglobinaCapilar || ''),
-        cvaGlucosaCapilar: String(data.cvaGlucosaCapilar || ''),
-        cvaPulsioximetria: String(data.cvaPulsioximetria || ''),
-
-        // Constantes vitales como objeto
-        constantesVitales: {
-          fecha: new Date().toISOString(),
-          hora: currentTime,
-          temperatura: parseFloat(data.cvaTemperatura) || 0,
-          presionArterial: data.cvaPresionArterial || '',
-          frecuenciaCardiaca: parseFloat(data.cvaPulso) || 0,
-          frecuenciaRespiratoria:
-            parseFloat(data.cvaFrecuenciaRespiratoria) || 0,
-          peso: parseFloat(data.cvaPeso) || 0,
-          talla: parseFloat(data.cvaTalla) || 0,
-          imc: parseFloat(data.cvaImc) || 0,
-          perimetroAbdominal: parseFloat(data.cvaPerimetroAbdominal) || 0,
-          hemoglobinaCapilar: parseFloat(data.cvaHemoglobinaCapilar) || 0,
-          glucosaCapilar: parseFloat(data.cvaGlucosaCapilar) || 0,
-          pulsioximetria: parseFloat(data.cvaPulsioximetria) || 0,
-        },
-
-        // Patologías y exámenes
-        organosSistemasPatologia: Array.isArray(data.organosSistemasPatologia)
-          ? data.organosSistemasPatologia
-          : [],
-        organosSistemasPatologiaDesc: Array.isArray(
-          data.organosSistemasPatologiaDesc
-        )
-          ? data.organosSistemasPatologiaDesc
-          : [],
-        examenFisicoPatologia: Array.isArray(data.examenFisicoPatologia)
-          ? data.examenFisicoPatologia
-          : [],
-        examenFisicoPatologiaDesc: Array.isArray(data.examenFisicoPatologiaDesc)
-          ? data.examenFisicoPatologiaDesc
-          : [],
-        diagnosticosDesc: Array.isArray(data.diagnosticosDesc)
-          ? data.diagnosticosDesc
-          : [],
-        diagnosticosCie: Array.isArray(data.diagnosticosCie)
-          ? data.diagnosticosCie
-          : [],
-
-        // Plan de tratamiento
+        cvaFecha: data.constantesVitales.fecha ? new Date(data.constantesVitales.fecha).toISOString() : '',
+        cvaHora: data.constantesVitales.hora || '',
+        cvaTemperatura: `${data.constantesVitales.temperatura} °C`,
+        cvaPresionArterial: data.constantesVitales.presionArterial || '',
+        cvaPulso: `${data.constantesVitales.frecuenciaCardiaca} bpm`,
+        cvaFrecuenciaRespiratoria: `${data.constantesVitales.frecuenciaRespiratoria} rpm`,
+        cvaPeso: `${data.constantesVitales.peso} kg`,
+        cvaTalla: `${data.constantesVitales.talla} m`,
+        cvaImc: data.constantesVitales.imc.toString(),
+        cvaPerimetroAbdominal: `${data.constantesVitales.perimetroAbdominal} cm`,
+        cvaHemoglobinaCapilar: `${data.constantesVitales.hemoglobinaCapilar} g/dL`,
+        cvaGlucosaCapilar: `${data.constantesVitales.glucosaCapilar} mg/dL`,
+        cvaPulsioximetria: `${data.constantesVitales.pulsioximetria}%`,
+        organosSistemasPatologia: Object.keys(data.revisionOrganosSistemas).filter(
+          key => data.revisionOrganosSistemas[key as keyof typeof data.revisionOrganosSistemas]
+        ),
+        organosSistemasPatologiaDesc: Object.values(data.revisionOrganosSistemas).filter(Boolean),
+        examenFisicoPatologia: Object.keys(data.examenFisico).filter(
+          key => data.examenFisico[key as keyof typeof data.examenFisico]
+        ),
+        examenFisicoPatologiaDesc: Object.values(data.examenFisico).filter(Boolean),
+        diagnosticosDesc: diagnosticos.map(diag => diag.desc).filter(Boolean),
+        diagnosticosCie: diagnosticos.map(diag => diag.cie).filter(Boolean),
         planTratamiento: data.planTratamiento || '',
-
-        // IDs
         user: userId,
-        patient: selectedPatient ? selectedPatient.id : null,
+        patient: selectedPatient ? selectedPatient.id : '',
+        institucionSistema: data.institucionSistema,
+        unicodigo: data.unicodigo,
+        establecimientoSalud: data.establecimientoSalud,
+        numeroHistoriaClinica: data.numeroHistoriaClinica,
+        numeroArchivo: data.numeroArchivo,
+        numeroHoja: data.numeroHoja,
+        primerApellido: data.primerApellido,
+        segundoApellido: data.segundoApellido,
+        primerNombre: data.primerNombre,
+        segundoNombre: data.segundoNombre,
+        sexo: data.sexo,
+        edad: data.edad,
+        motivoConsultaPrimera: data.motivoConsultaPrimera,
+        motivoConsultaSubsecuente: data.motivoConsultaSubsecuente || '',
+        antecedentesPersonales: { ...data.antecedentesPersonales },
+        antecedentesFamiliares: { ...data.antecedentesFamiliares },
+        enfermedadActual: data.enfermedadActual,
+        constantesVitales: { ...data.constantesVitales },
       };
-
-      console.log('Datos a enviar:', formattedData);
-
+  
       const response = await createInitialConsultation(formattedData);
+  
       localStorage.removeItem('consultationFormData');
+  
       toast({
         title: 'Éxito',
         description: 'Consulta creada correctamente',
@@ -480,6 +397,7 @@ const eliminarDiagnostico = (index: number) => {
       });
     }
   };
+  
 
   // Botón para limpiar el formulario
   const handleReset = () => {
