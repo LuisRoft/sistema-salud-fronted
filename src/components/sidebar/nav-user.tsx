@@ -1,95 +1,78 @@
 'use client';
 
-import { BadgeCheck, ChevronsUpDown, LogOut } from 'lucide-react';
-
+import { LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar';
 import { signOut, useSession } from 'next-auth/react';
+import { useToast } from '@/hooks/use-toast';
 
 export function NavUser() {
   const { data: session } = useSession();
-  const { isMobile } = useSidebar();
+  const { toast } = useToast();
+  console.log(session?.user)
+  // Obtener iniciales del nombre y apellido
+  const getInitials = (name = '', lastName = '') => {
+    const firstInitial = name.charAt(0).toUpperCase();
+    const lastInitial = lastName.charAt(0).toUpperCase();
+    return `${firstInitial}${lastInitial}`;
+  };
+
+  const userInitials = getInitials(session?.user.name, session?.user.lastName);
+
+  const handleSignOut = async () => {
+    try {
+      // Guardamos la notificación en localStorage para mostrarla en el login
+      localStorage.setItem('logoutMessage', JSON.stringify({
+        title: '¡Hasta pronto!',
+        description: 'Sesión cerrada exitosamente',
+        time: Date.now()
+      }));
+      
+      await signOut({ redirect: true, callbackUrl: '/login' });
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      toast({
+        title: 'Error',
+        description: 'Hubo un problema al cerrar la sesión',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <SidebarMenu>
+      {/* Botón para cerrar sesión */}
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size='lg'
-              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-            >
-              <Avatar className='h-8 w-8 rounded-lg'>
-                <AvatarImage
-                  src='https://github.com/luisroftaa.png'
-                  alt={`${session?.user.name} - ${session?.user.role.name_role}`}
-                />
-                <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
-              </Avatar>
-              <div className='grid flex-1 text-left text-sm leading-tight'>
-                <span className='truncate font-semibold'>
-                  {`${session?.user.name}`}
-                </span>
-                <span className='truncate text-xs'>
-                  {session?.user.role.name_role}
-                </span>
-              </div>
-              <ChevronsUpDown className='ml-auto size-4' />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
-            side={isMobile ? 'bottom' : 'right'}
-            align='end'
-            sideOffset={4}
+        <div className="flex justify-center mb-4 px-0">
+          <button
+            onClick={handleSignOut}
+            className="w-full max-w-[320px] flex items-center justify-start gap-2 px-3 py-3 
+                       text-sm font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 
+                       dark:text-white dark:bg-red-400 dark:hover:bg-red-500 shadow-md"
           >
-            <DropdownMenuLabel className='p-0 font-normal'>
-              <div className='flex items-center gap-2 px-1 py-1.5 text-left text-sm'>
-                <Avatar className='h-8 w-8 rounded-lg'>
-                  <AvatarImage
-                    src='https://github.com/luisroftaa.png'
-                    alt={`${session?.user.name} - ${session?.user.role.name_role}`}
-                  />
-                  <AvatarFallback className='rounded-lg'>LV</AvatarFallback>
-                </Avatar>
-                <div className='grid flex-1 text-left text-sm leading-tight'>
-                  <span className='truncate font-semibold'>
-                    {`${session?.user.name}`}
-                  </span>
-                  <span className='truncate text-xs'>
-                    {session?.user.role.name_role}
-                  </span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Cuenta
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              <LogOut />
-              Cerrar Sesión
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <LogOut className="w-4 h-4" />
+            Cerrar Sesión
+          </button>
+        </div>
+      </SidebarMenuItem>
+
+      {/* Información del usuario */}
+      <SidebarMenuItem>
+        <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-md dark:bg-gray-800">
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarImage
+              src={session?.user.image || ''}
+              alt={`${session?.user.name} ${session?.user.lastName}`}
+            />
+            <AvatarFallback className="rounded-lg">{userInitials}</AvatarFallback>
+          </Avatar>
+          <div className="text-sm">
+            {/* Nombre y apellido */}
+            <div className="font-semibold text-gray-900 dark:text-gray-100">{`${session?.user.name} ${session?.user.lastName}`}</div>
+            {/* Rol */}
+            <div className="text-xs text-gray-500 dark:text-gray-400">{session?.user.role}</div>
+          </div>
+        </div>
       </SidebarMenuItem>
     </SidebarMenu>
   );
