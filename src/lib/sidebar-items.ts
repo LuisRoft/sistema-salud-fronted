@@ -6,6 +6,7 @@ import {
   SyringeIcon,
   User2,
   Users,
+  ActivityIcon,
 } from 'lucide-react';
 
 export const sidebarItems = {
@@ -95,6 +96,17 @@ export const sidebarItems = {
         {
           title: 'Formulario de Enfermería',
           url: '/pucem/nursing',
+        },
+      ],
+    },
+    {
+      title: 'Fisioterapia',
+      icon: ActivityIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Evaluación Neurológica',
+          url: '/pucem/fisioterapia',
         },
       ],
     },
