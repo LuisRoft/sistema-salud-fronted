@@ -18,6 +18,21 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
+        // Modo desarrollo: usuario simulado
+        if (process.env.NODE_ENV === 'development') {
+          return {
+            id: '1234567890',
+            name: 'Usuario Test',
+            email: 'dev@example.com',
+            document: '1234567890',
+            lastName: 'Dev',
+            role: 'user', // Puedes cambiarlo a 'doctor', 'caregiver', etc.
+            token: 'fake-token-dev',
+            team: 'TeamFake',
+          };
+        }
+
+        // Modo producción: autenticación real
         try {
           const res = await fetch('http://localhost:3000/api/auth/login', {
             method: 'POST',
@@ -31,11 +46,11 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
 
           if (res.ok && data.token) {
-            console.log(data);
             return {
               id: data.document,
-              document: data.document,
               name: data.name,
+              email: data.email || `${data.document}@example.com`,
+              document: data.document,
               lastName: data.lastName,
               role: data.role,
               token: data.token,
@@ -59,7 +74,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log(user);
         return {
           ...token,
           document: user.document,
@@ -73,7 +87,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log(token);
       session.user = {
         id: token.document as string,
         document: token.document as string,
@@ -81,7 +94,35 @@ export const authOptions: NextAuthOptions = {
         lastName: token.lastName as string,
         role: token.role as string,
         access_token: token.access_token as string,
-        team: token.team as string,
+        team: token.team as {
+          id: string;
+          teamName: string;
+          patient?: {
+            id: string;
+            document: string;
+            name: string;
+            lastName: string;
+            gender: string;
+            birthday: string;
+            typeBeneficiary: string;
+            typeDisability: string;
+            percentageDisability: number;
+            zone: string;
+            isActive: boolean;
+            caregiver: {
+              id: string;
+              document: string;
+              name: string;
+              lastName: string;
+              gender: string;
+              birthday: string;
+              phone: string;
+              address: string;
+              email: string;
+              isActive: boolean;
+            };
+          } | undefined;
+        },
       };
       return session;
     },
