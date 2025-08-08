@@ -108,6 +108,10 @@ export const sidebarItems = {
           title: 'Evaluación Neurológica',
           url: '/pucem/fisioterapia',
         },
+        {
+          title: 'Modelo Humano',
+          url: '/pucem/fisioterapia/modelo-humano',
+        },
       ],
     },
     {
