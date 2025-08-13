@@ -1,25 +1,38 @@
-import { Bot, HeartHandshake, User2, Users } from 'lucide-react';
+import {
+  Bot,
+  BriefcaseMedicalIcon,
+  HeartHandshake,
+  HistoryIcon,
+  SyringeIcon,
+  User2,
+  Users,
+  ActivityIcon,
+} from 'lucide-react';
 
 export const sidebarItems = {
-  navMain: [
+  admin: [
     {
-      title: 'Usuarios',
+      title: 'Gestores y Admins',
       icon: User2,
       isActive: true,
       items: [
         {
-          title: 'Manejar Usuarios',
-          url: '/dashboard/users',
+          title: 'Manejar Gestores',
+          url: '/dashboard/managers',
+        },
+        {
+          title: 'Manejar Administradores',
+          url: '/dashboard/admins',
         },
       ],
     },
     {
-      title: 'Gestores',
+      title: 'Usuarios',
       icon: Bot,
       items: [
         {
-          title: 'Manejar Gestores',
-          url: '/dashboard/managers',
+          title: 'Manejar Usuarios',
+          url: '/dashboard/users',
         },
       ],
     },
@@ -38,12 +51,77 @@ export const sidebarItems = {
       icon: Users,
       items: [
         {
-          title: 'Manejar Grupos de Trabajo',
-          url: '/dashboard/groups',
-        },
-        {
           title: 'Manejar Equipos',
           url: '/dashboard/teams',
+        },
+      ],
+    },
+  ],
+  user: [
+    {
+      title: 'Usuarios',
+      icon: Users,
+      isActive: true,
+      items: [
+        {
+          title: 'Usuarios Asignados',
+          url: '/pucem/users',
+        },
+      ],
+    },
+    {
+      title: 'Medicina',
+      icon: BriefcaseMedicalIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Consulta Externa',
+          url: '/pucem/consultation-external',
+        },
+        {
+          title: 'Interconsulta',
+          url: '/pucem/consultation-internal',
+        },
+        {
+          title: 'Pedido de Laboratorio',
+          url: '/pucem/lab-request',
+        },
+      ],
+    },
+    {
+      title: 'Enfermería',
+      icon: SyringeIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Formulario de Enfermería',
+          url: '/pucem/nursing',
+        },
+      ],
+    },
+    {
+      title: 'Fisioterapia',
+      icon: ActivityIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Evaluación Neurológica',
+          url: '/pucem/fisioterapia',
+        },
+        {
+          title: 'Modelo Humano',
+          url: '/pucem/fisioterapia/modelo-humano',
+        },
+      ],
+    },
+    {
+      title: 'Historial',
+      icon: HistoryIcon,
+      isActive: true,
+      items: [
+        {
+          title: 'Historial de Consulta',
+          url: '/pucem/consultation-history',
         },
       ],
     },

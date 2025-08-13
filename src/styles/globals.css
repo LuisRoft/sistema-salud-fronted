@@ -40,38 +40,64 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Base */
+    --background: 222 24% 10%; /* #2B2F3A - Fondo oscuro principal */
+    --foreground: 210 40% 98%; /* #D3D3D3 - Texto principal en color claro */
+
+    /* Elementos principales */
+    --primary: 198 100% 30%; /* #009FDC - Color primario, azul claro */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF - Texto en blanco sobre color primario */
+
+    --secondary: 219 72% 29%; /* #154182 - Color secundario, azul corporativo */
+    --secondary-foreground: 210 40% 98%; /* #D3D3D3 - Texto en gris claro sobre color secundario */
+
+    /* Contenedores */
+    --card: 222 24% 20%; /* #2B2F3A - Fondo de tarjetas */
+    --card-foreground: 210 40% 98%; /* #D3D3D3 - Texto en tarjetas */
+    --popover: 222 24% 20%; /* #2B2F3A - Fondo para popovers */
+    --popover-foreground: 210 40% 98%; /* #D3D3D3 - Texto en popovers */
+
+    /* Elementos de énfasis y estado */
+    --muted: 223 11% 38%; /* #5B5E63 - Gris medio para estados secundarios */
+    --muted-foreground: 215 20.2% 85.1%; /* #B0B0B0 - Texto claro en elementos atenuados */
+
+    --accent: 198 100% 30%; /* #009FDC - Azul claro para acentos */
+    --accent-foreground: 210 40% 98%; /* #D3D3D3 - Texto sobre acentos */
+
+    --destructive: 0 84% 60%; /* #FF4D4D - Rojo para acciones destructivas */
+    --destructive-foreground: 210 40% 98%; /* #D3D3D3 - Texto sobre rojo destructivo */
+
+    /* Elementos de UI */
+    --border: 223 11% 38%; /* #5B5E63 - Color de bordes */
+    --input: 223 11% 38%; /* #5B5E63 - Fondo de entradas */
+    --ring: 198 100% 30%; /* #009FDC - Indicador visual para foco */
+
+    /* Gráficos */
+    --chart-1: 198 100% 30%; /* #009FDC - Azul claro, color gráfico principal */
+    --chart-2: 219 72% 29%; /* #154182 - Azul corporativo, color gráfico secundario */
+    --chart-3: 223 11% 38%; /* #5B5E63 - Gris medio para gráficos */
+    --chart-4: 198 100% 33%; /* #008BC5 - Azul más oscuro para variación gráfica */
+    --chart-5: 219 72% 39%; /* #1C497A - Azul más claro como variación gráfica */
+
+    /* Barra lateral */
+    --sidebar-background: 224 13% 23%; /* #2B2F3A - Fondo de la barra lateral */
+    --sidebar-foreground: 210 40% 98%; /* #D3D3D3 - Texto en la barra lateral */
+    --sidebar-primary: 198 100% 30%; /* #009FDC - Color principal en la barra lateral */
+    --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF - Texto sobre color principal en la barra lateral */
+    --sidebar-accent: 223 11% 38%; /* #5B5E63 - Color de acento en la barra lateral */
+    --sidebar-accent-foreground: 210 40% 98%; /* #D3D3D3 - Texto sobre color de acento */
+    --sidebar-border: 223 11% 38%; /* #5B5E63 - Bordes de la barra lateral */
+    --sidebar-ring: 198 100% 30%; /* #009FDC - Indicador visual de foco en barra lateral */
+  }
+
+  /* Suavizar transiciones de modo claro/oscuro */
+  .dark-mode-transition {
+    @apply transition-colors duration-200;
+  }
+
+  /* Transición suave para los logos */
+  .logo-transition {
+    @apply transition-opacity duration-200;
   }
 }
 
@@ -81,5 +107,17 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .login-gradient {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800;
+  }
+
+  .form-container {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-2xl;
+  }
+
+  .input-field {
+    @apply bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-600;
   }
 }

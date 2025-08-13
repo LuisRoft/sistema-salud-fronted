@@ -18,9 +18,23 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        console.log(credentials);
+        // Modo desarrollo: usuario simulado
+        if (process.env.NODE_ENV === 'development') {
+          return {
+            id: '1234567890',
+            name: 'Usuario Test',
+            email: 'dev@example.com',
+            document: '1234567890',
+            lastName: 'Dev',
+            role: 'user', // Puedes cambiarlo a 'doctor', 'caregiver', etc.
+            token: 'fake-token-dev',
+            team: 'TeamFake',
+          };
+        }
+
+        // Modo producción: autenticación real
         try {
-          const res = await fetch('http://localhost:3000/auth/login', {
+          const res = await fetch('http://localhost:3000/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -31,9 +45,17 @@ export const authOptions: NextAuthOptions = {
 
           const data = await res.json();
 
-          if (res.ok && data.access_token && data.user) {
-            const { access_token, user } = data;
-            return { ...user, token: access_token };
+          if (res.ok && data.token) {
+            return {
+              id: data.document,
+              name: data.name,
+              email: data.email || `${data.document}@example.com`,
+              document: data.document,
+              lastName: data.lastName,
+              role: data.role,
+              token: data.token,
+              team: data.team,
+            };
           } else {
             throw new Error(
               data.message || 'Authorization failed: Invalid credentials.'
@@ -54,20 +76,53 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
-          ...user,
+          document: user.document,
+          name: user.name,
+          lastName: user.lastName,
+          role: user.role,
           access_token: user.token,
+          team: user.team,
         };
       }
       return token;
     },
     async session({ session, token }) {
       session.user = {
-        id: token.id as number,
-        name: token.name as string,
+        id: token.document as string,
         document: token.document as string,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        role: token.role as any,
+        name: token.name as string,
+        lastName: token.lastName as string,
+        role: token.role as string,
         access_token: token.access_token as string,
+        team: token.team as {
+          id: string;
+          teamName: string;
+          patient?: {
+            id: string;
+            document: string;
+            name: string;
+            lastName: string;
+            gender: string;
+            birthday: string;
+            typeBeneficiary: string;
+            typeDisability: string;
+            percentageDisability: number;
+            zone: string;
+            isActive: boolean;
+            caregiver: {
+              id: string;
+              document: string;
+              name: string;
+              lastName: string;
+              gender: string;
+              birthday: string;
+              phone: string;
+              address: string;
+              email: string;
+              isActive: boolean;
+            };
+          } | undefined;
+        },
       };
       return session;
     },

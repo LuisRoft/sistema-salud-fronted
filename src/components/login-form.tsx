@@ -24,10 +24,10 @@ import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   identification: z.string().min(2, {
-    message: 'Numero de identificacion es requerido.',
+    message: 'Número de identificación es requerido.',
   }),
   password: z.string().min(8, {
-    message: 'Contraseña no ser menor a 8 caracteres.',
+    message: 'Contraseña no debe ser menor a 8 caracteres.',
   }),
 });
 
@@ -58,14 +58,21 @@ export default function LoginForm() {
       if (res?.error) throw new Error(res.error);
 
       if (res?.ok) {
+        const sessionResponse = await fetch('/api/auth/session');
+        const session = await sessionResponse.json();
+
+        if (session.user.role === 'admin') {
+          router.replace('/dashboard');
+        } else if (session.user.role === 'user') {
+          router.replace('/pucem');
+        }
+
         toast({
           title: 'Inicio de Sesión',
           description: 'Se ha iniciado sesión correctamente.',
         });
-        router.replace('/dashboard');
       }
     } catch (error: unknown) {
-      console.log(error);
       if (
         (error as Error).message ===
         'Authorization error: Authorization failed: Invalid credentials.'
@@ -102,7 +109,7 @@ export default function LoginForm() {
           name='identification'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-[#575756]'>
+              <FormLabel className='text-[#575756] dark:text-white'>
                 Número de Identificación
               </FormLabel>
               <FormControl>
@@ -125,7 +132,9 @@ export default function LoginForm() {
           name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-[#575756]'>Contraseña</FormLabel>
+              <FormLabel className='text-[#575756] dark:text-white'>
+                Contraseña
+              </FormLabel>
               <FormControl>
                 <div className='relative'>
                   <Input

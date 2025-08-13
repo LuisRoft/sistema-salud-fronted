@@ -3,117 +3,128 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { z } from 'zod';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
-import DialogDelete from '../dialog-delete';
-import { AlertDialog, AlertDialogTrigger } from '../ui/alert-dialog';
-import EditUserDialog from './edit-user-dialog';
-import { DialogTrigger } from '../ui/dialog';
-import { Dialog } from '@radix-ui/react-dialog';
 
 export const userSchema = z.object({
-  id: z.number(),
-  document: z.string().min(1, 'La identificación es requerida'),
-  email: z.string().email('Debe ser un correo electrónico válido'),
-  direction: z.string().min(1, 'La dirección es requerida'),
-  role: z.object({
-    id: z.number(),
-    name_role: z.string(),
-  }),
-  status: z.boolean(),
+  id: z.string(),
+  name: z.string(),
+  lastName: z.string(),
+  birthday: z.string(),
+  document: z.string(),
+  gender: z.string(),
+  isActive: z.boolean(),
+  percentageDisability: z.number(),
+  typeBeneficiary: z.string(),
+  typeDisability: z.string(),
+  zone: z.string(),
 });
 
 export type User = z.infer<typeof userSchema>;
 
 export const columns: ColumnDef<User>[] = [
   {
-    accessorKey: 'document',
+    accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Cédula de Identidad' />
-    ),
-  },
-  {
-    accessorKey: 'email',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Correo Electrónico' />
-    ),
-  },
-  {
-    accessorKey: 'role',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Rol' />
+      <DataTableColumnHeader column={column} title='Nombres' />
     ),
     cell: ({ row }) => {
-      const role = row.getValue('role') as { name_role: string };
-
-      return <div className='text-sm'>{role.name_role}</div>;
+      const name = row.original.name;
+      return <div className='text-sm uppercase'>{name}</div>;
     },
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'lastName',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Apellidos' />
+    ),
+    cell: ({ row }) => {
+      const lastName = row.original.lastName;
+      return <div className='text-sm uppercase'>{lastName}</div>;
+    },
+  },
+  {
+    accessorKey: 'birthday',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Fecha de Nacimiento' />
+    ),
+    cell: ({ row }) => {
+      const birthday = row.original.birthday;
+      return <div className='text-sm'>{birthday}</div>;
+    },
+  },
+  {
+    accessorKey: 'document',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Documento' />
+    ),
+    cell: ({ row }) => {
+      const document = row.original.document;
+      return <div className='text-sm'>{document}</div>;
+    },
+  },
+  {
+    accessorKey: 'gender',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Género' />
+    ),
+    cell: ({ row }) => {
+      const gender = row.original.gender;
+      const genderText = gender === 'male' ? 'Hombre' : gender === 'female' ? 'Mujer' : 'No especificado';
+      return <div className='text-sm uppercase'>{genderText}</div>;
+    },
+  },
+  {
+    accessorKey: 'isActive',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Estado' />
     ),
     cell: ({ row }) => {
-      const status = row.getValue('status');
-
+      const isActive = row.original.isActive;
       return (
-        <div
-          className={`${
-            status ? 'bg-emerald-300' : 'bg-red-300'
-          } w-16 rounded-sm py-1 text-center text-xs text-black`}
-        >
-          {status ? 'Activo' : 'Inactivo'}
+        <div className='text-sm uppercase'>
+          {isActive ? 'Activo' : 'Inactivo'}
         </div>
       );
     },
   },
   {
-    accessorKey: 'direction',
+    accessorKey: 'percentageDisability',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Direccion' />
+      <DataTableColumnHeader column={column} title='% Discapacidad' />
     ),
-  },
-
-  {
-    id: 'actions',
     cell: ({ row }) => {
-      const user = row.original;
-      console.log(user);
-      return (
-        <Dialog>
-          <AlertDialog>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='h-8 w-8 p-0'>
-                  <span className='sr-only'>Open menu</span>
-                  <MoreHorizontal className='h-4 w-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-
-                <DropdownMenuItem>
-                  <DialogTrigger>Editar</DialogTrigger>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <AlertDialogTrigger>Eliminar</AlertDialogTrigger>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DialogDelete />
-            <EditUserDialog user={user} />
-          </AlertDialog>
-        </Dialog>
-      );
+      const percentageDisability = row.original.percentageDisability;
+      return <div className='text-sm'>{percentageDisability}%</div>;
+    },
+  },
+  {
+    accessorKey: 'typeBeneficiary',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Tipo de Beneficiario' />
+    ),
+    cell: ({ row }) => {
+      const typeBeneficiary = row.original.typeBeneficiary;
+      return <div className='text-sm uppercase'>{typeBeneficiary}</div>;
+    },
+  },
+  {
+    accessorKey: 'typeDisability',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Tipo de Discapacidad' />
+    ),
+    cell: ({ row }) => {
+      const typeDisability = row.original.typeDisability;
+      return <div className='text-sm uppercase'>{typeDisability}</div>;
+    },
+  },
+  {
+    accessorKey: 'zone',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Zona' />
+    ),
+    cell: ({ row }) => {
+      const zone = row.original.zone;
+      return <div className='text-sm uppercase'>{zone}</div>;
     },
   },
 ];
