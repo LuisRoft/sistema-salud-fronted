@@ -15,12 +15,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { CreateNeurologicaRequest } from '@/types/neurologica';
 import { useDropzone } from 'react-dropzone';
-import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Upload, X, Users, Brain, RotateCcw } from 'lucide-react';
 import { useCallback } from 'react';
 import Image from 'next/image';
 import { BioDigitalEmbedded } from '@/components/BioDigitalEmbedded';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { PatientSelector } from '../shared/patient-selector';
+import { Patient } from '@/services/patientService';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -253,6 +256,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [barthel, setBarthel] = useState<{ [key: string]: number }>({});
   const totalBarthel = Object.values(barthel).reduce((a, b) => a + b, 0);
 
@@ -338,7 +342,80 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
     },
   });
 
+  // Función para manejar la selección de paciente
+  const handlePatientSelect = (patient: Patient) => {
+    console.log('Paciente seleccionado:', patient);
+    setSelectedPatient(patient);
+    
+    // Actualizar los campos del formulario con los datos del paciente
+    form.setValue('name', `${patient.name} ${patient.lastName}`);
+    form.setValue('ci', patient.document);
+    
+    // Calcular edad si hay fecha de nacimiento
+    if (patient.birthday) {
+      const birthDate = new Date(patient.birthday);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        form.setValue('edad', age - 1);
+      } else {
+        form.setValue('edad', age);
+      }
+    }
+  };
+
+  // Función para limpiar la selección de paciente
+  const handleClearPatient = () => {
+    setSelectedPatient(null);
+    form.setValue('name', '');
+    form.setValue('ci', '');
+    form.setValue('edad', 0);
+  };
+
   return (
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="border-l-4 border-l-purple-500">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <Brain className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Evaluación Neurológica
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">
+                    Evaluación funcional y neurológica completa
+                  </CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                {selectedPatient && (
+                  <Badge variant="secondary" className="flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span>{selectedPatient.name} {selectedPatient.lastName}</span>
+                  </Badge>
+                )}
+                <PatientSelector onSelect={handlePatientSelect} />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClearPatient}
+                  className="flex items-center space-x-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Limpiar</span>
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
     <Form {...form}>
       <form onSubmit={form.handleSubmit((data) => mutate(data))} className='space-y-6'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
@@ -1761,5 +1838,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
         </div>
       </form>
     </Form>
+      </div>
+    </div>
   );
 }
