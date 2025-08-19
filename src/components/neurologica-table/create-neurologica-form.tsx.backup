@@ -1271,10 +1271,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1288,10 +1285,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1305,10 +1299,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1322,10 +1313,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1339,10 +1327,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1363,10 +1348,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1380,10 +1362,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1397,10 +1376,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1414,10 +1390,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1431,10 +1404,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1459,10 +1429,9 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1486,10 +1455,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1513,10 +1483,9 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1539,10 +1508,8 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1565,10 +1532,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1591,10 +1555,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1623,10 +1584,9 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1650,10 +1610,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1677,10 +1634,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="1">1</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
@@ -1692,9 +1646,14 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
             <div className='mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4'>
               <div className='text-center'>
                 <div className='text-lg font-semibold text-blue-800 dark:text-blue-200'>
-                  Puntuación Total: <span className='text-2xl'>{totalMiniMental}</span>
+                  Puntuación Total: <span className='text-2xl'>{totalMiniMental}</span> / 30 puntos
                 </div>
-                
+                <div className='text-sm text-gray-600 dark:text-gray-400 mt-2'>
+                  <div><strong>Normal:</strong> 24-30 puntos</div>
+                  <div><strong>Deterioro cognitivo leve:</strong> 18-23 puntos</div>
+                  <div><strong>Deterioro cognitivo moderado:</strong> 14-17 puntos</div>
+                  <div><strong>Deterioro cognitivo severo:</strong> &lt; 14 puntos</div>
+                </div>
               </div>
               
               {/* Nota importante */}
