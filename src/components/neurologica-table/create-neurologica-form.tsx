@@ -168,7 +168,23 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
       const session = await getSession();
       const token = session?.user.access_token;
       if (!token) throw new Error('Token no disponible');
-      return await createNeurologica(values, token);
+      
+      // Incluir los datos del índice de Barthel en el envío
+      const dataToSend = {
+        ...values,
+        barthel: {
+          vestirse: barthel.vestirse,
+          arreglarse: barthel.arreglarse,
+          deposicion: barthel.deposicion,
+          miccion: barthel.miccion,
+          usoRetrete: barthel.usoRetrete,
+          trasladarse: barthel.trasladarse,
+          deambular: barthel.deambular,
+          escaleras: barthel.escaleras,
+        }
+      };
+      
+      return await createNeurologica(dataToSend, token);
     },
     onSuccess: () => {
       toast({ title: 'Éxito', description: 'Evaluación registrada correctamente' });

@@ -16,6 +16,17 @@ export interface RiesgoCaida {
   comentariosRiesgo?: string;
 }
 
+export interface BarthelIndex {
+  vestirse?: number;
+  arreglarse?: number;
+  deposicion?: number;
+  miccion?: number;
+  usoRetrete?: number;
+  trasladarse?: number;
+  deambular?: number;
+  escaleras?: number;
+}
+
 export interface EvaluacionNeurologica {
   id?: string;
   name: string;
@@ -62,6 +73,7 @@ export interface CreateNeurologicaRequest {
   entornoFamiliar?: string;
   alteracionesMarcha?: AlteracionesMarcha;
   riesgoCaida?: RiesgoCaida;
+  barthel?: BarthelIndex;
   alcanceMotor?: string;
   comentariosExaminador?: string;
   resumenResultados?: string;

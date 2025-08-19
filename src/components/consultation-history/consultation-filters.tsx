@@ -39,6 +39,7 @@ export function ConsultationFilters({
             <SelectItem value="Consulta Interna">Consulta Interna</SelectItem>
             <SelectItem value="Consulta Enfermería">Consulta Enfermería</SelectItem>
             <SelectItem value="Solicitud Laboratorio">Solicitud Laboratorio</SelectItem>
+            <SelectItem value="Evaluación Neurológica">Evaluación Neurológica</SelectItem>
           </SelectContent>
         </Select>
       </div>

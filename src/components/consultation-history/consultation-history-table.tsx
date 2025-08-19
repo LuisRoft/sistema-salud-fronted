@@ -74,7 +74,7 @@ export default function ConsultationHistoryTable() {
   return (
     <div>
       {/* Stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
         <div className="bg-blue-400 p-4 rounded-lg">
           <h3 className="font-bold">Consultas Externas</h3>
           <p className="text-2xl">{data?.stats.externas || 0}</p>
@@ -90,6 +90,10 @@ export default function ConsultationHistoryTable() {
         <div className="bg-purple-400 p-4 rounded-lg">
           <h3 className="font-bold">Solicitudes Laboratorio</h3>
           <p className="text-2xl">{data?.stats.laboratorio || 0}</p>
+        </div>
+        <div className="bg-red-400 p-4 rounded-lg">
+          <h3 className="font-bold">Evaluaciones Neurológicas</h3>
+          <p className="text-2xl">{data?.stats.neurologica || 0}</p>
         </div>
       </div>
 
