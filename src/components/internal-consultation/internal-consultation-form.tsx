@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { getSession } from 'next-auth/react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { createInternalConsultation } from '@/services/internalConsultation.service';
 import { useState } from 'react';
 import { PatientSelector } from '@/components/shared/patient-selector';

@@ -16,9 +16,8 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { createInitialConsultation } from '@/services/consultation.service';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { PatientSelector } from '../shared/patient-selector';
@@ -144,7 +143,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function ExternalConsultationForm() {
   const { data: session } = useSession();
   const { toast } = useToast();
-  const patient = session?.user?.team?.patient;
+  // const patient = session?.user?.team?.patient;
   const [diagnosticos, setDiagnosticos] = useState([{ desc: '', cie: '', presuntivo: false, definitivo: false }]);
 
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -381,7 +380,7 @@ const eliminarDiagnostico = (index: number) => {
         constantesVitales: { ...data.constantesVitales },
       };
   
-      const response = await createInitialConsultation(formattedData);
+      await createInitialConsultation(formattedData);
   
       localStorage.removeItem('consultationFormData');
   
@@ -389,11 +388,11 @@ const eliminarDiagnostico = (index: number) => {
         title: 'Éxito',
         description: 'Consulta creada correctamente',
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: error.message || 'Error al crear la consulta',
+        description: (error as Error).message || 'Error al crear la consulta',
       });
     }
   };
