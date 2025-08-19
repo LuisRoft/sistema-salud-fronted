@@ -9,6 +9,7 @@ export interface InternalConsultationDTO {
   examenesResultados: string[];
   diagnosticosDesc: string[];
   diagnosticosCie: string[];
+  diagnosticosCif?: string[]; // Opcional - el servidor actualmente no acepta esta propiedad
   diagnosticosPresuntivo: boolean[];
   diagnosticosDefinitivo: boolean[];
   planTratamiento: string;

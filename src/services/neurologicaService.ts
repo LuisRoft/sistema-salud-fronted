@@ -1,46 +1,76 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// terminar cuando se implemente el backend equis d
+import { CreateNeurologicaRequest } from '@/types/neurologica';
+import { get, post } from './requestHandler';
+
 type PaginationParams = {
   page: number;
   limit: number;
 };
 
-export async function getNeurologicas(_: string, params: PaginationParams) {
-  // Simula delay de red
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  return {
-    neurologicas: [
-      {
-        id: '1',
-        name: 'Gabriela Gómez',
-        ci: '063320109',
-        edad: 29,
-        discapacidad: 'Física 95%',
-        diagnostico: 'Parálisis Cerebral Infantil Moderada',
-      },
-      {
-        id: '2',
-        name: 'Carlos Pérez',
-        ci: '0102030405',
-        edad: 35,
-        discapacidad: 'Auditiva 60%',
-        diagnostico: 'Hipoacusia neurosensorial',
-      },
-    ],
-    total: 2,
-  };
+interface NeurologicaResponse {
+  neurologicas: Array<{
+    id: string;
+    name: string;
+    ci: string;
+    edad: number;
+    discapacidad: string;
+    diagnostico: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }>;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
-export async function createNeurologica(data: {
-  id?: string;
-  name: string;
-  ci: string;
-  edad: number;
-  discapacidad: string;
-  diagnostico: string;
-}, _token: string) {
-  console.log(' Mock: Evaluación creada', data);
-  return { message: 'Evaluación registrada correctamente (mock)' };
+export async function getNeurologicas(token: string, params: PaginationParams): Promise<NeurologicaResponse> {
+  const queryParams = new URLSearchParams();
+  
+  if (params.page) queryParams.append('page', params.page.toString());
+  if (params.limit) queryParams.append('limit', params.limit.toString());
+  
+  const queryString = queryParams.toString();
+  const endpoint = `/neurologica?${queryString}`;
+  
+  const response = await get(endpoint, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  return response.data;
+}
+
+export async function createNeurologica(data: CreateNeurologicaRequest, token: string) {
+  console.log('📤 Enviando datos de evaluación neurológica:', data);
+  
+  const response = await post('/neurologica', data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  console.log('✅ Respuesta del servidor:', response.data);
+  return response.data;
+}
+
+export async function getNeurologicaById(id: string, token: string) {
+  const response = await get(`/neurologica/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  return response.data;
+}
+
+export async function getNeurologicasByCI(ci: string, token: string) {
+  const response = await get(`/neurologica/by-ci/${ci}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  return response.data;
 }
 

@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useSession, getSession } from 'next-auth/react';
-import { useToast } from '@/components/ui/use-toast';
+import { getSession } from 'next-auth/react';
+import { useToast } from '@/hooks/use-toast';
 import { createInternalConsultation } from '@/services/internalConsultation.service';
 import { useState } from 'react';
 import { PatientSelector } from '@/components/shared/patient-selector';
 import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
+import AutocompleteCIF from '@/components/cif/autocompleteCIF';
 import { Patient } from '@/services/patientService';
 
 const formSchema = z.object({
@@ -27,6 +28,7 @@ const formSchema = z.object({
   diagnosticoGeneral: z.string().min(1, 'Campo obligatorio'), // Campo agregado
   diagnosticosDesc: z.array(z.string()).optional(),
   diagnosticosCie: z.array(z.string()).optional(),
+  diagnosticosCif: z.array(z.string()).optional(), // Nuevo campo CIF
   diagnosticosPresuntivo: z.array(z.boolean()).optional(),
   diagnosticosDefinitivo: z.array(z.boolean()).optional(),
   planTratamiento: z.string().min(1, 'Campo obligatorio'), // Campo agregado
@@ -39,7 +41,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function InternalConsultationForm() {
-  const { data: session } = useSession();
   const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
@@ -48,6 +49,7 @@ export default function InternalConsultationForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,15 +84,15 @@ export default function InternalConsultationForm() {
   
   
 
-  const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; presuntivo: boolean; definitivo: boolean; }[]>([
-    { desc: '', cie: '', presuntivo: false, definitivo: false },
+  const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; cif: string; presuntivo: boolean; definitivo: boolean; }[]>([
+    { desc: '', cie: '', cif: '', presuntivo: false, definitivo: false },
   ]);
   const [examenes, setExamenes] = useState(['']);
 
   const agregarDiagnostico = () => {
     setDiagnosticos([
       ...diagnosticos,
-      { desc: '', cie: '', presuntivo: false, definitivo: false },
+      { desc: '', cie: '', cif: '', presuntivo: false, definitivo: false },
     ]);
   };
 
@@ -147,6 +149,7 @@ export default function InternalConsultationForm() {
         examenesResultados: examenes.filter(Boolean),
         diagnosticosDesc: diagnosticos.map((d) => d.desc).filter(Boolean),
         diagnosticosCie: diagnosticos.map((d) => d.cie).filter(Boolean),
+        // diagnosticosCif: diagnosticos.map((d) => d.cif).filter(Boolean), // Removido temporalmente - servidor no acepta esta propiedad
         diagnosticosPresuntivo: diagnosticos.map((d) => d.presuntivo),
         diagnosticosDefinitivo: diagnosticos.map((d) => d.definitivo),
         planTratamiento: data.planTratamiento?.trim() ?? '',
@@ -161,24 +164,52 @@ export default function InternalConsultationForm() {
   
       const response = await createInternalConsultation(formattedData, token);
       console.log('✅ Respuesta del servidor:', response);
-  
+
+      // Limpiar formulario después del éxito
+      reset();
+      setSelectedPatient(null);
+      setDiagnosticos([]);
+      setExamenes(['']);
+
       toast({
         title: 'Éxito',
         description: 'Interconsulta creada correctamente',
       });
     } catch (error) {
       console.error('❌ Error completo:', error);
-      if (error instanceof Error && (error as any).response) {
-        console.error('Detalles del error del servidor:', (error as any).response.data);
+      
+      let errorTitle = 'Error al crear la Interconsulta';
+      let errorDescription = 'Ocurrió un error inesperado';
+      
+      if (error instanceof Error && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
+        const serverData = (error.response as { data: unknown }).data;
+        console.error('Detalles del error del servidor:', serverData);
+        
+        if (serverData && typeof serverData === 'object') {
+          // Manejar diferentes formatos de error del servidor
+          const errorObj = serverData as Record<string, unknown>;
+          if (errorObj.message) {
+            if (Array.isArray(errorObj.message)) {
+              errorDescription = `Errores de validación: ${(errorObj.message as string[]).join(', ')}`;
+            } else if (typeof errorObj.message === 'string') {
+              errorDescription = errorObj.message;
+            }
+          }
+          
+          if (errorObj.error && typeof errorObj.error === 'string') {
+            const statusCode = typeof errorObj.statusCode === 'number' ? errorObj.statusCode : '';
+            errorTitle = `Error ${statusCode}: ${errorObj.error}`;
+          }
+        }
+      } else if (error instanceof Error) {
+        errorDescription = error.message;
       }
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Error al crear la Interconsulta';
+      
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: errorMessage,
+        title: errorTitle,
+        description: errorDescription,
+        duration: 8000, // Mostrar por más tiempo para errores importantes
       });
     }
   };
@@ -353,16 +384,27 @@ export default function InternalConsultationForm() {
       </div>
 
       <div className='space-y-2'>
-  <Label>Código CIE</Label>
-  <AutocompleteCIE
-    onSelect={(cie, desc) => {
-      const nuevosDiagnosticos = [...diagnosticos];
-      nuevosDiagnosticos[index].cie = cie;
-      nuevosDiagnosticos[index].desc = desc;
-      setDiagnosticos(nuevosDiagnosticos);
-    }}
-  />
-</div>
+        <Label>Código CIE</Label>
+        <AutocompleteCIE
+          onSelect={(cie, desc) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].cie = cie;
+            nuevosDiagnosticos[index].desc = desc;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+        />
+      </div>
+
+      <div className='space-y-2'>
+        <Label>Código CIF</Label>
+        <AutocompleteCIF
+          onSelect={(cif) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].cif = cif;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+        />
+      </div>
 
       {/* Opciones de Diagnóstico: Presuntivo y Definitivo */}
       <div className='flex space-x-4'>

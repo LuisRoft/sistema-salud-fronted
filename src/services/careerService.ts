@@ -1,6 +1,5 @@
-import { del, get, patch, post } from './requestHandler';
+import { get, post } from './requestHandler';
 import { CreateCareer } from '@/types/career/create-career';
-import { UpdateCareer } from '@/types/career/update-career';
 import { Career } from '@/types/career/get-careers';
 import { getSession } from 'next-auth/react';
 

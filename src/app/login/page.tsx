@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -78,7 +77,7 @@ export default function LoginPage() {
           variant: 'destructive',
           duration: 3000,
         });
-        return;
+        return
       }
 
       toast({ title: '¡Bienvenido!', description: 'Inicio de sesión exitoso', duration: 3000 });
