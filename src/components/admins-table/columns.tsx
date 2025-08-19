@@ -28,6 +28,9 @@ export const columns: ColumnDef<Admin>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Cédula de Identidad" />
     ),
+    cell: ({ row }) => (
+      <div className="text-sm font-medium min-w-[120px]">{row.original.document}</div>
+    ),
   },
   {
     accessorKey: 'name',
@@ -36,7 +39,11 @@ export const columns: ColumnDef<Admin>[] = [
     ),
     cell: ({ row }) => {
       const name = row.original.name || '';
-      return <div className="text-sm uppercase">{name.toUpperCase()}</div>;
+      return (
+        <div className="text-sm capitalize min-w-[100px] max-w-[150px] truncate" title={name.toUpperCase()}>
+          {name.toUpperCase()}
+        </div>
+      );
     },
   },
   {
@@ -46,7 +53,11 @@ export const columns: ColumnDef<Admin>[] = [
     ),
     cell: ({ row }) => {
       const lastName = row.original.lastName || '';
-      return <div className="text-sm uppercase">{lastName.toUpperCase()}</div>;
+      return (
+        <div className="text-sm capitalize min-w-[100px] max-w-[150px] truncate" title={lastName.toUpperCase()}>
+          {lastName.toUpperCase()}
+        </div>
+      );
     },
   },
   {
@@ -54,11 +65,16 @@ export const columns: ColumnDef<Admin>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Correo Electrónico" />
     ),
+    cell: ({ row }) => (
+      <div className="text-sm min-w-[180px] max-w-[250px] truncate" title={row.original.email}>
+        {row.original.email}
+      </div>
+    ),
   },
   {
     accessorKey: 'career',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Carrera" />
+      <DataTableColumnHeader column={column} title="Carrera" className="hidden lg:table-cell" />
     ),
     cell: ({ row }) => {
       const career = row.original.career;
@@ -66,24 +82,35 @@ export const columns: ColumnDef<Admin>[] = [
         career && typeof career === 'object'
           ? (career as { careerName: string }).careerName
           : 'Sin Carrera';
-      return <div className="text-sm uppercase">{careerName.toUpperCase()}</div>;
+      return (
+        <div className="text-sm min-w-[120px] max-w-[180px] truncate hidden lg:table-cell" title={careerName}>
+          {careerName.toUpperCase()}
+        </div>
+      );
     },
   },
   {
     accessorKey: 'role',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Rol" />
+      <DataTableColumnHeader column={column} title="Rol" className="hidden md:table-cell" />
     ),
-    cell: () => <Badge>Administrador</Badge>,
+    cell: () => (
+      <div className="hidden md:table-cell">
+        <Badge>Administrador</Badge>
+      </div>
+    ),
   },
   {
     id: 'actions',
+    header: 'Acciones',
     cell: ({ row }) => (
-      <ActionsCells<Admin>
-        data={row.original}
-        DeleteDialog={DeleteAdminDialog}
-        EditDialog={EditAdminDialog}
-      />
+      <div className="min-w-[100px]">
+        <ActionsCells<Admin>
+          data={row.original}
+          DeleteDialog={DeleteAdminDialog}
+          EditDialog={EditAdminDialog}
+        />
+      </div>
     ),
   },
 ];
