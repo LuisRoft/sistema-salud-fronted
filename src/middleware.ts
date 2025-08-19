@@ -27,7 +27,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [],
+  matcher: ['/dashboard', '/dashboard/:path*', '/pucem', '/pucem/:path*'],
 };
-
-//'/dashboard', '/dashboard/:path*', '/pucem', '/pucem/:path*'
