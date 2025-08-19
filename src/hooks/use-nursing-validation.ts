@@ -34,7 +34,7 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
 
   const form = useForm<NursingFormData>({
     resolver: zodResolver(nursingFormSchema),
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
       nanda_dominio: '',
       nanda_clase: '',
@@ -53,7 +53,8 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
       nic_clase: [''],
       nic_actividades: [''],
       userId: '',
-      patientId: ''
+      patientId: '',
+      fecha: new Date().toISOString()
     }
   });
 
@@ -69,21 +70,47 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
       }
     }));
 
+    // Recalcular el estado general de validación
+    const allFieldErrors = {
+      ...validationState.fieldErrors,
+      [fieldName]: result.error || ''
+    };
+    const hasFieldErrors = Object.values(allFieldErrors).some(error => error);
+    
+    setValidationState(prev => ({
+      ...prev,
+      isValid: !hasFieldErrors && prev.coherenceErrors.length === 0,
+      fieldErrors: allFieldErrors
+    }));
+
     return result.isValid;
-  }, []);
+  }, [validationState.fieldErrors]);
 
   // Validación completa del formulario
   const validateFormCompletely = useCallback(() => {
     const formData = form.getValues();
+    console.log('🔍 validateFormCompletely - datos del formulario:', formData);
     
     try {
       // Validar esquema principal
-      nursingFormSchema.parse(formData);
+      console.log('📋 Validando esquema principal...');
+      // El esquema requiere userId y patientId, pero en el frontend se agregan al enviar.
+      // Para no bloquear la validación previa al envío, usamos valores temporales si vienen vacíos.
+      const formDataWithIds = {
+        ...formData,
+        userId: formData.userId && formData.userId.trim().length > 0 ? formData.userId : 'user-temp',
+        patientId: formData.patientId && formData.patientId.trim().length > 0 ? formData.patientId : 'patient-temp'
+      };
+      nursingFormSchema.parse(formDataWithIds);
+      console.log('✅ Esquema principal válido');
       
       // Validar coherencia
+      console.log('🔄 Validando coherencia...');
       const coherenceResult = validateFormCoherence(formData);
+      console.log('🔄 Resultado de coherencia:', coherenceResult);
       
       if (coherenceResult.isValid) {
+        console.log('✅ Validación completa exitosa');
         setValidationState({
           isValid: true,
           errors: [],
@@ -92,6 +119,7 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
         });
         return true;
       } else {
+        console.log('❌ Errores de coherencia:', coherenceResult.errors);
         setValidationState(prev => ({
           ...prev,
           isValid: false,
@@ -100,6 +128,7 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
         return false;
       }
     } catch (error) {
+      console.log('❌ Error en validación de esquema:', error);
       if (error instanceof Error) {
         setValidationState(prev => ({
           ...prev,

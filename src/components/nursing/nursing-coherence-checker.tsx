@@ -36,7 +36,15 @@ export default function NursingCoherenceChecker({
   const [isCoherent, setIsCoherent] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkCoherence = () => {
+    // Debounce para evitar ejecuciones excesivas
+    const timeoutId = setTimeout(() => {
+      checkCoherence();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData, onCoherenceChange]);
+
+  const checkCoherence = () => {
       const newIssues: CoherenceIssue[] = [];
       
       // Verificar que NANDA esté completo
@@ -69,18 +77,11 @@ export default function NursingCoherenceChecker({
         });
       }
 
-      // Verificar coherencia entre NANDA y NOC
+      // Verificar coherencia entre NANDA y NOC (simplificado)
       if (formData.nanda_dominio && formData.noc_dominio) {
-        // Aquí se implementarían reglas de negocio más complejas
-        // Por ahora, solo verificamos que ambos estén presentes
-        if (formData.nanda_dominio !== formData.noc_dominio) {
-          newIssues.push({
-            type: 'warning',
-            message: 'Posible inconsistencia entre dominios NANDA y NOC',
-            field: 'coherence',
-            suggestion: 'Verifique que el dominio del resultado NOC sea coherente con el diagnóstico NANDA'
-          });
-        }
+        // Solo verificar que ambos dominios estén presentes
+        // La coherencia específica se manejará en validaciones futuras más avanzadas
+        // Por ahora, consideramos coherente si ambos están completos
       }
 
       // Verificar coherencia de arrays relacionados
@@ -168,10 +169,7 @@ export default function NursingCoherenceChecker({
       
       setIsCoherent(isFormCoherent);
       onCoherenceChange?.(isFormCoherent, newIssues.map(issue => issue.message));
-    };
-
-    checkCoherence();
-  }, [formData, onCoherenceChange]);
+  };
 
   const getOverallStatus = () => {
     if (isCoherent === null) return { status: 'pending', icon: Info, color: 'text-gray-400', bgColor: 'bg-gray-50' };

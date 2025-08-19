@@ -21,6 +21,7 @@ export interface NursingFormData {
   nic_actividades: string[];
   userId: string;
   patientId: string;
+  fecha: string;
 }
 
 /**
@@ -29,6 +30,8 @@ export interface NursingFormData {
 export const createNursingForm = async (data: NursingFormData, token: string) => {
   try {
     console.log('🔍 Datos a enviar:', data);
+    console.log('🔍 Datos serializados:', JSON.stringify(data, null, 2));
+    console.log('🔑 Token (primeros 20 chars):', token.substring(0, 20) + '...');
 
     const response = await post('/nursing', data, {
       headers: { 
@@ -44,8 +47,14 @@ export const createNursingForm = async (data: NursingFormData, token: string) =>
       console.error('🚨 Error detallado:', {
         status: error.response?.status,
         data: error.response?.data,
-        message: error.response?.data?.message
+        message: error.response?.data?.message,
+        fullResponse: error.response?.data
       });
+      
+      // Log más detallado de la respuesta del servidor
+      if (error.response?.data) {
+        console.error('📋 Respuesta completa del servidor:', JSON.stringify(error.response.data, null, 2));
+      }
     }
     throw error;
   }

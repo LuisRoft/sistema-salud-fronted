@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getSession } from 'next-auth/react';
 import { createNursingForm } from '@/services/nursingService';
 import { useNursingValidation } from '@/hooks/use-nursing-validation';
+import { calculateCompletionPercentage } from '@/lib/nursing-validation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, Save } from 'lucide-react';
 import { NursingFormData } from '@/types/nursing';
+import NursingValidationSummary from './nursing-validation-summary';
+import NursingCoherenceChecker from './nursing-coherence-checker';
+import NursingFieldValidator, { ArrayFieldValidator } from './nursing-field-validator';
+import NursingProgressTracker from './nursing-progress-tracker';
 
 // Datos de referencia (en un sistema real, estos vendrían de una API)
 const nandaData = [
@@ -45,6 +50,7 @@ export default function NursingForm() {
   const queryClient = useQueryClient();
   const [showValidation, setShowValidation] = useState(true);
   const [completedFields, setCompletedFields] = useState(0);
+  const [realCompletionPercentage, setRealCompletionPercentage] = useState(0);
   const totalFields = 17;
 
   const {
@@ -55,55 +61,140 @@ export default function NursingForm() {
     isFormValid
   } = useNursingValidation();
 
-  // Contar campos completados
+  // Contar campos completados con validación mejorada
   useEffect(() => {
     const subscription = form.watch((value) => {
       const formData = value as NursingFormData;
       let completed = 0;
 
-      // Campos de texto simples
-      if (formData.nanda_dominio) completed++;
-      if (formData.nanda_clase) completed++;
-      if (formData.nanda_etiqueta_diagnostica) completed++;
-      if (formData.nanda_factor_relacionado) completed++;
-      if (formData.nanda_planteamiento_del_diagnostico) completed++;
-      if (formData.noc_resultado_noc) completed++;
-      if (formData.noc_dominio) completed++;
-      if (formData.noc_clase) completed++;
+      // Campos de texto simples - validación más estricta
+      if (formData.nanda_dominio && formData.nanda_dominio.trim()) completed++;
+      if (formData.nanda_clase && formData.nanda_clase.trim().length >= 3) completed++;
+      if (formData.nanda_etiqueta_diagnostica && formData.nanda_etiqueta_diagnostica.trim().length >= 3) completed++;
+      if (formData.nanda_factor_relacionado && formData.nanda_factor_relacionado.trim().length >= 3) completed++;
+      if (formData.nanda_planteamiento_del_diagnostico && formData.nanda_planteamiento_del_diagnostico.trim().length >= 10) completed++;
+      if (formData.noc_resultado_noc && formData.noc_resultado_noc.trim()) completed++;
+      if (formData.noc_dominio && formData.noc_dominio.trim().length >= 3) completed++;
+      if (formData.noc_clase && formData.noc_clase.trim().length >= 3) completed++;
 
-      // Arrays (contar como completados si tienen al menos un elemento válido)
-      if (formData.noc_indicador && formData.noc_indicador.some(item => item.trim())) completed++;
-      if (formData.noc_rango && formData.noc_rango.some(item => item.trim())) completed++;
-      if (formData.noc_diana_inicial && formData.noc_diana_inicial.some(item => item.trim())) completed++;
-      if (formData.noc_diana_esperada && formData.noc_diana_esperada.some(item => item.trim())) completed++;
-      if (formData.noc_evaluacion && formData.noc_evaluacion.some(item => item.trim())) completed++;
-      if (formData.nic_intervencion && formData.nic_intervencion.some(item => item.trim())) completed++;
-      if (formData.nic_clase && formData.nic_clase.some(item => item.trim())) completed++;
-      if (formData.nic_actividades && formData.nic_actividades.some(item => item.trim())) completed++;
+      // Arrays - validación más estricta (todos los elementos deben estar completos)
+      if (formData.noc_indicador && formData.noc_indicador.length > 0 && 
+          formData.noc_indicador.every(item => item && item.trim().length >= 3)) completed++;
+      if (formData.noc_rango && formData.noc_rango.length > 0 && 
+          formData.noc_rango.every(item => item && /^\d+$/.test(item.trim()))) completed++;
+      if (formData.noc_diana_inicial && formData.noc_diana_inicial.length > 0 && 
+          formData.noc_diana_inicial.every(item => item && /^[1-5]$/.test(item.trim()))) completed++;
+      if (formData.noc_diana_esperada && formData.noc_diana_esperada.length > 0 && 
+          formData.noc_diana_esperada.every(item => item && /^[1-5]$/.test(item.trim()))) completed++;
+      if (formData.noc_evaluacion && formData.noc_evaluacion.length > 0 && 
+          formData.noc_evaluacion.every(item => item && item.trim().length >= 3)) completed++;
+      if (formData.nic_intervencion && formData.nic_intervencion.length > 0 && 
+          formData.nic_intervencion.every(item => item && item.trim())) completed++;
+      if (formData.nic_clase && formData.nic_clase.length > 0 && 
+          formData.nic_clase.every(item => item && item.trim().length >= 3)) completed++;
+      if (formData.nic_actividades && formData.nic_actividades.length > 0 && 
+          formData.nic_actividades.every(item => item && item.trim().length >= 10)) completed++;
 
+      // Verificar coherencia entre arrays relacionados
+      if (formData.noc_indicador && formData.noc_rango && formData.noc_diana_inicial && formData.noc_diana_esperada) {
+        const lengthsMatch = formData.noc_indicador.length === formData.noc_rango.length &&
+                           formData.noc_rango.length === formData.noc_diana_inicial.length &&
+                           formData.noc_diana_inicial.length === formData.noc_diana_esperada.length;
+        
+        // Bonificación por coherencia de arrays
+        if (lengthsMatch && completed >= 12) {
+          completed = Math.min(completed + 1, totalFields);
+        }
+      }
+
+      // Calcular el porcentaje real de completitud usando la nueva función
+      const realPercentage = calculateCompletionPercentage(formData);
+      
       setCompletedFields(completed);
+      setRealCompletionPercentage(realPercentage);
     });
 
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, totalFields]);
 
   // Mutación para crear el formulario
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: NursingFormData) => {
-      const session = await getSession();
-      const token = session?.user.access_token;
-      if (!token) throw new Error('Token no disponible');
+      console.log('🔄 Mutación iniciada con valores:', values);
       
-      // Agregar IDs de usuario y paciente (en un sistema real, estos vendrían del contexto)
+      const session = await getSession();
+      console.log('👤 Sesión obtenida:', session);
+      
+      const token = session?.user.access_token;
+      if (!token) {
+        console.log('❌ Token no disponible');
+        throw new Error('Token no disponible');
+      }
+      
+      console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
+      
+      // Obtener IDs reales de la sesión
+      // El UUID real del usuario está en el token JWT, no en session.user.id
+      let userId: string;
+      try {
+        const token = session.user.access_token;
+        const tokenParts = token.split('.');
+        const payload = JSON.parse(atob(tokenParts[1]));
+        userId = payload.id; // Este es el UUID real del usuario
+        console.log('🔑 UUID extraído del token:', userId);
+      } catch (error) {
+        console.error('❌ Error al extraer UUID del token:', error);
+        throw new Error('No se pudo extraer el UUID del usuario del token');
+      }
+      
+      // El paciente está en team.patient["0"] debido a la estructura del backend
+      const patientData = session.user.team?.patient;
+      let patientId: string | undefined;
+      
+      if (patientData && typeof patientData === 'object') {
+        // Buscar la primera clave que no sea "caregivers"
+        const patientKeys = Object.keys(patientData).filter(key => key !== 'caregivers');
+        if (patientKeys.length > 0) {
+          const firstPatientKey = patientKeys[0];
+          patientId = (patientData as any)[firstPatientKey]?.id;
+        }
+      }
+      
+      console.log('🔍 Datos de sesión:', {
+        userId: userId,
+        userIdType: typeof userId,
+        userIdLength: userId?.length,
+        team: session.user.team,
+        patient: session.user.team?.patient,
+        patientId: patientId,
+        patientIdType: typeof patientId,
+        patientKeys: patientData ? Object.keys(patientData) : [],
+        firstPatient: patientData && typeof patientData === 'object' ? 
+          (patientData as any)[Object.keys(patientData).filter(key => key !== 'caregivers')[0]] : null
+      });
+      
+      if (!userId) {
+        throw new Error('ID de usuario no disponible');
+      }
+      
+      if (!patientId) {
+        console.error('❌ Estructura de sesión:', JSON.stringify(session, null, 2));
+        throw new Error('ID de paciente no disponible');
+      }
+      
+      // Agregar IDs reales y fecha actual
       const formData = {
         ...values,
-        userId: 'user-123', // Placeholder
-        patientId: 'patient-456' // Placeholder
+        userId: userId,
+        patientId: patientId,
+        fecha: new Date().toISOString() // Fecha actual en formato ISO
       };
       
+      console.log('📤 Enviando datos al servicio:', formData);
       return await createNursingForm(formData, token);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎉 Mutación exitosa:', data);
       toast({ 
         title: 'Éxito', 
         description: 'Formulario de enfermería creado correctamente' 
@@ -113,6 +204,7 @@ export default function NursingForm() {
       clearValidationErrors();
     },
     onError: (error: unknown) => {
+      console.log('❌ Error en mutación:', error);
       toast({ 
         title: 'Error', 
         description: (error as Error).message, 
@@ -123,7 +215,26 @@ export default function NursingForm() {
 
   // Función para manejar el envío del formulario
   const onSubmit = (data: NursingFormData) => {
-    if (!validateFormCompletely()) {
+    console.log('🚀 onSubmit ejecutado con data:', data);
+    console.log('📊 Progreso real:', realCompletionPercentage);
+    
+    // Verificar que el progreso real sea 100%
+    if (realCompletionPercentage < 100) {
+      console.log('❌ Formulario incompleto:', realCompletionPercentage);
+      toast({
+        title: 'Formulario incompleto',
+        description: `Formulario al ${realCompletionPercentage}%. Complete todos los campos antes de enviar.`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Verificar validación básica
+    const isValidationOk = validateFormCompletely();
+    console.log('✅ Validación completa:', isValidationOk);
+    
+    if (!isValidationOk) {
+      console.log('❌ Error de validación');
       toast({
         title: 'Error de validación',
         description: 'Por favor, corrija los errores antes de enviar',
@@ -132,6 +243,13 @@ export default function NursingForm() {
       return;
     }
 
+    console.log('🎉 Formulario válido, iniciando envío...');
+    toast({
+      title: 'Enviando formulario',
+      description: 'Formulario válido y completo. Enviando...',
+    });
+
+    console.log('📤 Llamando mutate con data:', data);
     mutate(data);
   };
 
@@ -167,25 +285,39 @@ export default function NursingForm() {
         </div>
       </div>
 
-      {/* Estado de validación */}
-      <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100">Estado del Formulario</h3>
-            <p className="text-sm text-blue-600 dark:text-blue-300">
-              {completedFields} de {totalFields} campos completados ({Math.round((completedFields / totalFields) * 100)}%)
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-              {isFormValid ? 'Válido' : 'Con Errores'}
-            </div>
-            <div className="text-sm text-blue-600 dark:text-blue-300">
-              {Object.values(validationState.fieldErrors).filter(error => error).length} errores
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Resumen de validación completo */}
+      <NursingValidationSummary
+        validationState={validationState}
+        totalFields={totalFields}
+        completedFields={completedFields}
+      />
+
+      {/* Verificador de coherencia */}
+      <NursingCoherenceChecker
+        formData={form.watch()}
+        onCoherenceChange={(isCoherent, issues) => {
+          // Coherencia actualizada silenciosamente
+          if (!isCoherent && issues.length > 0) {
+            // Solo mostrar en consola si hay errores críticos
+            // console.log('Errores de coherencia:', issues);
+          }
+        }}
+      />
+
+      {/* Seguimiento detallado de progreso */}
+      <NursingProgressTracker
+        formData={form.watch()}
+        validationErrors={validationState.fieldErrors}
+        completionPercentage={realCompletionPercentage}
+        onFieldFocus={(fieldName) => {
+          // Enfocar el campo específico (scroll hacia él)
+          const element = document.querySelector(`[name="${fieldName}"]`) as HTMLElement;
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus();
+          }
+        }}
+      />
 
       {/* Formulario principal */}
       <Form {...form}>
@@ -211,7 +343,17 @@ export default function NursingForm() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dominio NANDA *</FormLabel>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FormLabel>Dominio NANDA *</FormLabel>
+                        <NursingFieldValidator
+                          fieldName="nanda_dominio"
+                          value={field.value}
+                          error={validationState.fieldErrors.nanda_dominio}
+                          isRequired={true}
+                          validationRules={['Seleccione un dominio NANDA válido']}
+                          showValidation={showValidation}
+                        />
+                      </div>
                       <FormControl>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <SelectTrigger>
@@ -236,7 +378,17 @@ export default function NursingForm() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Clase NANDA *</FormLabel>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FormLabel>Clase NANDA *</FormLabel>
+                        <NursingFieldValidator
+                          fieldName="nanda_clase"
+                          value={field.value}
+                          error={validationState.fieldErrors.nanda_clase}
+                          isRequired={true}
+                          validationRules={['Mínimo 3 caracteres']}
+                          showValidation={showValidation}
+                        />
+                      </div>
                       <FormControl>
                         <Input {...field} placeholder="Ingrese la clase" />
                       </FormControl>
@@ -746,24 +898,92 @@ export default function NursingForm() {
               >
                 Limpiar Errores
               </Button>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="border-blue-300 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300"
+                onClick={() => {
+                  console.log('🧪 Test de envío iniciado');
+                  const data = form.getValues();
+                  onSubmit(data);
+                }}
+              >
+                🧪 Test Envío
+              </Button>
             </div>
 
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {completedFields} de {totalFields} campos completados
+                <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  Progreso real: <span className="font-semibold">{realCompletionPercentage}%</span> - {totalFields - completedFields} campos pendientes
+                </div>
               </div>
               
+              {/* Botón de diagnóstico de campos faltantes */}
+              {completedFields < totalFields && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-yellow-300 dark:border-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900 text-yellow-700 dark:text-yellow-300"
+                  onClick={() => {
+                    const formData = form.getValues();
+                    const missingFields = [];
+                    
+                    if (!formData.nanda_dominio?.trim()) missingFields.push('Dominio NANDA');
+                    if (!formData.nanda_clase?.trim() || formData.nanda_clase.trim().length < 3) missingFields.push('Clase NANDA');
+                    if (!formData.nanda_etiqueta_diagnostica?.trim() || formData.nanda_etiqueta_diagnostica.trim().length < 3) missingFields.push('Etiqueta Diagnóstica NANDA');
+                    if (!formData.nanda_factor_relacionado?.trim() || formData.nanda_factor_relacionado.trim().length < 3) missingFields.push('Factor Relacionado NANDA');
+                    if (!formData.nanda_planteamiento_del_diagnostico?.trim() || formData.nanda_planteamiento_del_diagnostico.trim().length < 10) missingFields.push('Planteamiento del Diagnóstico NANDA');
+                    if (!formData.noc_resultado_noc?.trim()) missingFields.push('Resultado NOC');
+                    if (!formData.noc_dominio?.trim() || formData.noc_dominio.trim().length < 3) missingFields.push('Dominio NOC');
+                    if (!formData.noc_clase?.trim() || formData.noc_clase.trim().length < 3) missingFields.push('Clase NOC');
+                    
+                    if (!formData.noc_indicador?.length || !formData.noc_indicador.every(item => item?.trim().length >= 3)) missingFields.push('Indicadores NOC');
+                    if (!formData.noc_rango?.length || !formData.noc_rango.every(item => item && /^\d+$/.test(item.trim()))) missingFields.push('Rangos NOC');
+                    if (!formData.noc_diana_inicial?.length || !formData.noc_diana_inicial.every(item => item && /^[1-5]$/.test(item.trim()))) missingFields.push('Dianas Iniciales NOC');
+                    if (!formData.noc_diana_esperada?.length || !formData.noc_diana_esperada.every(item => item && /^[1-5]$/.test(item.trim()))) missingFields.push('Dianas Esperadas NOC');
+                    if (!formData.noc_evaluacion?.length || !formData.noc_evaluacion.every(item => item?.trim().length >= 3)) missingFields.push('Evaluaciones NOC');
+                    if (!formData.nic_intervencion?.length || !formData.nic_intervencion.every(item => item?.trim())) missingFields.push('Intervenciones NIC');
+                    if (!formData.nic_clase?.length || !formData.nic_clase.every(item => item?.trim().length >= 3)) missingFields.push('Clases NIC');
+                    if (!formData.nic_actividades?.length || !formData.nic_actividades.every(item => item?.trim().length >= 10)) missingFields.push('Actividades NIC');
+                    
+                    toast({
+                      title: "Campos Pendientes",
+                      description: missingFields.length > 0 ? 
+                        `Faltan completar: ${missingFields.slice(0, 3).join(', ')}${missingFields.length > 3 ? ` y ${missingFields.length - 3} más...` : ''}` :
+                        "¡Todos los campos están completos!",
+                      variant: missingFields.length > 0 ? "default" : "default"
+                    });
+                  }}
+                >
+                  🔍 Ver qué falta
+                </Button>
+              )}
+              
               <Button
-                type="submit"
-                disabled={isPending || !isFormValid}
-                className="min-w-[120px]"
+                type="button"
+                disabled={isPending || (realCompletionPercentage < 100)}
+                className={`min-w-[120px] ${realCompletionPercentage === 100 ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                onClick={() => {
+                  console.log('💾 Botón Guardar presionado');
+                  const data = form.getValues();
+                  onSubmit(data);
+                }}
               >
                 {isPending ? (
                   'Guardando...'
+                ) : realCompletionPercentage === 100 ? (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    ✅ Guardar Formulario
+                  </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Guardar
+                    Guardar ({realCompletionPercentage}%)
                   </>
                 )}
               </Button>

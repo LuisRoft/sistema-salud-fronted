@@ -32,11 +32,11 @@ export default function NursingValidationSummary({
   // Calcular porcentaje de completitud
   const completionPercentage = Math.round((completedFields / totalFields) * 100);
   
-  // Determinar el estado general
+  // Determinar el estado general (simplificado)
   const getOverallStatus = () => {
-    if (totalErrors === 0 && completionPercentage === 100) {
+    if (completionPercentage >= 95) {
       return { status: 'success', icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' };
-    } else if (totalErrors === 0 && completionPercentage >= 80) {
+    } else if (completionPercentage >= 80) {
       return { status: 'warning', icon: AlertTriangle, color: 'text-yellow-600', bgColor: 'bg-yellow-50' };
     } else if (totalErrors > 0) {
       return { status: 'error', icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' };
@@ -65,10 +65,10 @@ export default function NursingValidationSummary({
                 Estado de Validación del Formulario
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                {overallStatus.status === 'success' && 'Formulario válido y completo'}
-                {overallStatus.status === 'warning' && 'Formulario válido pero incompleto'}
-                {overallStatus.status === 'error' && 'Formulario con errores de validación'}
-                {overallStatus.status === 'info' && 'Formulario en progreso'}
+                {overallStatus.status === 'success' && 'Formulario completo y listo para enviar'}
+                {overallStatus.status === 'warning' && 'Formulario casi completo'}
+                {overallStatus.status === 'error' && 'Revise los errores indicados'}
+                {overallStatus.status === 'info' && 'Complete los campos restantes'}
               </p>
             </div>
           </div>
