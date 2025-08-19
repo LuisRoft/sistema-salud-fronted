@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,14 +60,17 @@ const COLORS = [
 ];
 
 export default function PucemDashboard() {
+  const { data: session } = useSession();
+  const token = session?.user?.access_token;
+
   // Consultas principales
   const { data: consultationsData, isLoading: consultationsLoading } = useQuery({
     queryKey: ['dashboard-consultations'],
     queryFn: async () => {
-      const session = await getSession();
-      if (!session?.user?.access_token) return null;
-      return await getAllConsultations(session.user.access_token);
+      if (!token) return null;
+      return await getAllConsultations(token);
     },
+    enabled: !!token,
     staleTime: 60000,
   });
 
@@ -75,10 +78,10 @@ export default function PucemDashboard() {
   const { data: patientsData, isLoading: patientsLoading } = useQuery({
     queryKey: ['dashboard-patients'],
     queryFn: async () => {
-      const session = await getSession();
-      if (!session?.user?.access_token) return null;
-      return await getPatients(session.user.access_token, { page: 1, limit: 1000 });
+      if (!token) return null;
+      return await getPatients(token, { page: 1, limit: 1000 });
     },
+    enabled: !!token,
     staleTime: 60000,
   });
 
@@ -86,10 +89,10 @@ export default function PucemDashboard() {
   const { data: managersData, isLoading: managersLoading } = useQuery({
     queryKey: ['dashboard-managers'],
     queryFn: async () => {
-      const session = await getSession();
-      if (!session?.user?.access_token) return null;
-      return await getManagers(session.user.access_token, { page: 1, limit: 1000 });
+      if (!token) return null;
+      return await getManagers(token, { page: 1, limit: 1000 });
     },
+    enabled: !!token,
     staleTime: 60000,
   });
 
@@ -97,10 +100,10 @@ export default function PucemDashboard() {
   const { data: caregiversData, isLoading: caregiversLoading } = useQuery({
     queryKey: ['dashboard-caregivers'],
     queryFn: async () => {
-      const session = await getSession();
-      if (!session?.user?.access_token) return null;
-      return await getCaregivers(session.user.access_token, 1000, 1);
+      if (!token) return null;
+      return await getCaregivers(token, 1000, 1);
     },
+    enabled: !!token,
     staleTime: 60000,
   });
 

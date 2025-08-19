@@ -12,7 +12,6 @@ import { useState, useEffect } from 'react';
 import { Patient } from "@/services/patientService";
 import { useQuery } from "@tanstack/react-query";
 import { getPatientByUserAssigned } from '@/services/patientService';
-import { getConsultations } from "@/services/consultationHistory.service";
 
 interface PatientSelectorProps {
   onSelect: (patient: Patient) => void;
@@ -49,8 +48,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
         }
 
         if (teamPatients.length > 0) {
-          const consultations = await getConsultations(session.user.access_token);
-          console.log('👥 Consultas encontradas:', consultations);
           console.log('✅ Using patients from team assignment (normalized):', teamPatients);
           return teamPatients;
         }

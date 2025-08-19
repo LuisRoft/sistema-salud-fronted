@@ -67,3 +67,19 @@ export const downloadService = {
     }
   },
 };
+
+// Función para descargar todas las consultas
+export const downloadAllConsultations = async (token: string, consultations: any[]) => {
+  try {
+    console.log('Descargando todas las consultas:', consultations.length);
+    
+    for (const consultation of consultations) {
+      await downloadService.downloadPDF(consultation.tipo, token, consultation.id);
+      // Pequeña pausa entre descargas para no sobrecargar el servidor
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  } catch (error) {
+    console.error('Error descargando todas las consultas:', error);
+    throw error;
+  }
+};
