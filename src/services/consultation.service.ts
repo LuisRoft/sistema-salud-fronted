@@ -30,7 +30,7 @@ export const createInitialConsultation = async (consultationData: any) => {
 };
 
 export const getAllInitialConsultations = async (token: string) => {
-  const response = await get('/api/consultations/initial', {
+  const response = await get('/api/consultations', {
     headers: {
       Authorization: `Bearer ${token}`,
     },

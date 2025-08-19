@@ -24,7 +24,6 @@ import { PatientSelector } from '../shared/patient-selector';
 import { Patient } from '@/services/patientService';
 import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
 
-
 // Esquema de validación con Zod
 const formSchema = z.object({
   institucionSistema: z.string().min(1, 'Campo obligatorio'),
@@ -38,7 +37,13 @@ const formSchema = z.object({
   primerNombre: z.string().min(1, 'Campo obligatorio'),
   segundoNombre: z.string().optional(),
   sexo: z.string().min(1, 'Campo obligatorio'),
-  edad: z.number().min(0, 'La edad debe ser un número positivo'),
+  edad: z.preprocess((val) => {
+    if (typeof val === 'string' && val !== '') {
+      const num = Number(val);
+      return isNaN(num) ? val : num;
+    }
+    return val;
+  }, z.number().min(0, 'La edad debe ser un número positivo')),
   motivoConsulta: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaPrimera: z.string().min(1, 'Campo obligatorio'),
   motivoConsultaSubsecuente: z.string().optional(),
@@ -53,7 +58,12 @@ const formSchema = z.object({
   
   
   
-  antecedentesPatologicosPersonalesDesc: z.string().optional(),
+  antecedentesPatologicosPersonalesDesc: z.preprocess((val) => {
+    if (typeof val === 'string' && val.trim() === '') {
+      return 'Ninguno'; // Provide default value instead of empty string
+    }
+    return val;
+  }, z.string().min(1, 'Campo obligatorio')),
 
     antecedentesPatologicosFamiliares: z.preprocess((val) => {
       if (typeof val === 'string') {
@@ -62,22 +72,87 @@ const formSchema = z.object({
       return Array.isArray(val) ? val : [];
     }, z.array(z.string()).optional().default([])),
   
-  antecedentesPatologicosFamiliaresDesc: z.string().optional(),
+  antecedentesPatologicosFamiliaresDesc: z.preprocess((val) => {
+    if (typeof val === 'string' && val.trim() === '') {
+      return 'Ninguno'; // Provide default value instead of empty string
+    }
+    return val;
+  }, z.string().min(1, 'Campo obligatorio')),
   enfermedadActual: z.string().min(1, 'Campo obligatorio'),
   constantesVitales: z.object({
     fecha: z.string().min(1, 'Campo obligatorio'),
     hora: z.string().min(1, 'Campo obligatorio'),
-    temperatura: z.number(),
+    temperatura: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
     presionArterial: z.string(),
-    frecuenciaCardiaca: z.number(),
-    frecuenciaRespiratoria: z.number(),
-    peso: z.number(),
-    talla: z.number(),
-    imc: z.number(),
-    perimetroAbdominal: z.number(),
-    hemoglobinaCapilar: z.number(),
-    glucosaCapilar: z.number(),
-    pulsioximetria: z.number(),
+    frecuenciaCardiaca: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    frecuenciaRespiratoria: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    peso: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    talla: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    imc: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    perimetroAbdominal: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    hemoglobinaCapilar: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    glucosaCapilar: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
+    pulsioximetria: z.preprocess((val) => {
+      if (typeof val === 'string' && val !== '') {
+        const num = Number(val);
+        return isNaN(num) ? val : num;
+      }
+      return val;
+    }, z.number()),
   }),
   revisionOrganosSistemas: z.object({
     pielAnexos: z.string().optional(),
@@ -175,6 +250,7 @@ const eliminarDiagnostico = (index: number) => {
     formState: { errors },
     watch,
     setValue,
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     // Usar los datos guardados como valores por defecto
@@ -197,7 +273,7 @@ const eliminarDiagnostico = (index: number) => {
       antecedentesPatologicosPersonales: [],
       antecedentesPatologicosPersonalesDesc: '',
       antecedentesPatologicosFamiliares: [],
-      antecedentesPatologicosFamiliaresDesc: '',
+      antecedentesPatologicosFamiliaresDesc: 'Ninguno',
       enfermedadActual: '',
       constantesVitales: {
         fecha: '',
@@ -330,9 +406,9 @@ const eliminarDiagnostico = (index: number) => {
       const formattedData = {
         motivoConsulta: data.motivoConsulta,
         antecedentesPatologicosPersonales: data.antecedentesPatologicosPersonales || [],
-        antecedentesPatologicosPersonalesDesc: data.antecedentesPatologicosPersonalesDesc || '',
+        antecedentesPatologicosPersonalesDesc: data.antecedentesPatologicosPersonalesDesc || 'Ninguno',
         antecedentesPatologicosFamiliares: data.antecedentesPatologicosFamiliares || [],
-        antecedentesPatologicosFamiliaresDesc: data.antecedentesPatologicosFamiliaresDesc || '',
+        antecedentesPatologicosFamiliaresDesc: data.antecedentesPatologicosFamiliaresDesc || 'Ninguno',
         enfermedadProblemaActual: data.enfermedadActual || '',
         cvaFecha: data.constantesVitales.fecha ? new Date(data.constantesVitales.fecha).toISOString() : '',
         cvaHora: data.constantesVitales.hora || '',
@@ -383,6 +459,11 @@ const eliminarDiagnostico = (index: number) => {
       await createInitialConsultation(formattedData);
   
       localStorage.removeItem('consultationFormData');
+
+      // Reset form after successful submission
+      reset();
+      setSelectedPatient(null);
+      setDiagnosticos([{ desc: '', cie: '', presuntivo: false, definitivo: false }]);
   
       toast({
         title: 'Éxito',

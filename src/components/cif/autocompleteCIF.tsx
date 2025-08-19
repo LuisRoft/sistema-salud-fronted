@@ -65,8 +65,8 @@ const AutocompleteCIF: React.FC<AutocompleteCIFProps> = ({
 
     if (value.length > 0) {
       const filtered = cifData.filter((item) =>
-        item.codigo.toLowerCase().includes(value.toLowerCase()) ||
-        item.tema.toLowerCase().includes(value.toLowerCase()) ||
+        (item.codigo && item.codigo.toLowerCase().includes(value.toLowerCase())) ||
+        (item.tema && item.tema.toLowerCase().includes(value.toLowerCase())) ||
         (item.descripcion && item.descripcion.toLowerCase().includes(value.toLowerCase()))
       );
       setFilteredOptions(filtered.slice(0, 20));

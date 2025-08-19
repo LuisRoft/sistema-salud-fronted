@@ -55,9 +55,12 @@ export interface ConsultationResponse {
 // Obtener consultas externas
 export const getConsultations = async (token: string): Promise<ConsultationResponse> => {
   try {
+    console.log('ola')
     const response = await get('/consultations', {
       headers: { Authorization: `Bearer ${token}` }
     });
+    
+    console.log('response consulations', response)
     
     // Procesar directamente los datos de la respuesta
     const consultations = response.data?.consultations || [];

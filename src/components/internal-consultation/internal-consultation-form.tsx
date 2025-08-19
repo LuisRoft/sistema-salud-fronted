@@ -49,6 +49,7 @@ export default function InternalConsultationForm() {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -148,7 +149,7 @@ export default function InternalConsultationForm() {
         examenesResultados: examenes.filter(Boolean),
         diagnosticosDesc: diagnosticos.map((d) => d.desc).filter(Boolean),
         diagnosticosCie: diagnosticos.map((d) => d.cie).filter(Boolean),
-        diagnosticosCif: diagnosticos.map((d) => d.cif).filter(Boolean),
+        // diagnosticosCif: diagnosticos.map((d) => d.cif).filter(Boolean), // Removido temporalmente - servidor no acepta esta propiedad
         diagnosticosPresuntivo: diagnosticos.map((d) => d.presuntivo),
         diagnosticosDefinitivo: diagnosticos.map((d) => d.definitivo),
         planTratamiento: data.planTratamiento?.trim() ?? '',
@@ -163,24 +164,52 @@ export default function InternalConsultationForm() {
   
       const response = await createInternalConsultation(formattedData, token);
       console.log('✅ Respuesta del servidor:', response);
-  
+
+      // Limpiar formulario después del éxito
+      reset();
+      setSelectedPatient(null);
+      setDiagnosticos([]);
+      setExamenes(['']);
+
       toast({
         title: 'Éxito',
         description: 'Interconsulta creada correctamente',
       });
     } catch (error) {
       console.error('❌ Error completo:', error);
+      
+      let errorTitle = 'Error al crear la Interconsulta';
+      let errorDescription = 'Ocurrió un error inesperado';
+      
       if (error instanceof Error && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
-        console.error('Detalles del error del servidor:', (error.response as { data: unknown }).data);
+        const serverData = (error.response as { data: unknown }).data;
+        console.error('Detalles del error del servidor:', serverData);
+        
+        if (serverData && typeof serverData === 'object') {
+          // Manejar diferentes formatos de error del servidor
+          const errorObj = serverData as Record<string, unknown>;
+          if (errorObj.message) {
+            if (Array.isArray(errorObj.message)) {
+              errorDescription = `Errores de validación: ${(errorObj.message as string[]).join(', ')}`;
+            } else if (typeof errorObj.message === 'string') {
+              errorDescription = errorObj.message;
+            }
+          }
+          
+          if (errorObj.error && typeof errorObj.error === 'string') {
+            const statusCode = typeof errorObj.statusCode === 'number' ? errorObj.statusCode : '';
+            errorTitle = `Error ${statusCode}: ${errorObj.error}`;
+          }
+        }
+      } else if (error instanceof Error) {
+        errorDescription = error.message;
       }
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Error al crear la Interconsulta';
+      
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: errorMessage,
+        title: errorTitle,
+        description: errorDescription,
+        duration: 8000, // Mostrar por más tiempo para errores importantes
       });
     }
   };
