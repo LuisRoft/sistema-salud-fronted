@@ -1,11 +1,22 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   BioDigitalResponse,
   SelectedPart,
   PartWithPain,
-  createColorConfig,
   createPainColorConfig,
+  ANATOMICAL_COLORS,
 } from "@/utils/biodigital-config";
+
+// Tipos para BioDigital HumanAPI
+interface HumanAPIEventHandler {
+  (event: Record<string, boolean>): void;
+}
+
+interface HumanAPI {
+  send: (command: string, data?: unknown) => void;
+  on: (event: string, handler: HumanAPIEventHandler) => void;
+  off: (event: string, handler: HumanAPIEventHandler) => void;
+}
 
 interface UseBioDigitalReturn {
   data: BioDigitalResponse | null;
@@ -17,7 +28,7 @@ interface UseBioDigitalReturn {
   setSelectedPartsWithPain: React.Dispatch<
     React.SetStateAction<PartWithPain[]>
   >;
-  humanAPI: any;
+  humanAPI: HumanAPI | null;
   fetchHumanData: () => Promise<void>;
   initializeHumanAPI: () => (() => void) | undefined;
   handleScriptLoad: () => void;
@@ -39,7 +50,14 @@ export function useBioDigital(
   >([]);
 
   const selectedParts = useRef<SelectedPart[]>(initialParts);
-  const humanAPI = useRef<any>(null);
+  const humanAPI = useRef<HumanAPI | null>(null);
+  const selectedPartsWithPainRef = useRef<PartWithPain[]>([]);
+  const lastSelectionTime = useRef<{ [key: string]: number }>({});
+
+  // Mantener ref sincronizado con estado
+  useEffect(() => {
+    selectedPartsWithPainRef.current = selectedPartsWithPain;
+  }, [selectedPartsWithPain]);
 
   // Función para actualizar el nivel de dolor de una parte
   const updatePartPainLevel = useCallback(
@@ -85,15 +103,29 @@ export function useBioDigital(
     [updatePartPainLevel]
   );
 
-  // Función para remover una parte seleccionada
+  // Función para remover una parte seleccionada (solo quita color, mantiene selección)
   const removeSelectedPart = useCallback((partId: string) => {
     setSelectedPartsWithPain((prev) =>
       prev.filter((part) => part.id !== partId)
     );
 
-    // Remover color en el modelo 3D
+    // SOLO resetear color usando scene.colorObject, MANTENER la parte seleccionada
     if (humanAPI.current) {
-      humanAPI.current.send("scene.disableHighlight", { objectId: partId });
+      try {
+        // Aplicar color que simule el aspecto original/natural del músculo
+        humanAPI.current.send("scene.colorObject", {
+          objectId: partId,
+          tintColor: ANATOMICAL_COLORS.MUSCLE, // Color muscular natural 
+          opacity: 1.0, // Completamente opaco
+          brightness: 0.0, // Sin modificación de brillo
+          saturation: 0.0, // Sin saturación adicional
+          contrast: 0.0 // Sin contraste adicional
+        });
+        
+        console.log(`🎨 Color restaurado a natural: ${partId} (parte sigue seleccionada)`);
+      } catch (error) {
+        console.warn(`⚠️ Error al restaurar color de ${partId}:`, error);
+      }
     }
   }, []);
 
@@ -131,11 +163,15 @@ export function useBioDigital(
   // Configuración optimizada del Human API
   const initializeHumanAPI = useCallback(() => {
     try {
-      if (!(window as any).HumanAPI) {
+      const windowWithHuman = window as typeof window & {
+        HumanAPI: new (containerId: string) => HumanAPI;
+      };
+      
+      if (!windowWithHuman.HumanAPI) {
         throw new Error("HumanAPI no está disponible");
       }
 
-      const human = new (window as any).HumanAPI("biodigital");
+      const human = new windowWithHuman.HumanAPI("biodigital");
       humanAPI.current = human; // Guardar referencia
 
       // Seleccionar objetos iniciales
@@ -145,18 +181,29 @@ export function useBioDigital(
       const handleObjectSelection = (event: Record<string, boolean>) => {
         Object.keys(event).forEach((objectId: string) => {
           if (event[objectId]) {
-            // Verificar si ya existe en selectedPartsWithPain
-            const existingPartIndex = selectedPartsWithPain.findIndex(
+            // Protección contra clics rápidos (debouncing)
+            const now = Date.now();
+            const lastTime = lastSelectionTime.current[objectId] || 0;
+            if (now - lastTime < 500) { // 500ms de debounce
+              console.log(`⏰ Clic muy rápido ignorado para: ${objectId}`);
+              return;
+            }
+            lastSelectionTime.current[objectId] = now;
+
+            // Verificar si ya existe en selectedPartsWithPain usando ref
+            const currentParts = selectedPartsWithPainRef.current;
+            const existingPartIndex = currentParts.findIndex(
               (part) => part.id === objectId
             );
             if (existingPartIndex >= 0) {
-              // Aplicar el color de dolor existente
-              const existingPart = selectedPartsWithPain[existingPartIndex];
+              // Parte ya existe - solo actualizar color
+              const existingPart = currentParts[existingPartIndex];
               const colorConfig = createPainColorConfig(
                 objectId,
                 existingPart.painLevel
               );
               human.send("scene.colorObject", colorConfig);
+              console.log(`🔄 Parte ya existe, actualizando color: ${objectId} (Nivel: ${existingPart.painLevel})`);
             } else {
               // Agregar nueva parte con dolor nivel 1 por defecto
               const newPart: PartWithPain = {
@@ -201,7 +248,7 @@ export function useBioDigital(
       console.error("Error inicializando HumanAPI:", err);
       setError("Error al inicializar el visor 3D");
     }
-  }, [selectedPartsWithPain]);
+  }, []); // Remover dependencia problemática
 
   const handleScriptLoad = useCallback(() => {
     initializeHumanAPI();
