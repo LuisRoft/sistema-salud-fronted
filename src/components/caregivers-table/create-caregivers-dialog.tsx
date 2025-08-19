@@ -19,12 +19,15 @@ export default function CreateCaregiversDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline'>Agregar Cuidador</Button>
+        <Button variant='outline' className="w-full sm:w-auto text-sm">
+          <span className="hidden sm:inline">Agregar Cuidador</span>
+          <span className="sm:hidden">+ Cuidador</span>
+        </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-xl'>
+      <DialogContent className='w-[95vw] max-w-lg sm:max-w-xl lg:max-w-2xl'>
         <DialogHeader>
-          <DialogTitle>Crear Cuidador</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Crear Cuidador</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             Formulario para crear un nuevo cuidador
           </DialogDescription>
         </DialogHeader>

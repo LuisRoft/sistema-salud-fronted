@@ -21,8 +21,6 @@ export default function CaregiverTable() {
 
       const res = await getCaregivers(token as string, pageSize, pageIndex + 1);
 
-      console.log('Datos recibidos en la tabla:', res); // 🔍 Verificar si patientName llega
-
       return res;
     },
     staleTime: 60000, // Los datos permanecen frescos por 60 segundos
@@ -31,11 +29,11 @@ export default function CaregiverTable() {
   if (isError) return <div>Error cargando la lista de cuidadores</div>;
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="max-w-6xl mx-auto">
-        {isLoading ? (
-          <TableSkeleton rows={pageSize} columns={columns.length} />
-        ) : (
+    <div className="w-full">
+      {isLoading ? (
+        <TableSkeleton rows={pageSize} columns={columns.length} />
+      ) : (
+        <div className="w-full overflow-hidden">
           <DataTable
             columns={columns}
             data={data?.caregivers || []}
@@ -45,8 +43,8 @@ export default function CaregiverTable() {
             setPageSize={setPageSize}
             totalPages={Math.ceil((data?.total || 0) / pageSize)}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
