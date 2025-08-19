@@ -7,6 +7,7 @@ export interface LaboratoryRequestDTO {
   diagnostico_cie1: string;
   diagnostico_descripcion2: string;
   diagnostico_cie2: string;
+  fecha: string;
   prioridad: string;
   hematologia_examenes: string[];
   coagulacion_examenes: string[];
@@ -18,4 +19,10 @@ export interface LaboratoryRequestDTO {
   userId: string;
   patientId: string;
   microbiologia?: MicrobiologyRequestDTO;
+  patient?: {
+    id: string;
+    document?: string;
+    name?: string;
+    lastName?: string;
+  };
 }

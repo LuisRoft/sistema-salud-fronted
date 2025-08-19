@@ -79,12 +79,24 @@ export const sidebarItems = {
           url: '/pucem/consultation-external',
         },
         {
+          title: 'Gestión Consulta Externa',
+          url: '/pucem/gestion-consultation-external',
+        },
+        {
           title: 'Interconsulta',
           url: '/pucem/consultation-internal',
         },
         {
+          title: 'Gestión Interconsulta',
+          url: '/pucem/gestion-internal-consultation',
+        },
+        {
           title: 'Pedido de Laboratorio',
           url: '/pucem/lab-request',
+        },
+        {
+          title: 'Gestión Pedido de Laboratorio',
+          url: '/pucem/gestion-lab-request',
         },
       ],
     },
