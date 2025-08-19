@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// terminar cuando se implemente el backend equis d
+import { CreateNeurologicaRequest } from '@/types/neurologica';
+
 type PaginationParams = {
   page: number;
   limit: number;
@@ -32,15 +33,8 @@ export async function getNeurologicas(_: string, params: PaginationParams) {
   };
 }
 
-export async function createNeurologica(data: {
-  id?: string;
-  name: string;
-  ci: string;
-  edad: number;
-  discapacidad: string;
-  diagnostico: string;
-}, _token: string) {
-  console.log(' Mock: Evaluación creada', data);
-  return { message: 'Evaluación registrada correctamente (mock)' };
+export async function createNeurologica(data: CreateNeurologicaRequest, _token: string) {
+  console.log(' Mock: Evaluación neurológica creada con datos completos', data);
+  return { message: 'Evaluación neurológica registrada correctamente (mock)' };
 }
 

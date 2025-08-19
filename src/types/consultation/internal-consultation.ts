@@ -9,6 +9,7 @@ export interface InternalConsultationDTO {
   examenesResultados: string[];
   diagnosticosDesc: string[];
   diagnosticosCie: string[];
+  diagnosticosCif: string[]; // Nuevo campo para códigos CIF
   diagnosticosPresuntivo: boolean[];
   diagnosticosDefinitivo: boolean[];
   planTratamiento: string;

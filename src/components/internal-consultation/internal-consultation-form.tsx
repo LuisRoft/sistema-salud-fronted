@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useSession, getSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { useToast } from '@/components/ui/use-toast';
 import { createInternalConsultation } from '@/services/internalConsultation.service';
 import { useState } from 'react';
 import { PatientSelector } from '@/components/shared/patient-selector';
 import AutocompleteCIE from '@/components/cie-10/autocompleteCIE';
+import AutocompleteCIF from '@/components/cif/autocompleteCIF';
 import { Patient } from '@/services/patientService';
 
 const formSchema = z.object({
@@ -27,6 +28,7 @@ const formSchema = z.object({
   diagnosticoGeneral: z.string().min(1, 'Campo obligatorio'), // Campo agregado
   diagnosticosDesc: z.array(z.string()).optional(),
   diagnosticosCie: z.array(z.string()).optional(),
+  diagnosticosCif: z.array(z.string()).optional(), // Nuevo campo CIF
   diagnosticosPresuntivo: z.array(z.boolean()).optional(),
   diagnosticosDefinitivo: z.array(z.boolean()).optional(),
   planTratamiento: z.string().min(1, 'Campo obligatorio'), // Campo agregado
@@ -39,7 +41,6 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function InternalConsultationForm() {
-  const { data: session } = useSession();
   const { toast } = useToast();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
@@ -82,15 +83,15 @@ export default function InternalConsultationForm() {
   
   
 
-  const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; presuntivo: boolean; definitivo: boolean; }[]>([
-    { desc: '', cie: '', presuntivo: false, definitivo: false },
+  const [diagnosticos, setDiagnosticos] = useState<{ desc: string; cie: string; cif: string; presuntivo: boolean; definitivo: boolean; }[]>([
+    { desc: '', cie: '', cif: '', presuntivo: false, definitivo: false },
   ]);
   const [examenes, setExamenes] = useState(['']);
 
   const agregarDiagnostico = () => {
     setDiagnosticos([
       ...diagnosticos,
-      { desc: '', cie: '', presuntivo: false, definitivo: false },
+      { desc: '', cie: '', cif: '', presuntivo: false, definitivo: false },
     ]);
   };
 
@@ -147,6 +148,7 @@ export default function InternalConsultationForm() {
         examenesResultados: examenes.filter(Boolean),
         diagnosticosDesc: diagnosticos.map((d) => d.desc).filter(Boolean),
         diagnosticosCie: diagnosticos.map((d) => d.cie).filter(Boolean),
+        diagnosticosCif: diagnosticos.map((d) => d.cif).filter(Boolean),
         diagnosticosPresuntivo: diagnosticos.map((d) => d.presuntivo),
         diagnosticosDefinitivo: diagnosticos.map((d) => d.definitivo),
         planTratamiento: data.planTratamiento?.trim() ?? '',
@@ -168,8 +170,8 @@ export default function InternalConsultationForm() {
       });
     } catch (error) {
       console.error('❌ Error completo:', error);
-      if (error instanceof Error && (error as any).response) {
-        console.error('Detalles del error del servidor:', (error as any).response.data);
+      if (error instanceof Error && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
+        console.error('Detalles del error del servidor:', (error.response as { data: unknown }).data);
       }
       const errorMessage =
         error instanceof Error
@@ -353,16 +355,27 @@ export default function InternalConsultationForm() {
       </div>
 
       <div className='space-y-2'>
-  <Label>Código CIE</Label>
-  <AutocompleteCIE
-    onSelect={(cie, desc) => {
-      const nuevosDiagnosticos = [...diagnosticos];
-      nuevosDiagnosticos[index].cie = cie;
-      nuevosDiagnosticos[index].desc = desc;
-      setDiagnosticos(nuevosDiagnosticos);
-    }}
-  />
-</div>
+        <Label>Código CIE</Label>
+        <AutocompleteCIE
+          onSelect={(cie, desc) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].cie = cie;
+            nuevosDiagnosticos[index].desc = desc;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+        />
+      </div>
+
+      <div className='space-y-2'>
+        <Label>Código CIF</Label>
+        <AutocompleteCIF
+          onSelect={(cif) => {
+            const nuevosDiagnosticos = [...diagnosticos];
+            nuevosDiagnosticos[index].cif = cif;
+            setDiagnosticos(nuevosDiagnosticos);
+          }}
+        />
+      </div>
 
       {/* Opciones de Diagnóstico: Presuntivo y Definitivo */}
       <div className='flex space-x-4'>
