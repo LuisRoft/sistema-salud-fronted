@@ -80,9 +80,9 @@ export function BioDigitalEmbedded() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-6 min-h-screen bg-gray-50">
+    <div className="flex flex-col xl:flex-row gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 min-h-screen bg-background">
       {/* Panel de Control */}
-      <div className="lg:w-1/3">
+      <div className="w-full xl:w-80 xl:flex-shrink-0 order-2 xl:order-1">
         <PainControlPanel
           selectedPartsWithPain={selectedPartsWithPain}
           onUpdatePainLevel={updatePartPainLevel}
@@ -92,7 +92,7 @@ export function BioDigitalEmbedded() {
       </div>
 
       {/* Visor 3D */}
-      <div className="lg:w-2/3">
+      <div className="flex-1 order-1 xl:order-2">
         <Script
           src={BIODIGITAL_SCRIPT_CONFIG.src}
           strategy={BIODIGITAL_SCRIPT_CONFIG.strategy}
@@ -100,12 +100,12 @@ export function BioDigitalEmbedded() {
           onError={handleScriptError}
         />
 
-        <div className="relative bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="relative bg-background border border-border rounded-lg shadow-lg overflow-hidden h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[800px]">
           {!scriptLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-90 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-10">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p className="text-gray-600 text-sm">
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   Inicializando visor 3D...
                 </p>
               </div>
@@ -115,8 +115,8 @@ export function BioDigitalEmbedded() {
           <iframe
             src={data?.myhuman[0].content_url}
             width="100%"
-            height="800px"
-            className="border-0"
+            height="100%"
+            className="border-0 w-full h-full"
             id="biodigital"
             title="Modelo anatómico BioDigital"
             loading="lazy"
@@ -124,20 +124,37 @@ export function BioDigitalEmbedded() {
         </div>
 
         {/* Instrucciones */}
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-sm font-semibold text-blue-800 mb-2">
-            📖 Cómo usar:
-          </h4>
-          <ul className="text-sm text-blue-700 space-y-1">
-            <li>• Haz clic en partes del modelo 3D para seleccionarlas</li>
-            <li>
-              • Usa los botones de colores para asignar niveles de dolor (1-5)
+        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-muted/30 border border-border/50 rounded-lg">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3">
+            <span className="text-sm sm:text-base">📖</span>
+            <h4 className="text-xs sm:text-sm font-semibold text-foreground">
+              Cómo usar:
+            </h4>
+          </div>
+          <ul className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Haz clic en partes del modelo 3D para seleccionarlas</span>
             </li>
-            <li>
-              • Las partes se colorearán según el nivel de dolor seleccionado
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Usa los botones de colores para asignar niveles de dolor (1-5)</span>
             </li>
-            <li>
-              • Haz clic en "Enviar Datos" para ver la información en consola
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Las partes se colorearán según el nivel de dolor seleccionado</span>
+            </li>
+            <li className="flex items-start gap-2 xl:hidden">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Panel de control disponible debajo del modelo</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Usa el botón "✕" para quitar solo el color</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+              <span>Haz clic en "Enviar Datos" para procesar información</span>
             </li>
           </ul>
         </div>
