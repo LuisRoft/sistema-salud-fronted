@@ -28,6 +28,8 @@ function getEndpointByType(type: string, id: string): string {
       return `${baseUrl}/nursing/download`;
     case 'Solicitud Laboratorio':
       return `${baseUrl}/laboratory-request/download`;
+    case 'Evaluación Neurológica':
+      return `${baseUrl}/neurologica/download`;
     default:
       throw new Error(`Tipo de consulta no soportado: ${type}`);
   }

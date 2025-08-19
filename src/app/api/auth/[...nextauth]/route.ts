@@ -18,21 +18,6 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        // Modo desarrollo: usuario simulado
-        if (process.env.NODE_ENV === 'development') {
-          return {
-            id: '1234567890',
-            name: 'Usuario Test',
-            email: 'dev@example.com',
-            document: '1234567890',
-            lastName: 'Dev',
-            role: 'user', // Puedes cambiarlo a 'doctor', 'caregiver', etc.
-            token: 'fake-token-dev',
-            team: 'TeamFake',
-          };
-        }
-
-        // Modo producción: autenticación real
         try {
           const res = await fetch('http://localhost:3000/api/auth/login', {
             method: 'POST',

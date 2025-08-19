@@ -1,560 +1,776 @@
 'use client';
 
-import { useForm, useFieldArray, FieldValues } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useMutation } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { getSession, useSession } from 'next-auth/react';
-import { useEffect } from "react";
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { getSession } from 'next-auth/react';
 import { createNursingForm } from '@/services/nursingService';
-import { AxiosError } from 'axios';
-import { PatientSelector } from '@/components/shared/patient-selector';
-import AutocompleteSelector from '@/components/shared/AutoCompleteSelect';
+import { useNursingValidation } from '@/hooks/use-nursing-validation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Minus, Save } from 'lucide-react';
+import { NursingFormData } from '@/types/nursing';
 
+// Datos de referencia (en un sistema real, estos vendrían de una API)
+const nandaData = [
+  { value: '00001', label: '00001 Desequilibrio nutricional por exceso' },
+  { value: '00002', label: '00002 Desequilibrio nutricional por defecto' },
+  { value: '00003', label: '00003 Riesgo de desequilibrio nutricional por exceso' },
+  { value: '00004', label: '00004 Riesgo de infección' },
+  { value: '00005', label: '00005 Riesgo de desequilibrio de la temperatura corporal' },
+];
 
-// Esquema para validación
-const nursingFormSchema = z.object({
-  fecha: z.string().min(1, 'Campo requerido'),
-  // NANDA
-  nanda_dominio: z.string().min(1, 'Campo requerido'),
-  nanda_clase: z.string().min(1, 'Campo requerido'),
-  nanda_etiqueta_diagnostica: z.string().min(1, 'Campo requerido'),
-  nanda_factor_relacionado: z.string().min(1, 'Campo requerido'),
-  nanda_planteamiento_del_diagnostico: z.string().min(1, 'Campo requerido'),
-  // NOC
-  noc_resultado_noc: z.string().min(1, 'Campo requerido'),
-  noc_dominio: z.string().min(1, 'Campo requerido'),
-  noc_clase: z.string().min(1, 'Campo requerido'),
-  // Arrays
-  noc_indicador: z.array(z.object({ value: z.string() })),
-  noc_rango: z.array(z.object({ value: z.string() })),
-  noc_diana_inicial: z.array(z.object({ value: z.string() })),
-  noc_diana_esperada: z.array(z.object({ value: z.string() })),
-  noc_evaluacion: z.array(z.object({ value: z.string() })),
-  nic_intervencion: z.array(z.object({ value: z.string() })),
-  nic_clase: z.array(z.object({ value: z.string() })),
-  nic_actividades: z.array(z.object({ value: z.string() })),
-  // IDs
-  userId: z.string().uuid(),
-  patientId: z.string().uuid(),
-});
+const nicData = [
+  { value: '5612', label: '5612-Enseñanza: ejercicio prescrito' },
+  { value: '0140', label: '0140 Favorecimiento de la mecánica corporal' },
+  { value: '0200', label: '0200 Favorecimiento del ejercicio' },
+  { value: '0201', label: '0201 Favorecimiento del ejercicio: entrenamiento de fuerza' },
+  { value: '0202', label: '0202 Favorecimiento del ejercicio: estiramientos' },
+];
 
-type NursingFormValues = z.infer<typeof nursingFormSchema>;
+const nocData = [
+  { value: '0002', label: '0002-Conservación de la energía' },
+  { value: '0003', label: '0003-Descanso' },
+  { value: '0006', label: '0006-Energía psicomotora' },
+  { value: '0007', label: '0007-Nivel de fatiga' },
+  { value: '0001', label: '0001-Resistencia' },
+];
 
-// Primero, definimos el tipo para los campos de array
-type ArrayFieldName = 
-  | "noc_indicador"
-  | "noc_rango"
-  | "noc_diana_inicial"
-  | "noc_diana_esperada"
-  | "noc_evaluacion"
-  | "nic_intervencion"
-  | "nic_clase"
-  | "nic_actividades";
-
-export default function NursingNNNForm() {
-  const { data: session } = useSession();
+export default function NursingForm() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showValidation, setShowValidation] = useState(true);
+  const [completedFields, setCompletedFields] = useState(0);
+  const totalFields = 17;
 
-  const { register, handleSubmit, control, formState: { errors }, setValue } = useForm<NursingFormValues>({
-    resolver: zodResolver(nursingFormSchema),
-    mode: "onChange",
-    defaultValues: {
-      fecha: new Date().toISOString().split('T')[0],  // valor por defecto para la fecha
-      noc_indicador: [{ value: '' }],
-      noc_rango: [{ value: '' }],
-      noc_diana_inicial: [{ value: '' }],
-      noc_diana_esperada: [{ value: '' }],
-      noc_evaluacion: [{ value: '' }],
-      nic_intervencion: [{ value: '' }],
-      nic_clase: [{ value: '' }],
-      nic_actividades: [{ value: '' }],
-    }
-  });
+  const {
+    form,
+    validationState,
+    validateFormCompletely,
+    clearValidationErrors,
+    isFormValid
+  } = useNursingValidation();
 
-  const handlePatientSelect = (patient: any) => {
-    setValue("patientId", patient.id);
-  };
-
-  // Configuración de campos de array para NOC
-  const nocIndicadores = useFieldArray({
-    control,
-    name: "noc_indicador" as const
-  });
-
-  const nocRangos = useFieldArray({
-    control,
-    name: "noc_rango" as const
-  });
-
-  const nocDianaInicial = useFieldArray({
-    control,
-    name: "noc_diana_inicial" as const
-  });
-
-  const nocDianaEsperada = useFieldArray({
-    control,
-    name: "noc_diana_esperada" as const
-  });
-
-  const nocEvaluacion = useFieldArray({
-    control,
-    name: "noc_evaluacion" as const
-  });
-
-  const nicIntervencion = useFieldArray({
-    control,
-    name: "nic_intervencion" as const
-  });
-
-  const nicClase = useFieldArray({
-    control,
-    name: "nic_clase" as const
-  });
-
-  const nicActividades = useFieldArray({
-    control,
-    name: "nic_actividades" as const
-  });
-
-  /** Fetch session data (userId y patientId) */
+  // Contar campos completados
   useEffect(() => {
-    const fetchSessionData = async () => {
-      const sessionData = await getSession();
-      if (sessionData?.user?.access_token) {
-        const token = sessionData.user.access_token;
-        const tokenParts = token.split('.');
-        const payload = JSON.parse(atob(tokenParts[1]));
-        const userId = payload.id;
+    const subscription = form.watch((value) => {
+      const formData = value as NursingFormData;
+      let completed = 0;
 
-        if (userId) {
-          setValue("userId", userId);
-        }
+      // Campos de texto simples
+      if (formData.nanda_dominio) completed++;
+      if (formData.nanda_clase) completed++;
+      if (formData.nanda_etiqueta_diagnostica) completed++;
+      if (formData.nanda_factor_relacionado) completed++;
+      if (formData.nanda_planteamiento_del_diagnostico) completed++;
+      if (formData.noc_resultado_noc) completed++;
+      if (formData.noc_dominio) completed++;
+      if (formData.noc_clase) completed++;
 
-        const patientId = sessionData.user.team?.patient?.id;
-        if (patientId) {
-          setValue("patientId", patientId);
-        }
-      }
-    };
+      // Arrays (contar como completados si tienen al menos un elemento válido)
+      if (formData.noc_indicador && formData.noc_indicador.some(item => item.trim())) completed++;
+      if (formData.noc_rango && formData.noc_rango.some(item => item.trim())) completed++;
+      if (formData.noc_diana_inicial && formData.noc_diana_inicial.some(item => item.trim())) completed++;
+      if (formData.noc_diana_esperada && formData.noc_diana_esperada.some(item => item.trim())) completed++;
+      if (formData.noc_evaluacion && formData.noc_evaluacion.some(item => item.trim())) completed++;
+      if (formData.nic_intervencion && formData.nic_intervencion.some(item => item.trim())) completed++;
+      if (formData.nic_clase && formData.nic_clase.some(item => item.trim())) completed++;
+      if (formData.nic_actividades && formData.nic_actividades.some(item => item.trim())) completed++;
 
-    fetchSessionData();
-  }, [setValue]);
+      setCompletedFields(completed);
+    });
 
-  // Mutación con logs detallados
-  const mutation = useMutation({
-    mutationFn: async (data: NursingFormValues) => {
-      console.log('📝 Datos a enviar:', data);
-      
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // Mutación para crear el formulario
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (values: NursingFormData) => {
       const session = await getSession();
       const token = session?.user.access_token;
-      if (!token) {
-        throw new Error("No se encontró el token de acceso");
-      }
-
-      return await createNursingForm(data, token);
+      if (!token) throw new Error('Token no disponible');
+      
+      // Agregar IDs de usuario y paciente (en un sistema real, estos vendrían del contexto)
+      const formData = {
+        ...values,
+        userId: 'user-123', // Placeholder
+        patientId: 'patient-456' // Placeholder
+      };
+      
+      return await createNursingForm(formData, token);
     },
     onSuccess: () => {
-      toast({
-        title: 'Éxito',
-        description: 'Formulario de enfermería creado correctamente',
+      toast({ 
+        title: 'Éxito', 
+        description: 'Formulario de enfermería creado correctamente' 
+      });
+      queryClient.invalidateQueries({ queryKey: ['nursing'] });
+      form.reset();
+      clearValidationErrors();
+    },
+    onError: (error: unknown) => {
+      toast({ 
+        title: 'Error', 
+        description: (error as Error).message, 
+        variant: 'destructive' 
       });
     },
-    onError: (error: any) => {
-      console.error('❌ Error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.response?.data?.message?.[0] || 'Error al crear el formulario',
-      });
-    }
   });
 
-  const onSubmit = async (data: NursingFormValues) => {
-    try {
-      const formattedData = {
-        fecha: data.fecha,
-        nanda_dominio: data.nanda_dominio,
-        nanda_clase: data.nanda_clase,
-        nanda_etiqueta_diagnostica: data.nanda_etiqueta_diagnostica,
-        nanda_factor_relacionado: data.nanda_factor_relacionado,
-        nanda_planteamiento_del_diagnostico: data.nanda_planteamiento_del_diagnostico,
-        noc_resultado_noc: data.noc_resultado_noc,
-        noc_dominio: data.noc_dominio,
-        noc_clase: data.noc_clase,
-        noc_indicador: data.noc_indicador.map(item => item.value).filter(Boolean),
-        noc_rango: data.noc_rango.map(item => item.value).filter(Boolean),
-        noc_diana_inicial: data.noc_diana_inicial.map(item => item.value).filter(Boolean),
-        noc_diana_esperada: data.noc_diana_esperada.map(item => item.value).filter(Boolean),
-        noc_evaluacion: data.noc_evaluacion.map(item => item.value).filter(Boolean),
-        nic_intervencion: data.nic_intervencion.map(item => item.value).filter(Boolean),
-        nic_clase: data.nic_clase.map(item => item.value).filter(Boolean),
-        nic_actividades: data.nic_actividades.map(item => item.value).filter(Boolean),
-        userId: data.userId,
-        patientId: data.patientId
-      };
-
-      await mutation.mutateAsync(formattedData);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: error.response?.data?.message?.[0] || 'Error al crear el formulario'
-        });
-      }
+  // Función para manejar el envío del formulario
+  const onSubmit = (data: NursingFormData) => {
+    if (!validateFormCompletely()) {
+      toast({
+        title: 'Error de validación',
+        description: 'Por favor, corrija los errores antes de enviar',
+        variant: 'destructive'
+      });
+      return;
     }
+
+    mutate(data);
   };
 
-  const handleAddIndicator = () => {
-    nocIndicadores.append({ value: '' });
-    nocRangos.append({ value: '' });
-    nocDianaInicial.append({ value: '' });
-    nocDianaEsperada.append({ value: '' });
-    nocEvaluacion.append({ value: '' });
+  // Función para agregar elemento a un array
+  const addArrayItem = (fieldName: keyof NursingFormData) => {
+    const currentValue = form.getValues(fieldName) as string[] || [''];
+    form.setValue(fieldName, [...currentValue, '']);
   };
 
-  const handleAddIntervencion = () => {
-    nicIntervencion.append({ value: '' });
-    nicClase.append({ value: '' });
-    nicActividades.append({ value: '' });
+  // Función para remover elemento de un array
+  const removeArrayItem = (fieldName: keyof NursingFormData, index: number) => {
+    const currentValue = form.getValues(fieldName) as string[] || [''];
+    if (currentValue.length > 1) {
+      const newValue = currentValue.filter((_, i) => i !== index);
+      form.setValue(fieldName, newValue);
+    }
   };
 
   return (
-    <div className='rounded-lg bg-zinc-50 p-6 shadow dark:bg-gray-800'>
-      <div className='flex items-center justify-between mb-6'>
-        <h2 className='text-2xl font-bold'>Formulario de Enfermería (NANDA-NOC-NIC)</h2>
-        <PatientSelector onSelect={handlePatientSelect} />
+    <div className="space-y-6 max-w-6xl mx-auto">
+      {/* Header del formulario */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Formulario de Enfermería
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Sistema de Diagnóstico NANDA, Resultados NOC e Intervenciones NIC
+        </p>
+        <div className="flex justify-center space-x-2">
+          <Badge variant="outline">NANDA</Badge>
+          <Badge variant="outline">NOC</Badge>
+          <Badge variant="outline">NIC</Badge>
+        </div>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
-        <h2 className='mb-6 text-2xl font-bold'>
-        </h2>
-        <div className="space-y-2">
-  <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-    Fecha
-  </Label>
-  <Input
-    type="date"
-    className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-               dark:border-gray-700 focus:border-blue-500 
-               dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-    {...register('fecha')}
-  />
-  {errors.fecha && (
-    <p className="text-sm text-red-500">{errors.fecha.message}</p>
-  )}
-</div>
 
-          {/* Sección A: NANDA - Diagnóstico de Enfermería */}
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md">
-            A. NANDA - Diagnóstico de Enfermería
-          </h2>
+      {/* Estado de validación */}
+      <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100">Estado del Formulario</h3>
+            <p className="text-sm text-blue-600 dark:text-blue-300">
+              {completedFields} de {totalFields} campos completados ({Math.round((completedFields / totalFields) * 100)}%)
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              {isFormValid ? 'Válido' : 'Con Errores'}
+            </div>
+            <div className="text-sm text-blue-600 dark:text-blue-300">
+              {Object.values(validationState.fieldErrors).filter(error => error).length} errores
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Dominio
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('nanda_dominio')}
-              />
-              {errors.nanda_dominio && (
-                <p className="text-sm text-red-500">{errors.nanda_dominio.message}</p>
-              )}
+      {/* Formulario principal */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          
+          {/* Sección NANDA */}
+          <div className="border rounded-lg p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-300 font-bold">1</span>
+                </div>
+                <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">Diagnóstico NANDA</span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400">
+                Complete la información del diagnóstico de enfermería según la taxonomía NANDA
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Clase
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('nanda_clase')}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  name="nanda_dominio"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dominio NANDA *</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione un dominio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {nandaData.map((item) => (
+                              <SelectItem key={item.value} value={item.value}>
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="nanda_clase"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Clase NANDA *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Ingrese la clase" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                name="nanda_etiqueta_diagnostica"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Etiqueta Diagnóstica NANDA *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Ingrese la etiqueta diagnóstica" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.nanda_clase && (
-                <p className="text-sm text-red-500">{errors.nanda_clase.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Etiqueta Diagnóstica
-              </Label>
-              <AutocompleteSelector
-                jsonPath="/nanda.json"
-                placeholder="Buscar etiqueta diagnóstica NANDA"
-                onSelect={(value, label) => setValue('nanda_etiqueta_diagnostica', label)}
+
+              <FormField
+                name="nanda_factor_relacionado"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Factor Relacionado *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Ingrese el factor relacionado" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.nanda_etiqueta_diagnostica && (
-                <p className="text-sm text-red-500">{errors.nanda_etiqueta_diagnostica.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Factor Relacionado
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('nanda_factor_relacionado')}
+
+              <FormField
+                name="nanda_planteamiento_del_diagnostico"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Planteamiento del Diagnóstico *</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Describa el planteamiento del diagnóstico..."
+                        className="min-h-[100px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.nanda_factor_relacionado && (
-                <p className="text-sm text-red-500">{errors.nanda_factor_relacionado.message}</p>
-              )}
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Planteamiento del Diagnóstico
-              </Label>
-              <Textarea
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('nanda_planteamiento_del_diagnostico')}
-              />
-              {errors.nanda_planteamiento_del_diagnostico && (
-                <p className="text-sm text-red-500">{errors.nanda_planteamiento_del_diagnostico.message}</p>
-              )}
             </div>
           </div>
 
-          {/* Sección C: NOC - Resultados de Enfermería */}
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md mt-8">
-            C. NOC - Resultados de Enfermería
-          </h2>
+          {/* Sección NOC */}
+          <div className="border rounded-lg p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-300 font-bold">2</span>
+                </div>
+                <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">Resultados NOC</span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400">
+                Defina los resultados esperados según la taxonomía NOC
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  name="noc_resultado_noc"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Resultado NOC *</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione un resultado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {nocData.map((item) => (
+                              <SelectItem key={item.value} value={item.value}>
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Resultado NOC
-              </Label>
-              <AutocompleteSelector
-                jsonPath="/noc.json"
-                placeholder="Buscar resultado NOC"
-                onSelect={(value, label) => setValue('noc_resultado_noc', label)}
+                <FormField
+                  name="noc_dominio"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dominio NOC *</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Ingrese el dominio" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                name="noc_clase"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Clase NOC *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Ingrese la clase" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.noc_resultado_noc && (
-                <p className="text-sm text-red-500">{errors.noc_resultado_noc.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Dominio
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('noc_dominio')}
+
+              {/* Arrays relacionados */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Indicadores, Rangos y Dianas</h4>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    onClick={() => {
+                      addArrayItem('noc_indicador');
+                      addArrayItem('noc_rango');
+                      addArrayItem('noc_diana_inicial');
+                      addArrayItem('noc_diana_esperada');
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Indicador
+                  </Button>
+                </div>
+
+                {form.watch('noc_indicador')?.map((_, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <FormField
+                      name={`noc_indicador.${index}`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Indicador {index + 1}</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Indicador" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`noc_rango.${index}`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rango {index + 1}</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Rango" type="number" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`noc_diana_inicial.${index}`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Diana Inicial {index + 1}</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="1-5" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[1, 2, 3, 4, 5].map((num) => (
+                                  <SelectItem key={num} value={num.toString()}>
+                                    {num}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`noc_diana_esperada.${index}`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Diana Esperada {index + 1}</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="1-5" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[1, 2, 3, 4, 5].map((num) => (
+                                  <SelectItem key={num} value={num.toString()}>
+                                    {num}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex items-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                        onClick={() => {
+                          removeArrayItem('noc_indicador', index);
+                          removeArrayItem('noc_rango', index);
+                          removeArrayItem('noc_diana_inicial', index);
+                          removeArrayItem('noc_diana_esperada', index);
+                        }}
+                        disabled={form.watch('noc_indicador')?.length === 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <FormField
+                name="noc_evaluacion"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Evaluación NOC</FormLabel>
+                    <div className="space-y-2">
+                      {field.value?.map((_, index) => (
+                        <div key={index} className="flex space-x-2">
+                          <FormControl>
+                            <Input
+                              value={field.value?.[index] || ''}
+                              onChange={(e) => {
+                                const newValue = [...(field.value || [])];
+                                newValue[index] = e.target.value;
+                                field.onChange(newValue);
+                              }}
+                              placeholder={`Evaluación ${index + 1}`}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                            onClick={() => {
+                              const newValue = field.value?.filter((_, i) => i !== index) || [];
+                              field.onChange(newValue);
+                            }}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        onClick={() => {
+                          const newValue = [...(field.value || []), ''];
+                          field.onChange(newValue);
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Evaluación
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.noc_dominio && (
-                <p className="text-sm text-red-500">{errors.noc_dominio.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Clase
-              </Label>
-              <Input
-                className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                {...register('noc_clase')}
-              />
-              {errors.noc_clase && (
-                <p className="text-sm text-red-500">{errors.noc_clase.message}</p>
-              )}
             </div>
           </div>
 
-          {/* NOC Indicadores - Campos dinámicos */}
-          <div className="mt-6 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-white">
-                Indicadores y Escalas NOC
-              </h3>
+          {/* Sección NIC */}
+          <div className="border rounded-lg p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 dark:text-purple-300 font-bold">3</span>
+                </div>
+                <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">Intervenciones NIC</span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400">
+                Defina las intervenciones de enfermería según la taxonomía NIC
+              </p>
+            </div>
+            <div className="space-y-4">
+              <FormField
+                name="nic_intervencion"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Intervenciones NIC *</FormLabel>
+                    <div className="space-y-2">
+                      {field.value?.map((_, index) => (
+                        <div key={index} className="flex space-x-2">
+                          <FormControl>
+                            <Select
+                              value={field.value?.[index] || ''}
+                              onValueChange={(value) => {
+                                const newValue = [...(field.value || [])];
+                                newValue[index] = value;
+                                field.onChange(newValue);
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleccione una intervención" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {nicData.map((item) => (
+                                  <SelectItem key={item.value} value={item.value}>
+                                    {item.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                            onClick={() => {
+                              const newValue = field.value?.filter((_, i) => i !== index) || [];
+                              field.onChange(newValue);
+                            }}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        onClick={() => {
+                          const newValue = [...(field.value || []), ''];
+                          field.onChange(newValue);
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Intervención
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="nic_clase"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Clases NIC</FormLabel>
+                    <div className="space-y-2">
+                      {field.value?.map((_, index) => (
+                        <div key={index} className="flex space-x-2">
+                          <FormControl>
+                            <Input
+                              value={field.value?.[index] || ''}
+                              onChange={(e) => {
+                                const newValue = [...(field.value || [])];
+                                newValue[index] = e.target.value;
+                                field.onChange(newValue);
+                              }}
+                              placeholder={`Clase ${index + 1}`}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                            onClick={() => {
+                              const newValue = field.value?.filter((_, i) => i !== index) || [];
+                              field.onChange(newValue);
+                            }}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        onClick={() => {
+                          const newValue = [...(field.value || []), ''];
+                          field.onChange(newValue);
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Clase
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="nic_actividades"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Actividades NIC</FormLabel>
+                    <div className="space-y-2">
+                      {field.value?.map((_, index) => (
+                        <div key={index} className="flex space-x-2">
+                          <FormControl>
+                            <Textarea
+                              value={field.value?.[index] || ''}
+                              onChange={(e) => {
+                                const newValue = [...(field.value || [])];
+                                newValue[index] = e.target.value;
+                                field.onChange(newValue);
+                              }}
+                              placeholder={`Actividad ${index + 1}`}
+                              className="min-h-[60px]"
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+                            onClick={() => {
+                              const newValue = field.value?.filter((_, i) => i !== index) || [];
+                              field.onChange(newValue);
+                            }}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        onClick={() => {
+                          const newValue = [...(field.value || []), ''];
+                          field.onChange(newValue);
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Actividad
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-4">
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                onClick={handleAddIndicator}
-                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                onClick={() => setShowValidation(!showValidation)}
               >
-                <PlusCircle className="h-4 w-4" />
-                Añadir indicador
+                {showValidation ? 'Ocultar Validación' : 'Mostrar Validación'}
               </Button>
-            </div>
-
-            {nocIndicadores.fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Indicador
-                  </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_indicador.${index}.value`)}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Rango
-                  </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_rango.${index}.value`)}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Diana Inicial
-                  </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_diana_inicial.${index}.value`)}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Diana Esperada
-                  </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B]"
-                    {...register(`noc_diana_esperada.${index}.value`)}
-                  />
-                </div>
-                <div className="flex items-end">
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                      Evaluación
-                    </Label>
-                    <Input
-                      className="w-full bg-white dark:bg-[#1E293B]"
-                      {...register(`noc_evaluacion.${index}.value`)}
-                    />
-                  </div>
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="ml-2 mb-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => {
-                        nocIndicadores.remove(index);
-                        nocRangos.remove(index);
-                        nocDianaInicial.remove(index);
-                        nocDianaEsperada.remove(index);
-                        nocEvaluacion.remove(index);
-                      }}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Sección D: NIC - Intervenciones de Enfermería */}
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 bg-gray-50 dark:bg-[#1E293B] p-3 rounded-md mt-8">
-            D. NIC - Intervenciones de Enfermería
-          </h2>
-
-          <div className="mt-6 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-800 dark:text-white">
-                Intervenciones y Actividades
-              </h3>
+              
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                onClick={handleAddIntervencion}
-                className="flex items-center gap-1 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800"
+                className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                onClick={clearValidationErrors}
               >
-                <PlusCircle className="h-4 w-4" />
-                Añadir intervención
+                Limpiar Errores
               </Button>
             </div>
 
-            {nicIntervencion.fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
-               <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Intervención
-                  </Label>
-                  <AutocompleteSelector
-                    jsonPath="/nic.json"
-                    placeholder="Buscar intervención NIC"
-                    onSelect={(value, label) => setValue(`nic_intervencion.${index}.value`, label)}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                    Clase
-                  </Label>
-                  <Input
-                    className="w-full bg-white dark:bg-[#1E293B] border-gray-200 
-             dark:border-gray-700 focus:border-blue-500 
-             dark:focus:border-blue-500 text-gray-900 dark:text-gray-100"
-                    {...register(`nic_clase.${index}.value`)}
-                  />
-                </div>
-                <div className="flex items-end">
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">
-                      Actividades
-                    </Label>
-                    <Textarea
-                      className="w-full bg-white dark:bg-[#1E293B] min-h-24"
-                      {...register(`nic_actividades.${index}.value`)}
-                      placeholder="Describa las actividades relacionadas con esta intervención"
-                    />
-                  </div>
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="ml-2 mb-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      onClick={() => {
-                        nicIntervencion.remove(index);
-                        nicClase.remove(index);
-                        nicActividades.remove(index);
-                      }}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  )}
-                </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {completedFields} de {totalFields} campos completados
               </div>
-            ))}
-          </div>
-
-          {/* Botón de envío */}
-          <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Button
-              type="submit"
-              className="w-full md:w-auto bg-blue-600 dark:bg-[#1E293B] 
-                       hover:bg-blue-700 dark:hover:bg-[#2D3B4F] 
-                       text-white font-medium py-3 px-8 rounded-lg 
-                       transition-all"
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? 'Guardando...' : 'Guardar Formulario'}
-            </Button>
+              
+              <Button
+                type="submit"
+                disabled={isPending || !isFormValid}
+                className="min-w-[120px]"
+              >
+                {isPending ? (
+                  'Guardando...'
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Guardar
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
-      </div>
+      </Form>
+    </div>
   );
 }

@@ -13,6 +13,7 @@ import { createNeurologica } from '@/services/neurologicaService';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+import { CreateNeurologicaRequest } from '@/types/neurologica';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -32,9 +33,29 @@ const schema = z.object({
   amnesis: z.string().optional(),
   inicioEvolucion: z.string().optional(),
   entornoFamiliar: z.string().optional(),
+  // Nuevas secciones de evaluación funcional
+  alteracionesMarcha: z.object({
+    marchaTrendelenburg: z.boolean().default(false),
+    marchaTuerca: z.boolean().default(false),
+    marchaAtaxica: z.boolean().default(false),
+    marchaSegador: z.boolean().default(false),
+    marchaTijeras: z.boolean().default(false),
+    marchaTabetica: z.boolean().default(false),
+    marchaCoreica: z.boolean().default(false),
+    marchaDistonica: z.boolean().default(false),
+    otrasAlteraciones: z.string().optional(),
+  }),
+  riesgoCaida: z.object({
+    tiempoTimedUpGo: z.string().optional(),
+    riesgoEvaluado: z.string().optional(),
+    comentariosRiesgo: z.string().optional(),
+  }),
+  alcanceMotor: z.string().optional(),
+  comentariosExaminador: z.string().optional(),
+  resumenResultados: z.string().optional(),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = CreateNeurologicaRequest;
 
 const barthelItems = [
   {
@@ -113,7 +134,30 @@ const barthelItems = [
 ];
 
 export default function CreateNeurologicaForm({ onClose }: { onClose: () => void }) {
-  const form = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const form = useForm<FormValues>({ 
+    resolver: zodResolver(schema),
+    defaultValues: {
+      alteracionesMarcha: {
+        marchaTrendelenburg: false,
+        marchaTuerca: false,
+        marchaAtaxica: false,
+        marchaSegador: false,
+        marchaTijeras: false,
+        marchaTabetica: false,
+        marchaCoreica: false,
+        marchaDistonica: false,
+        otrasAlteraciones: '',
+      },
+      riesgoCaida: {
+        tiempoTimedUpGo: '',
+        riesgoEvaluado: '',
+        comentariosRiesgo: '',
+      },
+      alcanceMotor: '',
+      comentariosExaminador: '',
+      resumenResultados: '',
+    }
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [barthel, setBarthel] = useState<{ [key: string]: number }>({});
@@ -124,7 +168,23 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
       const session = await getSession();
       const token = session?.user.access_token;
       if (!token) throw new Error('Token no disponible');
-      return await createNeurologica(values, token);
+      
+      // Incluir los datos del índice de Barthel en el envío
+      const dataToSend = {
+        ...values,
+        barthel: {
+          vestirse: barthel.vestirse,
+          arreglarse: barthel.arreglarse,
+          deposicion: barthel.deposicion,
+          miccion: barthel.miccion,
+          usoRetrete: barthel.usoRetrete,
+          trasladarse: barthel.trasladarse,
+          deambular: barthel.deambular,
+          escaleras: barthel.escaleras,
+        }
+      };
+      
+      return await createNeurologica(dataToSend, token);
     },
     onSuccess: () => {
       toast({ title: 'Éxito', description: 'Evaluación registrada correctamente' });
@@ -261,7 +321,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           <FormField name='amnesis' control={form.control} render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea className='min-h-[80px] border border-gray-200 bg-white focus:bg-white focus:border-blue-200' placeholder='Describa la amnesis...' {...field} />
+                <Textarea 
+                  className='min-h-[80px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                  placeholder='Describa la amnesis...' 
+                  {...field} 
+                />
               </FormControl>
             </FormItem>
           )} />
@@ -275,7 +339,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                 <FormField name='entornoFamiliar' control={form.control} render={({ field }) => (
                   <FormItem className='mb-0'>
                     <FormControl>
-                      <Input className='bg-white border border-gray-200 focus:bg-white focus:border-blue-200' placeholder='Entorno familiar y social...' {...field} />
+                      <Input 
+                        className='bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                        placeholder='Entorno familiar y social...' 
+                        {...field} 
+                      />
                     </FormControl>
                   </FormItem>
                 )} />
@@ -285,7 +353,201 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           <FormField name='inicioEvolucion' control={form.control} render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea className='min-h-[60px] border border-gray-200 bg-white focus:bg-white focus:border-blue-200 mt-2' placeholder='Describa el inicio y evolución...' {...field} />
+                <Textarea 
+                  className='min-h-[60px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400 mt-2' 
+                  placeholder='Describa el inicio y evolución...' 
+                  {...field} 
+                />
+              </FormControl>
+            </FormItem>
+          )} />
+        </div>
+
+        {/* NUEVA SECCIÓN: ALTERACIONES DE LA MARCHA */}
+        <div className='space-y-4'>
+          <div className='flex items-center gap-3'>
+            <h4 className='font-semibold text-lg'>ALTERACIONES DE LA MARCHA</h4>
+            <span className='bg-pink-500 text-white px-3 py-1 rounded-md text-sm font-medium'>CHECK</span>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <FormField name='alteracionesMarcha.marchaTrendelenburg' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA DE TRENDELEMBURG</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaTuerca' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA EN TUERCA</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaAtaxica' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA ATÁXICA</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaSegador' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA EN SEGADOR</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaTijeras' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA EN TIJERAS</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaTabetica' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA TABETICA</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaCoreica' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA COREICA</FormLabel>
+              </FormItem>
+            )} />
+
+            <FormField name='alteracionesMarcha.marchaDistonica' control={form.control} render={({ field }) => (
+              <FormItem className='flex items-center space-x-2'>
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='mb-0'>MARCHA DISTONICA</FormLabel>
+              </FormItem>
+            )} />
+          </div>
+
+          <FormField name='alteracionesMarcha.otrasAlteraciones' control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>OTRAS ALTERACIONES</FormLabel>
+              <FormControl>
+                <Input 
+                  className='bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                  placeholder='Especifique otras alteraciones...' 
+                  {...field} 
+                />
+              </FormControl>
+            </FormItem>
+          )} />
+        </div>
+
+        {/* NUEVA SECCIÓN: RIESGO DE CAÍDA - TIMED UP AND GO */}
+        <div className='space-y-4'>
+          <div className='flex items-center gap-3'>
+            <h4 className='font-semibold text-lg'>RIESGO DE CAÍDA: TIMED UP AND GO</h4>
+            <span className='bg-pink-500 text-white px-3 py-1 rounded-md text-sm font-medium'>CHECK</span>
+          </div>
+
+          {/* Criterios de evaluación con checkboxes */}
+          <div className='space-y-3'>
+            <h5 className='font-medium text-white'>Seleccione el nivel de riesgo:</h5>
+            
+            <FormField name='riesgoCaida.riesgoEvaluado' control={form.control} render={({ field }) => (
+              <FormItem className='space-y-3'>
+                <div className='space-y-2'>
+                  <label className='flex items-center space-x-3 cursor-pointer'>
+                    <input
+                      type='radio'
+                      name='riesgoEvaluado'
+                      value='bajo'
+                      checked={field.value === 'bajo'}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                    />
+                    <span className='text-gray-300'>• &lt; 10 segundos: movilidad normal, bajo riesgo de caída</span>
+                  </label>
+                  
+                  <label className='flex items-center space-x-3 cursor-pointer'>
+                    <input
+                      type='radio'
+                      name='riesgoEvaluado'
+                      value='moderado'
+                      checked={field.value === 'moderado'}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                    />
+                    <span className='text-gray-300'>• 10-20 segundos: movilidad aceptable, riesgo moderado</span>
+                  </label>
+                  
+                  <label className='flex items-center space-x-3 cursor-pointer'>
+                    <input
+                      type='radio'
+                      name='riesgoEvaluado'
+                      value='alto'
+                      checked={field.value === 'alto'}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                    />
+                    <span className='text-gray-300'>• &gt; 20 segundos: movilidad reducida, alto riesgo de caída</span>
+                  </label>
+                  
+                  <label className='flex items-center space-x-3 cursor-pointer'>
+                    <input
+                      type='radio'
+                      name='riesgoEvaluado'
+                      value='dependencia'
+                      checked={field.value === 'dependencia'}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                    />
+                    <span className='text-gray-300'>• &gt; 30 segundos: dependencia funcional significativa</span>
+                  </label>
+                </div>
+              </FormItem>
+            )} />
+          </div>
+
+          {/* Caja de comentarios */}
+          <div className='mt-6'>
+            <h5 className='font-medium text-white mb-3'>• COMENTARIOS</h5>
+            <FormField name='riesgoCaida.comentariosRiesgo' control={form.control} render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea 
+                    className='min-h-[80px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                    placeholder='CUADRO DE TEXTO' 
+                    {...field} 
+                  />
+                </FormControl>
+              </FormItem>
+            )} />
+          </div>
+        </div>
+
+        {/* NUEVA SECCIÓN: ALCANCE MOTOR */}
+        <div className='space-y-4'>
+          <h4 className='font-semibold text-lg'>ALCANCE MOTOR MÁS ALTO</h4>
+          <FormField name='alcanceMotor' control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel>Descripción del alcance motor máximo</FormLabel>
+              <FormControl>
+                <Textarea className='min-h-[80px]' placeholder='Describa el alcance motor más alto alcanzado...' {...field} />
               </FormControl>
             </FormItem>
           )} />
@@ -385,7 +647,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           <FormField name='comentariosExaminador' control={form.control} render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea className='min-h-[180px] border border-gray-200 bg-white focus:bg-white focus:border-blue-200' placeholder='Escriba aquí los comentarios del examinador...' {...field} />
+                <Textarea 
+                  className='min-h-[180px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                  placeholder='Escriba aquí los comentarios del examinador...' 
+                  {...field} 
+                />
               </FormControl>
             </FormItem>
           )} />
@@ -397,7 +663,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           <FormField name='resumenResultados' control={form.control} render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea className='min-h-[120px] border border-gray-200 bg-white focus:bg-white focus:border-blue-200' placeholder='Escriba aquí el resumen de resultados...' {...field} />
+                <Textarea 
+                  className='min-h-[120px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                  placeholder='Escriba aquí el resumen de resultados...' 
+                  {...field} 
+                />
               </FormControl>
             </FormItem>
           )} />

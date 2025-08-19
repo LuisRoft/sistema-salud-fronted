@@ -1,0 +1,1312 @@
+{
+    "nombre": "CIF - Estructura del Cuerpo Humano",
+    "descripcion": "Clasificación Internacional del Funcionamiento - Estructuras anatómicas",
+    "estructuras": [
+      {
+        "codigo": "S110",
+        "tema": "Estructura del cerebro",
+        "subestructuras": [
+          {
+            "codigo": "s11000",
+            "descripcion": "Lóbulo frontal"
+          },
+          {
+            "codigo": "s11001",
+            "descripcion": "Lóbulo temporal"
+          },
+          {
+            "codigo": "s11002",
+            "descripcion": "Lóbulo parietal"
+          },
+          {
+            "codigo": "s11003",
+            "descripcion": "Lóbulo occipital"
+          },
+          {
+            "codigo": "s11008",
+            "descripcion": "Estructura de los lóbulos corticales, otra especificada"
+          },
+          {
+            "codigo": "s11009",
+            "descripcion": ""
+          }
+        ]
+      },
+      {
+        "codigo": "S1101",
+        "tema": "Estructura del cerebro medio"
+      },
+      {
+        "codigo": "S1102",
+        "tema": "Estructura del diencéfalo"
+      },
+      {
+        "codigo": "S1103",
+        "tema": "Ganglios basales y estructuras relacionadas"
+      },
+      {
+        "codigo": "S1104",
+        "tema": "Estructuras del cerebelo"
+      },
+      {
+        "codigo": "S1105",
+        "tema": "Estructura del tronco cerebral",
+        "subestructuras": [
+          {
+            "codigo": "11050",
+            "descripcion": "Bulbo raquídeo"
+          },
+          {
+            "codigo": "11051",
+            "descripcion": "Puente (protuberancia)"
+          },
+          {
+            "codigo": "11058",
+            "descripcion": "Estructura del tronco cerebral, otra especificada"
+          },
+          {
+            "codigo": "11059",
+            "descripcion": "Estructura del tronco cerebral, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "S1106",
+        "tema": "Estructura de los nervios craneales"
+      },
+      {
+        "codigo": "S1108",
+        "tema": "Estructura del cerebro, otra especificada"
+      },
+      {
+        "codigo": "S1109",
+        "tema": "Estructura del cerebro, no especificada"
+      },
+      {
+        "codigo": "S120",
+        "tema": "Médula espinal y estructuras relacionadas",
+        "subestructuras": [
+          {
+            "codigo": "S1200",
+            "tema": "Estructura de la médula espinal",
+            "subestructuras": [
+              {
+                "codigo": "12000",
+                "descripcion": "Médula espinal cervical"
+              },
+              {
+                "codigo": "12001",
+                "descripcion": "Médula espinal torácica"
+              },
+              {
+                "codigo": "12002",
+                "descripcion": "Médula espinal lumbosacra"
+              },
+              {
+                "codigo": "12003",
+                "descripcion": "Cola de caballo"
+              },
+              {
+                "codigo": "12008",
+                "descripcion": "Estructura de médula espinal, otra especificada"
+              },
+              {
+                "codigo": "12009",
+                "descripcion": "Estructura de médula espinal, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "S1201",
+            "tema": "Nervios espinales"
+          },
+          {
+            "codigo": "S1208",
+            "tema": "Estructura de la médula espinal y estructuras relacionadas, otra especificada"
+          },
+          {
+            "codigo": "s1209",
+            "tema": "Estructura de la médula espinal y estructuras relacionadas, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s130",
+        "tema": "Estructura de las meninges"
+      },
+      {
+        "codigo": "s140",
+        "tema": "Estructura del sistema nervioso simpático"
+      },
+      {
+        "codigo": "s150",
+        "tema": "Estructura del sistema nervioso parasimpático"
+      },
+      {
+        "codigo": "s198",
+        "tema": "Estructura del sistema nervioso, otra especificada"
+      },
+      {
+        "codigo": "s199",
+        "tema": "Estructura del sistema nervioso, no especificada"
+      },
+      {
+        "codigo": "s210",
+        "tema": "Estructura de la órbita ocular"
+      },
+      {
+        "codigo": "s220",
+        "tema": "Estructura del globo ocular",
+        "subestructuras": [
+          {
+            "codigo": "s2200",
+            "descripcion": "Conjuntiva, esclerótica, coroides"
+          },
+          {
+            "codigo": "s2201",
+            "descripcion": "Córnea"
+          },
+          {
+            "codigo": "s2202",
+            "descripcion": "Iris"
+          },
+          {
+            "codigo": "s2203",
+            "descripcion": "Retina"
+          },
+          {
+            "codigo": "s2204",
+            "descripcion": "Cristalino"
+          },
+          {
+            "codigo": "s2205",
+            "descripcion": "Humor vítreo"
+          },
+          {
+            "codigo": "s2208",
+            "descripcion": "Estructura del globo ocular, otra especificada"
+          },
+          {
+            "codigo": "s2209",
+            "descripcion": "Estructura del globo ocular, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s230",
+        "tema": "Estructuras periféricas oculares",
+        "subestructuras": [
+          {
+            "codigo": "s2300",
+            "descripcion": "Glándulas lacrimales y estructuras relacionadas"
+          },
+          {
+            "codigo": "s2301",
+            "descripcion": "Pestañas"
+          },
+          {
+            "codigo": "s2302",
+            "descripcion": "Cejas"
+          },
+          {
+            "codigo": "s2303",
+            "descripcion": "Músculos oculares externos"
+          },
+          {
+            "codigo": "s2308",
+            "descripcion": "Estructuras alrededor del ojo, otras especificadas"
+          },
+          {
+            "codigo": "s2309",
+            "descripcion": "Estructuras alrededor del ojo, no especificadas"
+          }
+        ]
+      },
+      {
+        "codigo": "s240",
+        "tema": "Estructura del oído externo"
+      },
+      {
+        "codigo": "s250",
+        "tema": "Estructura del oído medio",
+        "subestructuras": [
+          {
+            "codigo": "s2500",
+            "descripcion": "Membrana timpánica"
+          },
+          {
+            "codigo": "s2501",
+            "descripcion": "Trompa de Eustaquio"
+          },
+          {
+            "codigo": "s2502",
+            "descripcion": "Huesecillos"
+          },
+          {
+            "codigo": "s2508",
+            "descripcion": "Estructura del oído medio, otra especificada"
+          },
+          {
+            "codigo": "s2509",
+            "descripcion": "Estructura del oído medio, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s260",
+        "tema": "Estructura del oído interno",
+        "subestructuras": [
+          {
+            "codigo": "s2600",
+            "descripcion": "Cóclea"
+          },
+          {
+            "codigo": "s2601",
+            "descripcion": "Laberinto vestibular"
+          },
+          {
+            "codigo": "s2602",
+            "descripcion": "Conductos semicirculares"
+          },
+          {
+            "codigo": "s2603",
+            "descripcion": "Conducto auditivo interno"
+          },
+          {
+            "codigo": "s2608",
+            "descripcion": "Estructura del oído interno, otra especificada"
+          },
+          {
+            "codigo": "s2609",
+            "descripcion": "Estructura del oído interno, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s298",
+        "tema": "Estructuras del ojo, el oído y sus estructuras relacionadas, otras especificadas"
+      },
+      {
+        "codigo": "s299",
+        "tema": "Estructuras del ojo, el oído y sus estructuras relacionadas, no especificadas"
+      },
+      {
+        "codigo": "s310",
+        "tema": "Estructura de la nariz",
+        "subestructuras": [
+          {
+            "codigo": "s3100",
+            "descripcion": "Nariz externa"
+          },
+          {
+            "codigo": "s3101",
+            "descripcion": "Tabique nasal"
+          },
+          {
+            "codigo": "s3102",
+            "descripcion": "Fosas nasales"
+          },
+          {
+            "codigo": "s3108",
+            "descripcion": "Estructura de la nariz, otra especificada"
+          },
+          {
+            "codigo": "s3109",
+            "descripcion": "Estructura de la nariz, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s320",
+        "tema": "Estructura de la boca",
+        "subestructuras": [
+          {
+            "codigo": "s3200",
+            "descripcion": "Dientes"
+          },
+          {
+            "codigo": "s3201",
+            "descripcion": "Encías"
+          },
+          {
+            "codigo": "s3202",
+            "tema": "Estructura del paladar",
+            "subestructuras": [
+              {
+                "codigo": "s32020",
+                "descripcion": "Paladar duro"
+              },
+              {
+                "codigo": "s32021",
+                "descripcion": "Paladar blando"
+              }
+            ]
+          },
+          {
+            "codigo": "s3203",
+            "descripcion": "Lengua"
+          },
+          {
+            "codigo": "s3204",
+            "tema": "Estructura de los labios",
+            "subestructuras": [
+              {
+                "codigo": "s32040",
+                "descripcion": "Labio superior"
+              },
+              {
+                "codigo": "s32041",
+                "descripcion": "Labio inferior"
+              }
+            ]
+          },
+          {
+            "codigo": "s3208",
+            "descripcion": "Estructura de la boca, otra especificada"
+          },
+          {
+            "codigo": "s3209",
+            "descripcion": "Estructura de la boca, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s330",
+        "tema": "Estructura de la faringe",
+        "subestructuras": [
+          {
+            "codigo": "s3300",
+            "descripcion": "Nasofaringe"
+          },
+          {
+            "codigo": "s3301",
+            "descripcion": "Orofaringe"
+          },
+          {
+            "codigo": "s3308",
+            "descripcion": "Estructura de la faringe, otra especificada"
+          },
+          {
+            "codigo": "s3309",
+            "descripcion": "Estructura de la faringe, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s340",
+        "tema": "Estructura de la laringe",
+        "subestructuras": [
+          {
+            "codigo": "s3400",
+            "descripcion": "Cuerdas vocales"
+          },
+          {
+            "codigo": "s3408",
+            "descripcion": "Estructura de la laringe, otra especificada"
+          },
+          {
+            "codigo": "s3409",
+            "descripcion": "Estructura de la laringe, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s398",
+        "tema": "Estructuras involucradas en la voz y el habla, otras especificadas"
+      },
+      {
+        "codigo": "s399",
+        "tema": "Estructuras involucradas en la voz y el habla, no especificadas"
+      },
+      {
+        "codigo": "s410",
+        "tema": "Estructura del sistema cardiovascular",
+        "subestructuras": [
+          {
+            "codigo": "s4100",
+            "tema": "Corazón",
+            "subestructuras": [
+              {
+                "codigo": "s41000",
+                "descripcion": "Aurículas"
+              },
+              {
+                "codigo": "s41001",
+                "descripcion": "Ventrículos"
+              },
+              {
+                "codigo": "s41008",
+                "descripcion": "Estructura del corazón, otra especificada"
+              },
+              {
+                "codigo": "s41009",
+                "descripcion": "Estructura del corazón, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s4101",
+            "descripcion": "Arterias"
+          },
+          {
+            "codigo": "s4102",
+            "descripcion": "Venas"
+          },
+          {
+            "codigo": "s4103",
+            "descripcion": "Capilares"
+          },
+          {
+            "codigo": "s4108",
+            "descripcion": "Estructuras del sistema cardiovascular, otras especificadas"
+          },
+          {
+            "codigo": "s4109",
+            "descripcion": "Estructuras del sistema cardiovascular, no especificadas"
+          }
+        ]
+      },
+      {
+        "codigo": "s420",
+        "tema": "Estructura del sistema inmunológico",
+        "subestructuras": [
+          {
+            "codigo": "s4200",
+            "descripcion": "Vasos linfáticos"
+          },
+          {
+            "codigo": "s4201",
+            "descripcion": "Nódulos linfáticos"
+          },
+          {
+            "codigo": "s4202",
+            "descripcion": "Timo"
+          },
+          {
+            "codigo": "s4203",
+            "descripcion": "Bazo"
+          },
+          {
+            "codigo": "s4204",
+            "descripcion": "Médula ósea"
+          },
+          {
+            "codigo": "s4208",
+            "descripcion": "Estructura del sistema inmunológico, otra especificada"
+          },
+          {
+            "codigo": "s4209",
+            "descripcion": "Estructura del sistema inmunológico, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s430",
+        "tema": "Estructura del sistema respiratorio",
+        "subestructuras": [
+          {
+            "codigo": "s4300",
+            "descripcion": "Tráquea"
+          },
+          {
+            "codigo": "s4301",
+            "tema": "Pulmones",
+            "subestructuras": [
+              {
+                "codigo": "s43010",
+                "descripcion": "Árbol bronquial"
+              },
+              {
+                "codigo": "s43011",
+                "descripcion": "Alvéolos"
+              },
+              {
+                "codigo": "s43018",
+                "descripcion": "Estructura de los pulmones, otra especificada"
+              },
+              {
+                "codigo": "s43019",
+                "descripcion": "Estructura de los pulmones, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s4302",
+            "descripcion": "Caja torácica"
+          },
+          {
+            "codigo": "s4303",
+            "tema": "Músculos de la respiración",
+            "subestructuras": [
+              {
+                "codigo": "s43030",
+                "descripcion": "Músculos intercostales"
+              },
+              {
+                "codigo": "s43031",
+                "descripcion": "Diafragma"
+              },
+              {
+                "codigo": "s43038",
+                "descripcion": "Músculos de la respiración, otro especificado"
+              },
+              {
+                "codigo": "s43039",
+                "descripcion": "Músculos de la respiración, no especificado"
+              }
+            ]
+          },
+          {
+            "codigo": "s4308",
+            "descripcion": "Estructura del sistema respiratorio, otra especificada"
+          },
+          {
+            "codigo": "s4309",
+            "descripcion": "Estructura del sistema respiratorio, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s498",
+        "tema": "Estructuras de los sistemas cardiovascular, inmunológico y respiratorio, otras especificadas"
+      },
+      {
+        "codigo": "s499",
+        "tema": "Estructuras de los sistemas cardiovascular, inmunológico y respiratorio, no especificadas"
+      },
+      {
+        "codigo": "s510",
+        "tema": "Estructuras de las glándulas salivales"
+      },
+      {
+        "codigo": "s520",
+        "tema": "Estructura del esófago"
+      },
+      {
+        "codigo": "s530",
+        "tema": "Estructura del estómago"
+      },
+      {
+        "codigo": "s540",
+        "tema": "Estructura del intestino",
+        "subestructuras": [
+          {
+            "codigo": "s5400",
+            "descripcion": "Intestino delgado"
+          },
+          {
+            "codigo": "s5401",
+            "descripcion": "Intestino grueso"
+          },
+          {
+            "codigo": "s5408",
+            "descripcion": "Estructura del intestino, otra especificada"
+          },
+          {
+            "codigo": "s5409",
+            "descripcion": "Estructura del intestino, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s550",
+        "tema": "Estructura del páncreas"
+      },
+      {
+        "codigo": "s560",
+        "tema": "Estructura del hígado"
+      },
+      {
+        "codigo": "s570",
+        "tema": "Estructura de la vesícula y los conductos biliares"
+      },
+      {
+        "codigo": "s580",
+        "tema": "Estructura de las glándulas endocrinas",
+        "subestructuras": [
+          {
+            "codigo": "s5800",
+            "descripcion": "Glándula hipófisis"
+          },
+          {
+            "codigo": "s5801",
+            "descripcion": "Glándula tiroides"
+          },
+          {
+            "codigo": "s5802",
+            "descripcion": "Glándula paratiroides"
+          },
+          {
+            "codigo": "s5803",
+            "descripcion": "Glándula adrenal"
+          },
+          {
+            "codigo": "s5808",
+            "descripcion": "Estructura de las glándulas endocrinas, otra especificada"
+          },
+          {
+            "codigo": "s5809",
+            "descripcion": "Estructura de las glándulas endocrinas, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s598",
+        "tema": "Estructuras relacionadas con los sistemas digestivo, metabólico y endocrino, otras especificadas"
+      },
+      {
+        "codigo": "s599",
+        "tema": "Estructuras relacionadas con los sistemas digestivo, metabólico y endocrino, no especificadas"
+      },
+      {
+        "codigo": "s610",
+        "tema": "Estructura del sistema urinario",
+        "subestructuras": [
+          {
+            "codigo": "s6100",
+            "descripcion": "Riñones"
+          },
+          {
+            "codigo": "s6101",
+            "descripcion": "Uréteres"
+          },
+          {
+            "codigo": "s6102",
+            "descripcion": "Vejiga urinaria"
+          },
+          {
+            "codigo": "s6103",
+            "descripcion": "Uretra"
+          },
+          {
+            "codigo": "s6108",
+            "descripcion": "Estructura del sistema urinario, otra especificada"
+          },
+          {
+            "codigo": "s6109",
+            "descripcion": "Estructura del sistema urinario, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s620",
+        "tema": "Estructura del suelo pélvico"
+      },
+      {
+        "codigo": "s630",
+        "tema": "Estructura del sistema reproductor",
+        "subestructuras": [
+          {
+            "codigo": "s6300",
+            "descripcion": "Ovarios"
+          },
+          {
+            "codigo": "s6301",
+            "tema": "Estructura del útero",
+            "subestructuras": [
+              {
+                "codigo": "s63010",
+                "descripcion": "Cuerpo del útero"
+              },
+              {
+                "codigo": "s63011",
+                "descripcion": "Cuello del útero"
+              },
+              {
+                "codigo": "s63012",
+                "descripcion": "Trompas de Falopio"
+              },
+              {
+                "codigo": "s63018",
+                "descripcion": "Estructura del útero, otra especificada"
+              },
+              {
+                "codigo": "s63019",
+                "descripcion": "Estructuras del útero, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s6302",
+            "descripcion": "Mama y pezón"
+          },
+          {
+            "codigo": "s6303",
+            "tema": "Estructura de la vagina y genitales externos",
+            "subestructuras": [
+              {
+                "codigo": "s63030",
+                "descripcion": "Clítoris"
+              },
+              {
+                "codigo": "s63031",
+                "descripcion": "Labios mayores"
+              },
+              {
+                "codigo": "s63032",
+                "descripcion": "Labios menores"
+              },
+              {
+                "codigo": "s63033",
+                "descripcion": "Canal vaginal"
+              }
+            ]
+          },
+          {
+            "codigo": "s6304",
+            "descripcion": "Testículos"
+          },
+          {
+            "codigo": "s6305",
+            "tema": "Estructura del pene",
+            "subestructuras": [
+              {
+                "codigo": "s63050",
+                "descripcion": "Glande del pene"
+              },
+              {
+                "codigo": "s63051",
+                "descripcion": "Cuerpo esponjoso del pene"
+              },
+              {
+                "codigo": "s63058",
+                "descripcion": "Estructura del pene, otra especificada"
+              },
+              {
+                "codigo": "s63059",
+                "descripcion": "Estructura del pene, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s6306",
+            "descripcion": "Próstata"
+          },
+          {
+            "codigo": "s6308",
+            "descripcion": "Estructuras del sistema reproductor, otras especificadas"
+          },
+          {
+            "codigo": "s6309",
+            "descripcion": "Estructuras del sistema reproductor, no especificadas"
+          }
+        ]
+      },
+      {
+        "codigo": "s698",
+        "tema": "Estructuras relacionadas con el sistema genitourinario y sistema reproductor, otras especificadas"
+      },
+      {
+        "codigo": "s699",
+        "tema": "Estructuras relacionadas con el sistema genitourinario y sistema reproductor, no especificadas"
+      },
+      {
+        "codigo": "s710",
+        "tema": "Estructura de la cabeza y de la región del cuello",
+        "subestructuras": [
+          {
+            "codigo": "s7100",
+            "descripcion": "Huesos del cráneo"
+          },
+          {
+            "codigo": "s7101",
+            "descripcion": "Huesos de la cara"
+          },
+          {
+            "codigo": "s7102",
+            "descripcion": "Huesos de la región del cuello"
+          },
+          {
+            "codigo": "s7103",
+            "descripcion": "Articulaciones de la cabeza y de la región del cuello"
+          },
+          {
+            "codigo": "s7104",
+            "descripcion": "Músculos de la cabeza y de la región del cuello"
+          },
+          {
+            "codigo": "s7105",
+            "descripcion": "Ligamentos y fascias de la cabeza y de la región del cuello"
+          },
+          {
+            "codigo": "s7108",
+            "descripcion": "Estructura de la cabeza y de la región del cuello, otra especificada"
+          },
+          {
+            "codigo": "s7109",
+            "descripcion": "Estructura de la cabeza y de la región del cuello, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s720",
+        "tema": "Estructura de la región del hombro",
+        "subestructuras": [
+          {
+            "codigo": "s7200",
+            "descripcion": "Huesos de la región del hombro"
+          },
+          {
+            "codigo": "s7201",
+            "descripcion": "Articulaciones de la región del hombro"
+          },
+          {
+            "codigo": "s7202",
+            "descripcion": "Músculos de la región del hombro"
+          },
+          {
+            "codigo": "s7203",
+            "descripcion": "Ligamentos y fascias de la región del hombro"
+          },
+          {
+            "codigo": "s7208",
+            "descripcion": "Estructura de la región del hombro, otra especificada"
+          },
+          {
+            "codigo": "s7209",
+            "descripcion": "Estructura de la región del hombro, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s730",
+        "tema": "Estructura de la extremidad superior",
+        "subestructuras": [
+          {
+            "codigo": "s7300",
+            "tema": "Estructura del brazo",
+            "subestructuras": [
+              {
+                "codigo": "s73000",
+                "descripcion": "Huesos del brazo"
+              },
+              {
+                "codigo": "s73001",
+                "descripcion": "Articulación del codo"
+              },
+              {
+                "codigo": "s73002",
+                "descripcion": "Músculos del brazo"
+              },
+              {
+                "codigo": "s73003",
+                "descripcion": "Ligamentos y fascias del brazo"
+              },
+              {
+                "codigo": "s73008",
+                "descripcion": "Estructura del brazo, otra especificada"
+              },
+              {
+                "codigo": "s73009",
+                "descripcion": "Estructura del brazo, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7301",
+            "tema": "Estructura del antebrazo",
+            "subestructuras": [
+              {
+                "codigo": "s73010",
+                "descripcion": "Huesos del antebrazo"
+              },
+              {
+                "codigo": "s73011",
+                "descripcion": "Articulación de la muñeca"
+              },
+              {
+                "codigo": "s73012",
+                "descripcion": "Músculos del antebrazo"
+              },
+              {
+                "codigo": "s73013",
+                "descripcion": "Ligamentos y fascias del antebrazo"
+              },
+              {
+                "codigo": "s73018",
+                "descripcion": "Estructura del antebrazo, otra especificada"
+              },
+              {
+                "codigo": "s73019",
+                "descripcion": "Estructura del antebrazo, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7302",
+            "tema": "Estructura de la mano",
+            "subestructuras": [
+              {
+                "codigo": "s73020",
+                "descripcion": "Huesos de la mano"
+              },
+              {
+                "codigo": "s73021",
+                "descripcion": "Articulaciones de la mano y de los dedos"
+              },
+              {
+                "codigo": "s73022",
+                "descripcion": "Músculos de la mano"
+              },
+              {
+                "codigo": "s73023",
+                "descripcion": "Ligamentos y fascias de la mano"
+              },
+              {
+                "codigo": "s73028",
+                "descripcion": "Estructura de la mano, otra especificada"
+              },
+              {
+                "codigo": "s73029",
+                "descripcion": "Estructura de la mano, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7308",
+            "descripcion": "Estructura de la extremidad superior, otra especificada"
+          },
+          {
+            "codigo": "s7309",
+            "descripcion": "Estructura de la extremidad superior, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s740",
+        "tema": "Estructura de la región pélvica",
+        "subestructuras": [
+          {
+            "codigo": "s7400",
+            "descripcion": "Huesos de la región pélvica"
+          },
+          {
+            "codigo": "s7401",
+            "descripcion": "Articulaciones de la región pélvica"
+          },
+          {
+            "codigo": "s7402",
+            "descripcion": "Músculos de la región pélvica"
+          },
+          {
+            "codigo": "s7403",
+            "descripcion": "Ligamentos y fascias de la región pélvica"
+          },
+          {
+            "codigo": "s7408",
+            "descripcion": "Estructura de la región pélvica, otra especificada"
+          },
+          {
+            "codigo": "s7409",
+            "descripcion": "Estructura de la región pélvica, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s750",
+        "tema": "Estructura de la extremidad inferior",
+        "subestructuras": [
+          {
+            "codigo": "s7500",
+            "tema": "Estructura del muslo",
+            "subestructuras": [
+              {
+                "codigo": "s75000",
+                "descripcion": "Huesos del muslo"
+              },
+              {
+                "codigo": "s75001",
+                "descripcion": "Articulación de la cadera"
+              },
+              {
+                "codigo": "s75002",
+                "descripcion": "Músculos del muslo"
+              },
+              {
+                "codigo": "s75003",
+                "descripcion": "Ligamentos y fascias del muslo"
+              },
+              {
+                "codigo": "s75008",
+                "descripcion": "Estructura del muslo, otra especificada"
+              },
+              {
+                "codigo": "s75009",
+                "descripcion": "Estructura del muslo, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7501",
+            "tema": "Estructura de la pierna",
+            "subestructuras": [
+              {
+                "codigo": "s75010",
+                "descripcion": "Huesos de la pierna"
+              },
+              {
+                "codigo": "s75011",
+                "descripcion": "Articulación de la rodilla"
+              },
+              {
+                "codigo": "s75012",
+                "descripcion": "Músculos de la pierna"
+              },
+              {
+                "codigo": "s75013",
+                "descripcion": "Ligamentos y fascias de la pierna"
+              },
+              {
+                "codigo": "s75018",
+                "descripcion": "Estructura de la pierna, otra especificada"
+              },
+              {
+                "codigo": "s75019",
+                "descripcion": "Estructura de la pierna, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7502",
+            "tema": "Estructura del tobillo y pie",
+            "subestructuras": [
+              {
+                "codigo": "s75020",
+                "descripcion": "Huesos del tobillo y del pie"
+              },
+              {
+                "codigo": "s75021",
+                "descripcion": "Articulaciones del tobillo y del dedo del pie"
+              },
+              {
+                "codigo": "s75022",
+                "descripcion": "Músculos del tobillo y del pie"
+              },
+              {
+                "codigo": "s75023",
+                "descripcion": "Ligamentos y fascias del tobillo y del pie"
+              },
+              {
+                "codigo": "s75028",
+                "descripcion": "Estructura del tobillo y del pie, otra especificada"
+              },
+              {
+                "codigo": "s75029",
+                "descripcion": "Estructura del tobillo y del pie, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7508",
+            "descripcion": "Estructura de la extremidad inferior, otra especificada"
+          },
+          {
+            "codigo": "s7509",
+            "descripcion": "Estructura de la extremidad inferior, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s760",
+        "tema": "Estructura del tronco",
+        "subestructuras": [
+          {
+            "codigo": "s7600",
+            "tema": "Estructura de la columna vertebral",
+            "subestructuras": [
+              {
+                "codigo": "s76000",
+                "descripcion": "Columna vertebral cervical"
+              },
+              {
+                "codigo": "s76001",
+                "descripcion": "Columna vertebral torácica"
+              },
+              {
+                "codigo": "s76002",
+                "descripcion": "Columna vertebral lumbar"
+              },
+              {
+                "codigo": "s76003",
+                "descripcion": "Columna vertebral sacra"
+              },
+              {
+                "codigo": "s76004",
+                "descripcion": "Coxis"
+              },
+              {
+                "codigo": "s76008",
+                "descripcion": "Estructura de la columna vertebral, otra especificada"
+              },
+              {
+                "codigo": "s76009",
+                "descripcion": "Estructura de la columna vertebral, no especificada"
+              }
+            ]
+          },
+          {
+            "codigo": "s7601",
+            "descripcion": "Músculos del tronco"
+          },
+          {
+            "codigo": "s7602",
+            "descripcion": "Ligamentos y fascias del tronco"
+          },
+          {
+            "codigo": "s7608",
+            "descripcion": "Estructura del tronco, otra especificada"
+          },
+          {
+            "codigo": "s7609",
+            "descripcion": "Estructura del tronco, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s770",
+        "tema": "Estructuras musculoesqueléticas adicionales relacionadas con el movimiento",
+        "subestructuras": [
+          {
+            "descripcion": "Huesos"
+          },
+          {
+            "descripcion": "Articulaciones"
+          },
+          {
+            "descripcion": "Músculos"
+          },
+          {
+            "descripcion": "Ligamentos extra-articulares, fascias, aponeurosis extramuscular, septums, bursas, no especificado"
+          },
+          {
+            "descripcion": "Estructuras musculoesqueléticas adicionales relacionadas con el movimiento, otras especificadas"
+          },
+          {
+            "descripcion": "Estructuras musculoesqueléticas adicionales relacionadas con el movimiento, no especificadas"
+          }
+        ]
+      },
+      {
+        "codigo": "s798",
+        "tema": "Estructuras relacionadas con el movimiento, otras especificadas"
+      },
+      {
+        "codigo": "s799",
+        "tema": "Estructuras relacionadas con el movimiento, no especificadas"
+      },
+      {
+        "codigo": "s810",
+        "tema": "Estructura de las áreas de la piel",
+        "subestructuras": [
+          {
+            "codigo": "s8100",
+            "descripcion": "Piel de la cabeza y de la región del cuello"
+          },
+          {
+            "codigo": "s8101",
+            "descripcion": "Piel de la región del hombro"
+          },
+          {
+            "codigo": "s8102",
+            "descripcion": "Piel de la extremidad superior"
+          },
+          {
+            "codigo": "s8103",
+            "descripcion": "Piel de la región pélvica"
+          },
+          {
+            "codigo": "s8104",
+            "descripcion": "Piel de la extremidad inferior"
+          },
+          {
+            "codigo": "s8105",
+            "descripcion": "Piel del tronco y espalda"
+          },
+          {
+            "codigo": "s8108",
+            "descripcion": "Estructura de áreas de la piel, otra especificada"
+          },
+          {
+            "codigo": "s8109",
+            "descripcion": "Estructura de áreas de la piel, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s820",
+        "tema": "Estructura de las glándulas de la piel",
+        "subestructuras": [
+          {
+            "codigo": "s8200",
+            "descripcion": "Glándulas sudoríparas"
+          },
+          {
+            "codigo": "s8201",
+            "descripcion": "Glándulas sebáceas"
+          },
+          {
+            "codigo": "s8208",
+            "descripcion": "Estructura de las glándulas de la piel, otra especificada"
+          },
+          {
+            "codigo": "s8209",
+            "descripcion": "Estructura de las glándulas de la piel, no especificada"
+          }
+        ]
+      },
+      {
+        "codigo": "s830",
+        "tema": "Estructura de las uñas",
+        "subestructuras": [
+          {
+            "codigo": "s8300",
+            "descripcion": "Uñas de los dedos de las manos"
+          },
+          {
+            "codigo": "s8301",
+            "descripcion": "Uñas de los dedos de los pies"
+          },
+          {
+            "codigo": "s8308",
+            "descripcion": "Estructuras de las uñas, otra especificadas"
+          },
+          {
+            "codigo": "s8309",
+            "descripcion": "Estructuras de las uñas, no especificadas"
+          }
+        ]
+      },
+      {
+        "codigo": "s840",
+        "tema": "Estructura del pelo"
+      },
+      {
+        "codigo": "s898",
+        "tema": "Estructuras de la piel y estructuras relacionadas, otras especificadas"
+      },
+      {
+        "codigo": "s899",
+        "tema": "Estructuras de la piel y estructuras relacionadas, no especificadas"
+      }
+    ],
+    "metadata": {
+      "total_estructuras": 303,
+      "sistemas_principales": [
+        "Sistema Nervioso",
+        "Sistema Sensorial",
+        "Sistema Cardiovascular",
+        "Sistema Inmunológico",
+        "Sistema Respiratorio",
+        "Sistema Digestivo",
+        "Sistema Endocrino",
+        "Sistema Urinario",
+        "Sistema Reproductor",
+        "Sistema Musculoesquelético",
+        "Sistema Tegumentario"
+      ],
+      "formato_original": "CSV",
+      "clasificacion": "CIF - Clasificación Internacional del Funcionamiento",
+      "idioma": "Español",
+      "fecha_conversion": "2024"
+    }
+  } 

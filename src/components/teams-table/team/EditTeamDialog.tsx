@@ -32,9 +32,6 @@ import { getPatients } from '@/services/patientService';
 import { Team } from '@/components/teams-table/columns';
 
 const formSchema = z.object({
-  teamName: z.string().min(10, {
-    message: 'Nombre del equipo es requerido.',
-  }),
   groupId: z.string().min(1, {
     message: 'Grupo es requerido.',
   }),

@@ -12,9 +12,10 @@ declare module 'next-auth' {
 
   interface Session {
     user: {
-      sub: string;
+      id: string;
+      document: string;
       name: string;
-      email: string;
+      lastName: string;
       role: string;
       access_token: string;
       team?: {
