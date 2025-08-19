@@ -14,6 +14,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { CreateNeurologicaRequest } from '@/types/neurologica';
+import { useDropzone } from 'react-dropzone';
+import { Card, CardContent } from '@/components/ui/card';
+import { Upload, X } from 'lucide-react';
+import { useCallback } from 'react';
+import Image from 'next/image';
+import { BioDigitalEmbedded } from '@/components/BioDigitalEmbedded';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -133,6 +140,81 @@ const barthelItems = [
   },
 ];
 
+// ImageUpload component
+interface ImageUploadProps {
+  onImageChange: (file: File | null) => void;
+  currentImage: string | null;
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ onImageChange, currentImage }) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      onImageChange(acceptedFiles[0]);
+    }
+  }, [onImageChange]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif']
+    },
+    multiple: false
+  });
+
+  const removeImage = () => {
+    onImageChange(null);
+  };
+
+  return (
+    <Card className="w-full border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <CardContent className="p-4">
+        {currentImage ? (
+          <div className="relative">
+            <Image
+              src={currentImage}
+              alt="Uploaded"
+              width={300}
+              height={192}
+              className="w-full h-48 object-cover rounded border border-gray-200 dark:border-gray-600"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-md"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200 ${
+              isDragActive
+                ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-500'
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-700'
+            }`}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center gap-3">
+              <Upload className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+              <div className="text-center">
+                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  {isDragActive
+                    ? 'Suelta la imagen aquí...'
+                    : 'Arrastra una imagen aquí o haz clic para seleccionar'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Formatos: JPG, PNG, GIF (máx. 10MB)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 export default function CreateNeurologicaForm({ onClose }: { onClose: () => void }) {
   const form = useForm<FormValues>({ 
     resolver: zodResolver(schema),
@@ -156,12 +238,68 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
       alcanceMotor: '',
       comentariosExaminador: '',
       resumenResultados: '',
+      evaluacionDolor: {
+        localizacion: '',
+        tiempo: '',
+        irradiado: '',
+        tipo: '',
+        escalaVisualNumerica: 0,
+        escalaSubjetiva: '',
+        actividadesAlivian: '',
+        actividadesAgravan: '',
+        comentariosDolor: '',
+      },
     }
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [barthel, setBarthel] = useState<{ [key: string]: number }>({});
   const totalBarthel = Object.values(barthel).reduce((a, b) => a + b, 0);
+
+  // Estado para las imágenes del screening postural
+  const [screeningImages, setScreeningImages] = useState<{
+    vistaAnterior: string | null;
+    vistaPosterior: string | null;
+    vistaLateralDerecha: string | null;
+    vistaLateralIzquierda: string | null;
+  }>({
+    vistaAnterior: null,
+    vistaPosterior: null,
+    vistaLateralDerecha: null,
+    vistaLateralIzquierda: null,
+  });
+
+  // Estado para la evaluación de dolor (solo frontend, no se envía al backend)
+  const [evaluacionDolor, setEvaluacionDolor] = useState({
+    localizacion: '',
+    tiempo: '',
+    irradiado: '',
+    tipo: '',
+    escalaVisualNumerica: 0,
+    escalaSubjetiva: '',
+    actividadesAlivian: '',
+    actividadesAgravan: '',
+    comentariosDolor: '',
+  });
+
+  // Función para manejar la carga de imágenes
+  const handleImageUpload = (type: keyof typeof screeningImages, file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setScreeningImages(prev => ({
+          ...prev,
+          [type]: e.target?.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setScreeningImages(prev => ({
+        ...prev,
+        [type]: null
+      }));
+    }
+  };
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -199,109 +337,114 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((data) => mutate(data))} className='space-y-6'>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <h4 className='font-semibold text-lg col-span-full'>Datos Personales</h4>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <h4 className='font-semibold text-lg col-span-full text-gray-800 dark:text-gray-100'>Datos Personales</h4>
 
           <FormField name='name' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Nombre</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
 
           <FormField name='ci' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Cédula</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Cédula</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
 
           <FormField name='edad' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Edad</FormLabel>
-              <FormControl><Input type='number' {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Edad</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' type='number' {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
 
           <FormField name='discapacidad' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Discapacidad</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Discapacidad</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
 
           <FormField name='diagnostico' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Diagnóstico Médico</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Diagnóstico Médico</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
               <FormMessage />
             </FormItem>
           )} />
         </div>
 
-        <div>
-          <h4 className='font-semibold text-lg mb-2'>Antecedentes</h4>
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>II. ANTECEDENTES CLÍNICOS</h4>
+          </div>
           <FormField name='antecedentesHeredofamiliares' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Antecedentes Heredofamiliares</FormLabel>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Antecedentes Heredofamiliares</FormLabel>
               <FormControl>
-                <Textarea className='min-h-[100px]' {...field} />
+                <Textarea className='min-h-[100px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} />
               </FormControl>
             </FormItem>
           )} />
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='col-span-full border-b border-gray-200 dark:border-gray-700 pb-3 mb-4'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>III. INFORMACIÓN MÉDICA ADICIONAL</h4>
+          </div>
           <FormField name='antecedentesFarmacologicos' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Antecedentes Farmacológicos</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Antecedentes Farmacológicos</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='historiaNutricional' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Historia Nutricional</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Historia Nutricional</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='alergias' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Alergias</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Alergias</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='habitosToxicos' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Hábitos Tóxicos</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Hábitos Tóxicos</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='quirurgico' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Quirúrgico</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Quirúrgico</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='comunicacion' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Comunicación</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Comunicación</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
           <FormField name='dolor' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Dolor</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
+              <FormLabel className='text-gray-700 dark:text-gray-300'>Dolor</FormLabel>
+              <FormControl><Input className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100' {...field} /></FormControl>
             </FormItem>
           )} />
 
@@ -310,146 +453,564 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
               <FormControl>
                 <Checkbox checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
-              <FormLabel className='mb-0'>Utiliza silla de ruedas</FormLabel>
+              <FormLabel className='mb-0 text-gray-700 dark:text-gray-300'>Utiliza silla de ruedas</FormLabel>
             </FormItem>
           )} />
         </div>
 
         {/* Sección Amnesis */}
-        <div className='space-y-4'>
-          <h4 className='font-semibold text-lg'>Amnesis</h4>
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>IV. Amnesis</h4>
+          </div>
           <FormField name='amnesis' control={form.control} render={({ field }) => (
             <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Descripción de la amnesis</FormLabel>
               <FormControl>
                 <Textarea 
-                  className='min-h-[80px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
+                  className='min-h-[100px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
                   placeholder='Describa la amnesis...' 
                   {...field} 
                 />
               </FormControl>
             </FormItem>
           )} />
-          <ul className='space-y-2'>
-            <li className='flex items-center gap-2'>
-              <span className='font-semibold'>• INICIO Y EVOLUCIÓN DEL CUADRO CLINICO</span>
-            </li>
-            <li className='flex items-center gap-2'>
-              <span className='font-semibold'>• ENTORNO FAMILIAR Y SOCIAL</span>
-              <div className='flex-1'>
-                <FormField name='entornoFamiliar' control={form.control} render={({ field }) => (
-                  <FormItem className='mb-0'>
-                    <FormControl>
-                      <Input 
-                        className='bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
-                        placeholder='Entorno familiar y social...' 
-                        {...field} 
-                      />
-                    </FormControl>
-                  </FormItem>
-                )} />
-              </div>
-            </li>
-          </ul>
-          <FormField name='inicioEvolucion' control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea 
-                  className='min-h-[60px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400 mt-2' 
-                  placeholder='Describa el inicio y evolución...' 
-                  {...field} 
-                />
-              </FormControl>
-            </FormItem>
-          )} />
+          
+          <div className='grid grid-cols-1 gap-4'>
+            <div className='bg-gray-50 dark:bg-gray-700 p-4 rounded-md border border-gray-200 dark:border-gray-600'>
+              <h5 className='font-medium text-gray-800 dark:text-gray-100 mb-3'>• INICIO Y EVOLUCIÓN DEL CUADRO CLÍNICO</h5>
+              <FormField name='inicioEvolucion' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea 
+                      className='min-h-[80px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
+                      placeholder='Describa el inicio y evolución del cuadro clínico...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
+            </div>
+            
+            <div className='bg-gray-50 dark:bg-gray-700 p-4 rounded-md border border-gray-200'>
+              <h5 className='font-medium text-gray-800 dark:text-gray-100 mb-3'>• ENTORNO FAMILIAR Y SOCIAL</h5>
+              <FormField name='entornoFamiliar' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input 
+                      className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
+                      placeholder='Describa el entorno familiar y social...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
+            </div>
+          </div>
         </div>
 
-        {/* NUEVA SECCIÓN: ALTERACIONES DE LA MARCHA */}
-        <div className='space-y-4'>
-          <div className='flex items-center gap-3'>
-            <h4 className='font-semibold text-lg'>ALTERACIONES DE LA MARCHA</h4>
-            <span className='bg-pink-500 text-white px-3 py-1 rounded-md text-sm font-medium'>CHECK</span>
+        {/* SECCIÓN: VALORACIÓN FISIOTERAPÉUTICA */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>V. VALORACIÓN FISIOTERAPÉUTICA</h4>
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          
+          <div className='space-y-6'>
+            <div>
+              <h5 className='font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4'>V.I MAPA CORPORAL</h5>
+              <div className='bg-blue-50 border border-blue-200 p-6 rounded-lg'>
+                <p className='text-sm mb-4 text-gray-700 dark:text-gray-300 font-medium'>
+                  <strong>Indique que región del cuerpo presenta limitación, incapacidad en caso de dolor señale de acuerdo a lo siguiente:</strong>
+                </p>
+                
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-6'>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-3 p-2 bg-white rounded border'>
+                      <div className='w-4 h-4 bg-blue-600 rounded border border-gray-300'></div>
+                      <span className='text-gray-700'>• Dolor nº 1: <strong>azul</strong></span>
+                    </div>
+                    <div className='flex items-center gap-3 p-2 bg-white rounded border'>
+                      <div className='w-4 h-4 bg-green-600 rounded border border-gray-300'></div>
+                      <span className='text-gray-700'>• Zonas con alteración de sensibilidad: <strong>verde</strong></span>
+                    </div>
+                    <div className='flex items-center gap-3 p-2 bg-white rounded border'>
+                      <div className='w-4 h-4 bg-red-600 rounded border border-gray-300'></div>
+                      <span className='text-gray-700'>• Dolor nº 2: <strong>rojo</strong></span>
+                    </div>
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex items-center gap-3 p-2 bg-white rounded border'>
+                      <div className='w-4 h-4 border-2 border-gray-600 rounded-full bg-white'></div>
+                      <span className='text-gray-700'>• Screening o estructuras relacionadas: <strong>círculo</strong></span>
+                    </div>
+                    <div className='flex items-center gap-3 p-2 bg-white rounded border'>
+                      <div className='w-4 h-4 bg-black rounded border border-gray-300'></div>
+                      <span className='text-gray-700'>• Dolor nº 3: <strong>negro</strong></span>
+                    </div>
+                    <div className='text-xs text-gray-600 ml-6 italic'>
+                      (Periarticulares, Intraarticulares, Neural, Discogénico)
+                    </div>
+                  </div>
+                </div>
+
+                <div className='bg-white p-4 rounded border border-gray-200'>
+                  <h6 className='font-medium mb-3 text-gray-800 dark:text-gray-100'>Regiones corporales a evaluar:</h6>
+                  <div className='grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700'>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>CARA: DIVIDIR EN 4</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>CUELLO</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>HOMBROS</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>BRAZOS</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>ANTEBRAZO</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>MANO: MANO Y DEDOS</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>TORSO: DERECHO-IZQUIERDA</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>ABDOMEN: DIVIDIR EN 4</span>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <span className='w-2 h-2 bg-gray-400 rounded-full'></span>
+                      <span>CADERA: EN DOS IZQUIERDA Y DERECHA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modelo Humano BioDigital */}
+            <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+              <h6 className='font-medium mb-4 text-center text-gray-800 dark:text-gray-100 text-lg'>MODELO ANATÓMICO INTERACTIVO</h6>
+              <div className='min-h-[600px] border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700'>
+                <BioDigitalEmbedded />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN: SCREENING POSTURAL */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>VII. Screening Postural</h4>
+            <p className='text-sm text-gray-600 mt-1'>Carga de imágenes para evaluación postural</p>
+          </div>
+          
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {/* Vista Anterior */}
+            <div className='space-y-3'>
+              <div className='bg-blue-50 border border-blue-200 py-3 px-4 rounded-md'>
+                <h5 className='font-medium text-center text-blue-800'>VISTA ANTERIOR</h5>
+              </div>
+              <ImageUpload 
+                onImageChange={(file) => handleImageUpload('vistaAnterior', file)}
+                currentImage={screeningImages.vistaAnterior}
+              />
+            </div>
+
+            {/* Vista Posterior */}
+            <div className='space-y-3'>
+              <div className='bg-green-50 border border-green-200 py-3 px-4 rounded-md'>
+                <h5 className='font-medium text-center text-green-800'>VISTA POSTERIOR</h5>
+              </div>
+              <ImageUpload 
+                onImageChange={(file) => handleImageUpload('vistaPosterior', file)}
+                currentImage={screeningImages.vistaPosterior}
+              />
+            </div>
+
+            {/* Vista Lateral Derecha */}
+            <div className='space-y-3'>
+              <div className='bg-orange-50 border border-orange-200 py-3 px-4 rounded-md'>
+                <h5 className='font-medium text-center text-orange-800'>VISTA LATERAL DERECHA</h5>
+              </div>
+              <ImageUpload 
+                onImageChange={(file) => handleImageUpload('vistaLateralDerecha', file)}
+                currentImage={screeningImages.vistaLateralDerecha}
+              />
+            </div>
+
+            {/* Vista Lateral Izquierda */}
+            <div className='space-y-3'>
+              <div className='bg-purple-50 border border-purple-200 py-3 px-4 rounded-md'>
+                <h5 className='font-medium text-center text-purple-800'>VISTA LATERAL IZQUIERDA</h5>
+              </div>
+              <ImageUpload 
+                onImageChange={(file) => handleImageUpload('vistaLateralIzquierda', file)}
+                currentImage={screeningImages.vistaLateralIzquierda}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN: V.III DOLOR */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>V.III DOLOR</h4>
+            <p className='text-sm text-blue-600 mt-1 italic'>
+              (En caso de no existir en el mapa corporal omitir - Sección adicional por cada una seleccionada en el cuerpo humano)
+            </p>
+          </div>
+          
+          <div className=''>
+            <div className='overflow-x-auto'>
+              <table className='w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden'>
+                <tbody>
+                  {/* Localización */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>LOCALIZACIÓN</div>
+                        <div className='text-sm text-gray-600'>(REGIÓN)</div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 w-3/4'>
+                      <Input 
+                        value={evaluacionDolor.localizacion}
+                        onChange={(e) => setEvaluacionDolor(prev => ({ ...prev, localizacion: e.target.value }))}
+                        placeholder='Especifique la región afectada...'
+                        className='w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                      />
+                    </td>
+                  </tr>
+
+                  {/* Tiempo */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>TIEMPO</div>
+                        <span className='inline-block bg-blue-600 text-white px-2 py-1 rounded text-xs mt-1'>CHECK</span>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='max-w-md'>
+                        <FormField name='evaluacionDolor.tiempo' control={form.control} render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'>
+                                  <SelectValue placeholder='Seleccionar tipo' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='agudo'>AGUDO</SelectItem>
+                                  <SelectItem value='cronico'>CRÓNICO</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Irradiado */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>IRRADIADO</div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='max-w-md'>
+                        <FormField name='evaluacionDolor.irradiado' control={form.control} render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'>
+                                  <SelectValue placeholder='Seleccionar opción' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='si'>SÍ</SelectItem>
+                                  <SelectItem value='no'>NO</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Tipo */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>TIPO</div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='max-w-md'>
+                        <FormField name='evaluacionDolor.tipo' control={form.control} render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'>
+                                  <SelectValue placeholder='Seleccionar tipo' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='superficial'>SUPERFICIAL</SelectItem>
+                                  <SelectItem value='profundo'>PROFUNDO</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Escala Visual Numérica */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>ESCALA VISUAL</div>
+                        <div className='font-semibold'>NUMÉRICA</div>
+                        <span className='inline-block bg-green-600 text-white px-2 py-1 rounded text-xs mt-1'>ESCALA</span>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='space-y-4'>
+                        <FormField name='evaluacionDolor.escalaVisualNumerica' control={form.control} render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className='space-y-4'>
+                                <input
+                                  type='range'
+                                  min='0'
+                                  max='10'
+                                  step='1'
+                                  value={field.value || 0}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                  className='w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
+                                />
+                                <div className='flex justify-between text-xs text-gray-600'>
+                                  <span className='text-center'>0<br /><span className='text-green-600 font-medium'>Sin dolor</span></span>
+                                  <span>1</span>
+                                  <span>2</span>
+                                  <span>3</span>
+                                  <span>4</span>
+                                  <span>5</span>
+                                  <span>6</span>
+                                  <span>7</span>
+                                  <span>8</span>
+                                  <span>9</span>
+                                  <span className='text-center'>10<br /><span className='text-red-600 font-medium'>Peor dolor<br />imaginable</span></span>
+                                </div>
+                                <div className='text-center p-3 bg-gray-100 border border-gray-300 rounded-md'>
+                                  <span className='text-sm font-medium text-gray-700'>Nivel de dolor seleccionado: </span>
+                                  <span className='text-lg font-bold text-gray-900'>{field.value || 0}</span>
+                                </div>
+                              </div>
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Escala Subjetiva del Dolor */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium w-1/4'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>ESCALA SUBJETIVA</div>
+                        <div className='font-semibold'>DEL DOLOR</div>
+                        <span className='inline-block bg-purple-600 text-white px-2 py-1 rounded text-xs mt-1'>CHECK</span>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='max-w-md'>
+                        <FormField name='evaluacionDolor.escalaSubjetiva' control={form.control} render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className='border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'>
+                                  <SelectValue placeholder='Seleccionar nivel' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='sin_dolor'>0 SIN DOLOR</SelectItem>
+                                  <SelectItem value='peor_dolor'>10 PEOR DOLOR IMAGINABLE</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Actividades que alivian */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>ACTIVIDADES QUE</div>
+                        <div className='font-semibold'>ALIVIAN</div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <FormField name='evaluacionDolor.actividadesAlivian' control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder='Describa las actividades que alivian el dolor...'
+                              className='min-h-[80px] resize-none border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </td>
+                  </tr>
+
+                  {/* Actividades que agravan */}
+                  <tr className='border-b border-gray-200'>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium'>
+                      <div className='text-gray-800 dark:text-gray-100'>
+                        <div className='font-semibold'>ACTIVIDADES QUE</div>
+                        <div className='font-semibold'>AGRAVAN</div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <FormField name='evaluacionDolor.actividadesAgravan' control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder='Describa las actividades que agravan el dolor...'
+                              className='min-h-[80px] resize-none border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </td>
+                  </tr>
+
+                  {/* Comentarios */}
+                  <tr>
+                    <td className='border-r border-gray-300 px-6 py-4 bg-gray-50 dark:bg-gray-700 font-medium'>
+                      <div className='text-gray-800 dark:text-gray-100 font-semibold'>COMENTARIOS</div>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <FormField name='evaluacionDolor.comentariosDolor' control={form.control} render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder='No refiere dolor ni alteración de sensibilidad específica regional'
+                              className='min-h-[80px] resize-none border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN: ALTERACIONES DE LA MARCHA */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>VIII. ALTERACIONES DE LA MARCHA</h4>
+            <span className='bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium'>EVALUACIÓN</span>
+          </div>
+          
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <FormField name='alteracionesMarcha.marchaTrendelenburg' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA DE TRENDELEMBURG</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA DE TRENDELEMBURG</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaTuerca' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA EN TUERCA</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA EN TUERCA</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaAtaxica' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA ATÁXICA</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA ATÁXICA</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaSegador' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA EN SEGADOR</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA EN SEGADOR</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaTijeras' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA EN TIJERAS</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA EN TIJERAS</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaTabetica' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA TABETICA</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA TABÉTICA</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaCoreica' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA COREICA</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA COREICA</FormLabel>
               </FormItem>
             )} />
 
             <FormField name='alteracionesMarcha.marchaDistonica' control={form.control} render={({ field }) => (
-              <FormItem className='flex items-center space-x-2'>
+              <FormItem className='flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg'>
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className='h-5 w-5' />
                 </FormControl>
-                <FormLabel className='mb-0'>MARCHA DISTONICA</FormLabel>
+                <FormLabel className='mb-0 text-gray-700 dark:text-gray-300 font-medium cursor-pointer'>MARCHA DISTÓNICA</FormLabel>
               </FormItem>
             )} />
           </div>
 
           <FormField name='alteracionesMarcha.otrasAlteraciones' control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>OTRAS ALTERACIONES</FormLabel>
+            <FormItem className='bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg p-4'>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>OTRAS ALTERACIONES</FormLabel>
               <FormControl>
                 <Input 
-                  className='bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
-                  placeholder='Especifique otras alteraciones...' 
+                  className='mt-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500' 
+                  placeholder='Especifique otras alteraciones de la marcha...' 
                   {...field} 
                 />
               </FormControl>
@@ -457,81 +1018,93 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           )} />
         </div>
 
-        {/* NUEVA SECCIÓN: RIESGO DE CAÍDA - TIMED UP AND GO */}
-        <div className='space-y-4'>
-          <div className='flex items-center gap-3'>
-            <h4 className='font-semibold text-lg'>RIESGO DE CAÍDA: TIMED UP AND GO</h4>
-            <span className='bg-pink-500 text-white px-3 py-1 rounded-md text-sm font-medium'>CHECK</span>
+        {/* SECCIÓN: RIESGO DE CAÍDA - TIMED UP AND GO */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>IX. RIESGO DE CAÍDA: TIMED UP AND GO</h4>
+            <span className='bg-orange-600 text-white px-3 py-1 rounded-md text-sm font-medium'>EVALUACIÓN</span>
           </div>
 
-          {/* Criterios de evaluación con checkboxes */}
-          <div className='space-y-3'>
-            <h5 className='font-medium text-white'>Seleccione el nivel de riesgo:</h5>
+          {/* Criterios de evaluación */}
+          <div className='space-y-4'>
+            <h5 className='font-medium text-gray-800 dark:text-gray-100 text-lg'>Seleccione el nivel de riesgo:</h5>
             
             <FormField name='riesgoCaida.riesgoEvaluado' control={form.control} render={({ field }) => (
-              <FormItem className='space-y-3'>
-                <div className='space-y-2'>
-                  <label className='flex items-center space-x-3 cursor-pointer'>
+              <FormItem className='space-y-4'>
+                <div className='grid grid-cols-1 gap-3'>
+                  <label className='flex items-center space-x-4 p-4 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100 transition-colors'>
                     <input
                       type='radio'
                       name='riesgoEvaluado'
                       value='bajo'
                       checked={field.value === 'bajo'}
                       onChange={(e) => field.onChange(e.target.value)}
-                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                      className='w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500'
                     />
-                    <span className='text-gray-300'>• &lt; 10 segundos: movilidad normal, bajo riesgo de caída</span>
+                    <div>
+                      <span className='text-gray-800 dark:text-gray-100 font-medium'>• &lt; 10 segundos</span>
+                      <div className='text-sm text-gray-600'>Movilidad normal, bajo riesgo de caída</div>
+                    </div>
                   </label>
                   
-                  <label className='flex items-center space-x-3 cursor-pointer'>
+                  <label className='flex items-center space-x-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors'>
                     <input
                       type='radio'
                       name='riesgoEvaluado'
                       value='moderado'
                       checked={field.value === 'moderado'}
                       onChange={(e) => field.onChange(e.target.value)}
-                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                      className='w-5 h-5 text-yellow-600 border-gray-300 focus:ring-yellow-500'
                     />
-                    <span className='text-gray-300'>• 10-20 segundos: movilidad aceptable, riesgo moderado</span>
+                    <div>
+                      <span className='text-gray-800 dark:text-gray-100 font-medium'>• 10-20 segundos</span>
+                      <div className='text-sm text-gray-600'>Movilidad aceptable, riesgo moderado</div>
+                    </div>
                   </label>
                   
-                  <label className='flex items-center space-x-3 cursor-pointer'>
+                  <label className='flex items-center space-x-4 p-4 bg-orange-50 border border-orange-200 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors'>
                     <input
                       type='radio'
                       name='riesgoEvaluado'
                       value='alto'
                       checked={field.value === 'alto'}
                       onChange={(e) => field.onChange(e.target.value)}
-                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                      className='w-5 h-5 text-orange-600 border-gray-300 focus:ring-orange-500'
                     />
-                    <span className='text-gray-300'>• &gt; 20 segundos: movilidad reducida, alto riesgo de caída</span>
+                    <div>
+                      <span className='text-gray-800 dark:text-gray-100 font-medium'>• &gt; 20 segundos</span>
+                      <div className='text-sm text-gray-600'>Movilidad reducida, alto riesgo de caída</div>
+                    </div>
                   </label>
                   
-                  <label className='flex items-center space-x-3 cursor-pointer'>
+                  <label className='flex items-center space-x-4 p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors'>
                     <input
                       type='radio'
                       name='riesgoEvaluado'
                       value='dependencia'
                       checked={field.value === 'dependencia'}
                       onChange={(e) => field.onChange(e.target.value)}
-                      className='w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500'
+                      className='w-5 h-5 text-red-600 border-gray-300 focus:ring-red-500'
                     />
-                    <span className='text-gray-300'>• &gt; 30 segundos: dependencia funcional significativa</span>
+                    <div>
+                      <span className='text-gray-800 dark:text-gray-100 font-medium'>• &gt; 30 segundos</span>
+                      <div className='text-sm text-gray-600'>Dependencia funcional significativa</div>
+                    </div>
                   </label>
                 </div>
               </FormItem>
             )} />
           </div>
 
-          {/* Caja de comentarios */}
-          <div className='mt-6'>
-            <h5 className='font-medium text-white mb-3'>• COMENTARIOS</h5>
+          {/* Comentarios */}
+          <div className='bg-gray-50 dark:bg-gray-700 border border-gray-200 rounded-lg p-4'>
+            <h5 className='font-medium text-gray-800 dark:text-gray-100 mb-3'>COMENTARIOS</h5>
             <FormField name='riesgoCaida.comentariosRiesgo' control={form.control} render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <Textarea 
-                    className='min-h-[80px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
-                    placeholder='CUADRO DE TEXTO' 
+                    className='min-h-[100px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                    placeholder='Ingrese observaciones adicionales sobre la evaluación del riesgo de caída...' 
                     {...field} 
                   />
                 </FormControl>
@@ -540,57 +1113,73 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           </div>
         </div>
 
-        {/* NUEVA SECCIÓN: ALCANCE MOTOR */}
-        <div className='space-y-4'>
-          <h4 className='font-semibold text-lg'>ALCANCE MOTOR MÁS ALTO</h4>
+        {/* SECCIÓN: ALCANCE MOTOR */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>X. ALCANCE MOTOR MÁS ALTO</h4>
+          </div>
           <FormField name='alcanceMotor' control={form.control} render={({ field }) => (
             <FormItem>
-              <FormLabel>Descripción del alcance motor máximo</FormLabel>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Descripción del alcance motor máximo</FormLabel>
               <FormControl>
-                <Textarea className='min-h-[80px]' placeholder='Describa el alcance motor más alto alcanzado...' {...field} />
+                <Textarea 
+                  className='min-h-[100px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                  placeholder='Describa el alcance motor más alto alcanzado por el paciente...' 
+                  {...field} 
+                />
               </FormControl>
             </FormItem>
           )} />
         </div>
 
-        {/* Sección Barthel */}
-        <div className='space-y-2'>
-          <h4 className='font-semibold text-lg mt-8 mb-2'>Dependencia Funcional: Índice de Barthel (AVD)</h4>
+        {/* SECCIÓN: ÍNDICE DE BARTHEL */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XI. DEPENDENCIA FUNCIONAL: ÍNDICE DE BARTHEL (AVD)</h4>
+          </div>
+          
           <div className='overflow-x-auto'>
-            <table className='min-w-full border text-xs md:text-sm'>
+            <table className='min-w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden'>
               <thead>
                 <tr className='bg-gray-100'>
-                  <th className='border px-4 py-2'>Ítem</th>
-                  <th className='border px-4 py-2'>Descripción</th>
-                  <th className='border px-4 py-2'>Puntaje</th>
+                  <th className='border-b border-gray-300 px-6 py-4 text-left font-semibold text-gray-800 dark:text-gray-100'>Ítem</th>
+                  <th className='border-b border-gray-300 px-6 py-4 text-left font-semibold text-gray-800 dark:text-gray-100'>Descripción</th>
+                  <th className='border-b border-gray-300 px-6 py-4 text-center font-semibold text-gray-800 dark:text-gray-100'>Puntaje</th>
                 </tr>
               </thead>
               <tbody>
-                {barthelItems.map((item) => (
-                  <tr key={item.key}>
-                    <td className='border px-4 py-4 align-top w-1/6'>{item.label}</td>
-                    <td className='border px-4 py-4 w-3/6'>
+                {barthelItems.map((item, index) => (
+                  <tr key={item.key} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700' : 'bg-white'}>
+                    <td className='border-b border-gray-200 px-6 py-6 align-top w-1/6 font-medium text-gray-800 dark:text-gray-100'>{item.label}</td>
+                    <td className='border-b border-gray-200 px-6 py-6 w-3/6'>
                       <ul className='space-y-3'>
                         {item.options.map((opt) => (
-                          <li key={opt.label} className='flex items-center gap-2'>
-                            <span className='text-lg text-gray-500'>•</span>
-                            <span>{opt.label}</span>
+                          <li key={opt.label} className='flex items-start gap-3 text-sm text-gray-700'>
+                            <span className='text-blue-500 font-bold mt-1'>•</span>
+                            <span className='flex-1'>{opt.label}</span>
                           </li>
                         ))}
                       </ul>
                     </td>
-                    <td className='border px-4 py-4 text-center align-top w-1/6'>
-                      <div className='flex flex-col items-center gap-4'>
+                    <td className='border-b border-gray-200 px-6 py-6 text-center align-top w-1/6'>
+                      <div className='flex flex-col items-center gap-3'>
                         {item.options.map((opt) => (
-                          <label key={opt.value} className='flex items-center gap-2'>
+                          <label key={opt.value} className='flex items-center gap-3 cursor-pointer p-2 hover:bg-blue-50 rounded transition-colors'>
                             <input
                               type='radio'
                               name={item.key}
                               value={opt.value}
                               checked={barthel[item.key] === opt.value}
                               onChange={() => setBarthel({ ...barthel, [item.key]: opt.value })}
+                              className='w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500'
                             />
-                            <span className={`font-bold text-base ${barthel[item.key] === opt.value ? 'bg-lime-400 text-black px-3 py-1 rounded' : ''}`}>{opt.value}</span>
+                            <span className={`font-bold text-base px-3 py-1 rounded border transition-colors ${
+                              barthel[item.key] === opt.value 
+                                ? 'bg-blue-600 text-white border-blue-600' 
+                                : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                            }`}>
+                              {opt.value}
+                            </span>
                           </label>
                         ))}
                       </div>
@@ -600,56 +1189,66 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
               </tbody>
             </table>
           </div>
-          <div className='mt-4 font-semibold text-lg'>Total: {totalBarthel} puntos</div>
+          
+          <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+            <div className='text-center text-xl font-bold text-blue-800 mb-4'>
+              Total: {totalBarthel} puntos
+            </div>
 
-          {/* Tabla de grado de dependencia */}
-          <div className='overflow-x-auto mt-6 flex justify-center'>
-            <div>
-              <table className='min-w-[400px] border text-sm mx-auto'>
-                <thead>
-                  <tr className='bg-gray-100'>
-                    <th className='border px-4 py-2'>RESULTADO</th>
-                    <th className='border px-4 py-2'>GRADO DE DEPENDENCIA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className={`border px-4 py-2 text-center ${totalBarthel < 20 ? 'bg-lime-400 font-bold' : ''}`}>&lt;20</td>
-                    <td className='border px-4 py-2 text-center'>Total</td>
-                  </tr>
-                  <tr>
-                    <td className={`border px-4 py-2 text-center ${totalBarthel >= 20 && totalBarthel <= 35 ? 'bg-lime-400 font-bold' : ''}`}>20-35</td>
-                    <td className='border px-4 py-2 text-center'>Grave</td>
-                  </tr>
-                  <tr>
-                    <td className={`border px-4 py-2 text-center ${totalBarthel >= 40 && totalBarthel <= 55 ? 'bg-lime-400 font-bold' : ''}`}>40-55</td>
-                    <td className='border px-4 py-2 text-center'>Moderado</td>
-                  </tr>
-                  <tr>
-                    <td className={`border px-4 py-2 text-center ${totalBarthel >= 60 && totalBarthel < 100 ? 'bg-lime-400 font-bold' : ''}`}>&gt;=60</td>
-                    <td className='border px-4 py-2 text-center'>Leve</td>
-                  </tr>
-                  <tr>
-                    <td className={`border px-4 py-2 text-center ${totalBarthel === 100 ? 'bg-lime-400 font-bold' : ''}`}>100</td>
-                    <td className='border px-4 py-2 text-center'>Independiente</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className='mt-2 text-center'><span className='font-bold'>Máxima puntuación 100</span> puntos</div>
-              <div className='text-sm text-center'>(<span className='font-bold'>90</span> si está en silla de ruedas)</div>
+            {/* Tabla de grado de dependencia */}
+            <div className='flex justify-center'>
+              <div className='max-w-md w-full'>
+                <table className='w-full border-collapse border border-gray-300 bg-white rounded-lg overflow-hidden'>
+                  <thead>
+                    <tr className='bg-gray-100'>
+                      <th className='border-b border-gray-300 px-4 py-3 text-center font-semibold text-gray-800 dark:text-gray-100'>RESULTADO</th>
+                      <th className='border-b border-gray-300 px-4 py-3 text-center font-semibold text-gray-800 dark:text-gray-100'>GRADO DE DEPENDENCIA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className={totalBarthel < 20 ? 'bg-red-100 border-red-300' : ''}>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center font-medium ${totalBarthel < 20 ? 'text-red-800 font-bold' : 'text-gray-700'}`}>&lt;20</td>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center ${totalBarthel < 20 ? 'text-red-800 font-bold' : 'text-gray-700'}`}>Total</td>
+                    </tr>
+                    <tr className={totalBarthel >= 20 && totalBarthel <= 35 ? 'bg-orange-100 border-orange-300' : ''}>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center font-medium ${totalBarthel >= 20 && totalBarthel <= 35 ? 'text-orange-800 font-bold' : 'text-gray-700'}`}>20-35</td>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center ${totalBarthel >= 20 && totalBarthel <= 35 ? 'text-orange-800 font-bold' : 'text-gray-700'}`}>Grave</td>
+                    </tr>
+                    <tr className={totalBarthel >= 40 && totalBarthel <= 55 ? 'bg-yellow-100 border-yellow-300' : ''}>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center font-medium ${totalBarthel >= 40 && totalBarthel <= 55 ? 'text-yellow-800 font-bold' : 'text-gray-700'}`}>40-55</td>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center ${totalBarthel >= 40 && totalBarthel <= 55 ? 'text-yellow-800 font-bold' : 'text-gray-700'}`}>Moderado</td>
+                    </tr>
+                    <tr className={totalBarthel >= 60 && totalBarthel < 100 ? 'bg-blue-100 border-blue-300' : ''}>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center font-medium ${totalBarthel >= 60 && totalBarthel < 100 ? 'text-blue-800 font-bold' : 'text-gray-700'}`}>&gt;=60</td>
+                      <td className={`border-b border-gray-200 px-4 py-3 text-center ${totalBarthel >= 60 && totalBarthel < 100 ? 'text-blue-800 font-bold' : 'text-gray-700'}`}>Leve</td>
+                    </tr>
+                    <tr className={totalBarthel === 100 ? 'bg-green-100 border-green-300' : ''}>
+                      <td className={`px-4 py-3 text-center font-medium ${totalBarthel === 100 ? 'text-green-800 font-bold' : 'text-gray-700'}`}>100</td>
+                      <td className={`px-4 py-3 text-center ${totalBarthel === 100 ? 'text-green-800 font-bold' : 'text-gray-700'}`}>Independiente</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div className='mt-3 text-center text-sm text-gray-600'>
+                  <div><span className='font-semibold'>Máxima puntuación:</span> 100 puntos</div>
+                  <div className='text-xs'>(<span className='font-semibold'>90</span> si está en silla de ruedas)</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Comentarios examinador */}
-        <div className='mt-8'>
-          <h4 className='font-semibold text-lg mb-2'>Comentarios examinador</h4>
+        {/* SECCIÓN: COMENTARIOS DEL EXAMINADOR */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XII. COMENTARIOS DEL EXAMINADOR</h4>
+          </div>
           <FormField name='comentariosExaminador' control={form.control} render={({ field }) => (
             <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Observaciones y comentarios del profesional</FormLabel>
               <FormControl>
                 <Textarea 
-                  className='min-h-[180px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
-                  placeholder='Escriba aquí los comentarios del examinador...' 
+                  className='min-h-[150px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                  placeholder='Escriba aquí las observaciones, comentarios y notas adicionales del examinador...' 
                   {...field} 
                 />
               </FormControl>
@@ -657,15 +1256,18 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           )} />
         </div>
 
-        {/* Resumen de resultados */}
-        <div className='mt-8'>
-          <h4 className='font-semibold text-lg mb-2'>Resumen de resultados</h4>
+        {/* SECCIÓN: RESUMEN DE RESULTADOS */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XIII. RESUMEN DE RESULTADOS</h4>
+          </div>
           <FormField name='resumenResultados' control={form.control} render={({ field }) => (
             <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Resumen ejecutivo de la evaluación</FormLabel>
               <FormControl>
                 <Textarea 
-                  className='min-h-[120px] border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700 focus:border-blue-400' 
-                  placeholder='Escriba aquí el resumen de resultados...' 
+                  className='min-h-[120px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                  placeholder='Escriba aquí el resumen de los resultados de la evaluación neurológica...' 
                   {...field} 
                 />
               </FormControl>
@@ -673,7 +1275,16 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
           )} />
         </div>
 
-        <Button type='submit' disabled={isPending}>Guardar</Button>
+        {/* BOTÓN DE ENVÍO */}
+        <div className='flex justify-end pt-6'>
+          <Button 
+            type='submit' 
+            disabled={isPending}
+            className='px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            {isPending ? 'Guardando...' : 'Guardar Evaluación'}
+          </Button>
+        </div>
       </form>
     </Form>
   );

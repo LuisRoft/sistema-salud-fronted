@@ -16,6 +16,18 @@ export interface RiesgoCaida {
   comentariosRiesgo?: string;
 }
 
+export interface EvaluacionDolor {
+  localizacion?: string;
+  tiempo?: string;
+  irradiado?: string;
+  tipo?: string;
+  escalaVisualNumerica?: number;
+  escalaSubjetiva?: string;
+  actividadesAlivian?: string;
+  actividadesAgravan?: string;
+  comentariosDolor?: string;
+}
+
 export interface BarthelIndex {
   vestirse?: number;
   arreglarse?: number;
@@ -51,6 +63,7 @@ export interface EvaluacionNeurologica {
   alcanceMotor?: string;
   comentariosExaminador?: string;
   resumenResultados?: string;
+  evaluacionDolor?: EvaluacionDolor;
 }
 
 export interface CreateNeurologicaRequest {
@@ -77,4 +90,5 @@ export interface CreateNeurologicaRequest {
   alcanceMotor?: string;
   comentariosExaminador?: string;
   resumenResultados?: string;
+  evaluacionDolor?: EvaluacionDolor;
 } 

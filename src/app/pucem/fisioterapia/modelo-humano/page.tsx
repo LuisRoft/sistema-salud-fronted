@@ -1,8 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import NeurologicaTable from '@/components/neurologica-table/neurologica-table';
 import { BioDigitalEmbedded } from '@/components/BioDigitalEmbedded';
 
 export default function FisioterapiaPage() {
