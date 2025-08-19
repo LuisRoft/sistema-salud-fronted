@@ -45,6 +45,17 @@ export interface BaseConsultation {
   heces_examenes?: string[];
   hormonas_examenes?: string[];
   serologia_examenes?: string[];
+  // Campos adicionales para evaluación neurológica
+  edad?: number;
+  discapacidad?: string;
+  diagnostico?: string;
+  antecedentesHeredofamiliares?: string;
+  antecedentesFarmacologicos?: string;
+  alergias?: string;
+  utilizaSillaRuedas?: boolean;
+  comentariosExaminador?: string;
+  resumenResultados?: string;
+  barthelTotal?: number;
 }
 
 export interface ConsultationResponse {
@@ -196,7 +207,7 @@ export const getLaboratoryRequests = async (token: string): Promise<Consultation
 export const getAllConsultations = async (token: string) => {
   try {
     // Hacer todas las llamadas en paralelo
-    const [externasResp, internasResp, enfermeriaResp, laboratorioResp] = await Promise.all([
+    const [externasResp, internasResp, enfermeriaResp, laboratorioResp, neurologicaResp] = await Promise.all([
       get('/consultations', {
         headers: { Authorization: `Bearer ${token}` }
       }),
@@ -207,6 +218,9 @@ export const getAllConsultations = async (token: string) => {
         headers: { Authorization: `Bearer ${token}` }
       }),
       get('/laboratory-request', {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      get('/neurologica', {
         headers: { Authorization: `Bearer ${token}` }
       })
     ]);
@@ -290,8 +304,33 @@ export const getAllConsultations = async (token: string) => {
       serologia_examenes: request.serologia_examenes
     }));
 
+    // Procesar evaluaciones neurológicas
+    const neurologica = (neurologicaResp.data?.neurologicas || []).map((evaluation: any) => ({
+      id: evaluation.id,
+      numeroDeArchivo: 0, // Las evaluaciones neurológicas no tienen número de archivo
+      fecha: evaluation.createdAt || evaluation.fecha,
+      patient: {
+        name: evaluation.name || '',
+        lastName: '', // El nombre completo está en el campo 'name'
+        document: evaluation.ci || ''
+      },
+      motivoConsulta: 'Evaluación neurológica',
+      diagnosticosDesc: [evaluation.diagnostico, evaluation.discapacidad].filter(Boolean),
+      type: 'Evaluación Neurológica',
+      edad: evaluation.edad,
+      discapacidad: evaluation.discapacidad,
+      diagnostico: evaluation.diagnostico,
+      antecedentesHeredofamiliares: evaluation.antecedentesHeredofamiliares,
+      antecedentesFarmacologicos: evaluation.antecedentesFarmacologicos,
+      alergias: evaluation.alergias,
+      utilizaSillaRuedas: evaluation.utilizaSillaRuedas,
+      comentariosExaminador: evaluation.comentariosExaminador,
+      resumenResultados: evaluation.resumenResultados,
+      barthelTotal: evaluation.barthelTotal
+    }));
+
     // Combinar todas las consultas
-    const allConsultations = [...externas, ...internas, ...enfermeria, ...laboratorio];
+    const allConsultations = [...externas, ...internas, ...enfermeria, ...laboratorio, ...neurologica];
 
     return {
       consultations: allConsultations,
@@ -300,6 +339,7 @@ export const getAllConsultations = async (token: string) => {
         internas: internas.length,
         enfermeria: enfermeria.length,
         laboratorio: laboratorio.length,
+        neurologica: neurologica.length,
         total: allConsultations.length
       }
     };
