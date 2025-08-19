@@ -26,8 +26,8 @@ const formSchema = z.object({
   identification: z.string().min(2, {
     message: 'Número de identificación es requerido.',
   }),
-  password: z.string().min(8, {
-    message: 'Contraseña no debe ser menor a 8 caracteres.',
+  password: z.string().min(6, {
+    message: 'Contraseña no debe ser menor a 6 caracteres.',
   }),
 });
 
