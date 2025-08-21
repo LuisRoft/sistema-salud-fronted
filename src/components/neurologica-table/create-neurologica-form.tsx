@@ -65,6 +65,8 @@ const schema = z.object({
   comentariosExaminador: z.string().optional(),
   resumenResultados: z.string().optional(),
   cif: z.array(z.string()).optional(),
+  diagnosticoFisioterapeutico: z.string().optional(),
+  planFisioterapeutico: z.string().optional(),
 });
 
 type FormValues = CreateNeurologicaRequest;
@@ -255,6 +257,8 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
         comentariosDolor: '',
       },
       cif: [],
+      diagnosticoFisioterapeutico: '',
+      planFisioterapeutico: '',
     }
   });
   const { toast } = useToast();
@@ -1840,16 +1844,22 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
             </FormItem>
           )} />
           
-          {/* CAMPO CIF MEJORADO */}
+        </div>
+
+        {/* SECCIÓN: CLASIFICACIÓN CIF */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XIV. CLASIFICACIÓN CIF (ESTRUCTURAS ANATÓMICAS)</h4>
+            {selectedCIFs.length > 0 && (
+              <span className='bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium'>
+                {selectedCIFs.length} SELECCIONADO{selectedCIFs.length > 1 ? 'S' : ''}
+              </span>
+            )}
+          </div>
           <FormField name='cif' control={form.control} render={({ field }) => (
             <FormItem>
               <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>
-                Clasificación CIF (Estructuras Anatómicas)
-                {selectedCIFs.length > 0 && (
-                  <span className='text-sm text-blue-600 dark:text-blue-400 ml-2'>
-                    ({selectedCIFs.length} seleccionado{selectedCIFs.length > 1 ? 's' : ''})
-                  </span>
-                )}
+                Seleccionar estructuras anatómicas según clasificación CIF
               </FormLabel>
               <FormControl>
                 <div className='space-y-3'>
@@ -1913,6 +1923,48 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                     </div>
                   )}
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+        </div>
+
+        {/* SECCIÓN: DIAGNÓSTICO FISIOTERAPÉUTICO */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XV. DIAGNÓSTICO FISIOTERAPÉUTICO</h4>
+            <span className='bg-green-600 text-white px-3 py-1 rounded-md text-sm font-medium'>EVALUACIÓN</span>
+          </div>
+          <FormField name='diagnosticoFisioterapeutico' control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Diagnóstico basado en la evaluación fisioterapéutica</FormLabel>
+              <FormControl>
+                <Textarea 
+                  className='min-h-[150px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                  placeholder='Escriba aquí el diagnóstico fisioterapéutico basado en los hallazgos de la evaluación funcional, alteraciones de la marcha, riesgo de caída y capacidades motoras del paciente...' 
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+        </div>
+
+        {/* SECCIÓN: PLAN FISIOTERAPÉUTICO */}
+        <div className='space-y-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+          <div className='border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center gap-3'>
+            <h4 className='font-semibold text-xl text-gray-800 dark:text-gray-100'>XVI. PLAN FISIOTERAPÉUTICO</h4>
+            <span className='bg-purple-600 text-white px-3 py-1 rounded-md text-sm font-medium'>TRATAMIENTO</span>
+          </div>
+          <FormField name='planFisioterapeutico' control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>Plan de tratamiento y objetivos terapéuticos</FormLabel>
+              <FormControl>
+                <Textarea 
+                  className='min-h-[200px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                  placeholder='Describir el plan de tratamiento fisioterapéutico: objetivos a corto y largo plazo, técnicas y modalidades de tratamiento, frecuencia de sesiones, ejercicios específicos, recomendaciones para el hogar, criterios de evolución y seguimiento...' 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

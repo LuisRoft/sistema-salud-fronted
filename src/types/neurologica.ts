@@ -65,6 +65,8 @@ export interface EvaluacionNeurologica {
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
   cif?: string[];
+  diagnosticoFisioterapeutico?: string;
+  planFisioterapeutico?: string;
 }
 
 export interface CreateNeurologicaRequest {
@@ -93,4 +95,6 @@ export interface CreateNeurologicaRequest {
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
   cif?: string[];
+  diagnosticoFisioterapeutico?: string;
+  planFisioterapeutico?: string;
 } 
