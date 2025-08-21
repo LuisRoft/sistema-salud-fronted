@@ -65,6 +65,11 @@ export interface EvaluacionNeurologica {
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
   cif?: string[];
+  // Campos para observaciones del screening postural
+  observacionesVistaAnterior?: string;
+  observacionesVistaPosterior?: string;
+  observacionesVistaLateralDerecha?: string;
+  observacionesVistaLateralIzquierda?: string;
   diagnosticoFisioterapeutico?: string;
   planFisioterapeutico?: string;
 }
@@ -95,6 +100,11 @@ export interface CreateNeurologicaRequest {
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
   cif?: string[];
+  // Campos para observaciones del screening postural
+  observacionesVistaAnterior?: string;
+  observacionesVistaPosterior?: string;
+  observacionesVistaLateralDerecha?: string;
+  observacionesVistaLateralIzquierda?: string;
   diagnosticoFisioterapeutico?: string;
   planFisioterapeutico?: string;
 } 

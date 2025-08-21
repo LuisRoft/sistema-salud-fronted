@@ -65,6 +65,11 @@ const schema = z.object({
   comentariosExaminador: z.string().optional(),
   resumenResultados: z.string().optional(),
   cif: z.array(z.string()).optional(),
+  // Campos para observaciones del screening postural
+  observacionesVistaAnterior: z.string().optional(),
+  observacionesVistaPosterior: z.string().optional(),
+  observacionesVistaLateralDerecha: z.string().optional(),
+  observacionesVistaLateralIzquierda: z.string().optional(),
   diagnosticoFisioterapeutico: z.string().optional(),
   planFisioterapeutico: z.string().optional(),
 });
@@ -257,6 +262,11 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
         comentariosDolor: '',
       },
              cif: [],
+       // Valores por defecto para observaciones del screening postural
+       observacionesVistaAnterior: '',
+       observacionesVistaPosterior: '',
+       observacionesVistaLateralDerecha: '',
+       observacionesVistaLateralIzquierda: '',
        diagnosticoFisioterapeutico: '',
        planFisioterapeutico: '',
     }
@@ -715,6 +725,21 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                 onImageChange={(file) => handleImageUpload('vistaAnterior', file)}
                 currentImage={screeningImages.vistaAnterior}
               />
+              <FormField name='observacionesVistaAnterior' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-gray-700 dark:text-gray-300 font-medium text-sm'>
+                    📝 Observaciones Vista Anterior
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      className='min-h-[80px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                      placeholder='Describa hallazgos posturales en vista anterior: alineación de cabeza, hombros, pelvis, miembros inferiores...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
 
             {/* Vista Posterior */}
@@ -726,6 +751,21 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                 onImageChange={(file) => handleImageUpload('vistaPosterior', file)}
                 currentImage={screeningImages.vistaPosterior}
               />
+              <FormField name='observacionesVistaPosterior' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-gray-700 dark:text-gray-300 font-medium text-sm'>
+                    📝 Observaciones Vista Posterior
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      className='min-h-[80px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                      placeholder='Describa hallazgos posturales en vista posterior: alineación vertebral, escápulas, pelvis, simetría corporal...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
 
             {/* Vista Lateral Derecha */}
@@ -737,6 +777,21 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                 onImageChange={(file) => handleImageUpload('vistaLateralDerecha', file)}
                 currentImage={screeningImages.vistaLateralDerecha}
               />
+              <FormField name='observacionesVistaLateralDerecha' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-gray-700 dark:text-gray-300 font-medium text-sm'>
+                    📝 Observaciones Vista Lateral Derecha
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      className='min-h-[80px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                      placeholder='Describa hallazgos posturales en vista lateral derecha: curvaturas vertebrales, posición de cabeza, antepulsión de hombros...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
 
             {/* Vista Lateral Izquierda */}
@@ -748,6 +803,21 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                 onImageChange={(file) => handleImageUpload('vistaLateralIzquierda', file)}
                 currentImage={screeningImages.vistaLateralIzquierda}
               />
+              <FormField name='observacionesVistaLateralIzquierda' control={form.control} render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-gray-700 dark:text-gray-300 font-medium text-sm'>
+                    📝 Observaciones Vista Lateral Izquierda
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      className='min-h-[80px] border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none' 
+                      placeholder='Describa hallazgos posturales en vista lateral izquierda: curvaturas vertebrales, posición de cabeza, distribución del peso...' 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
             </div>
           </div>
         </div>
