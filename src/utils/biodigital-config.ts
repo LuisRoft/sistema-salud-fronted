@@ -14,6 +14,7 @@ export interface PartWithPain {
   tintColor: [number, number, number];
   saturation?: number;
   brightness?: number;
+  notes?: string; // Campo para observaciones específicas
 }
 
 export interface ColorConfig {

@@ -11,6 +11,7 @@ interface PainControlPanelProps {
   onUpdatePainLevel: (partId: string, painLevel: number) => void;
   onRemovePart: (partId: string) => void;
   onSendToBackend: () => void;
+  onUpdatePartNotes?: (partId: string, notes: string) => void;
 }
 
 const PainLevelButton = ({
@@ -54,6 +55,7 @@ export function PainControlPanel({
   onUpdatePainLevel,
   onRemovePart,
   onSendToBackend,
+  onUpdatePartNotes,
 }: PainControlPanelProps) {
 
   const handleSendData = () => {
@@ -81,8 +83,8 @@ export function PainControlPanel({
   };
 
   return (
-    <div className="bg-background border border-border rounded-xl shadow-lg p-3 sm:p-4 lg:p-6 w-full backdrop-blur-sm">
-      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+    <div className="bg-background border border-border rounded-xl shadow-lg p-3 sm:p-4 w-full backdrop-blur-sm">
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg">
           <span className="text-lg sm:text-xl">🏥</span>
         </div>
@@ -97,7 +99,7 @@ export function PainControlPanel({
       </div>
 
       {/* Leyenda de colores */}
-      <div className="mb-4 sm:mb-6 bg-muted/30 rounded-lg p-3 sm:p-4 border border-border/50">
+      <div className="mb-3 sm:mb-4 bg-muted/30 rounded-lg p-3 border border-border/50">
         <div className="flex items-center gap-2 mb-2 sm:mb-3">
           <span className="text-xs sm:text-sm">🎨</span>
           <h4 className="text-xs sm:text-sm font-medium text-foreground">
@@ -132,7 +134,7 @@ export function PainControlPanel({
       </div>
 
       {/* Lista de partes seleccionadas */}
-      <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 max-h-48 sm:max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+      <div className="space-y-2 mb-4 max-h-64 sm:max-h-72 lg:max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         {selectedPartsWithPain.length === 0 ? (
           <div className="text-center py-6 sm:py-8 px-4">
             <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-muted/50 rounded-full flex items-center justify-center">
@@ -149,9 +151,9 @@ export function PainControlPanel({
           selectedPartsWithPain.map((part) => (
             <div
               key={part.id}
-              className="bg-card border border-border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
+              className="bg-card border border-border rounded-lg p-3 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex-1 min-w-0">
                   <h5 className="text-xs sm:text-sm font-medium text-foreground truncate">
                     {part.id}
@@ -169,7 +171,7 @@ export function PainControlPanel({
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <span className="text-xs text-muted-foreground font-medium">
                   Intensidad:
                 </span>
@@ -183,6 +185,24 @@ export function PainControlPanel({
                     />
                   ))}
                 </div>
+              </div>
+              
+              {/* Campo de texto para observaciones específicas de esta parte */}
+              <div className="space-y-1.5">
+                <label 
+                  htmlFor={`notes-${part.id}`}
+                  className="text-xs text-muted-foreground font-medium block"
+                >
+                  📝 Observaciones:
+                </label>
+                <textarea
+                  id={`notes-${part.id}`}
+                  placeholder={`Hallazgos específicos...`}
+                  value={part.notes || ''}
+                  onChange={(e) => onUpdatePartNotes?.(part.id, e.target.value)}
+                  className="w-full px-2 py-1.5 text-xs border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-colors min-h-[60px]"
+                  rows={2}
+                />
               </div>
             </div>
           ))

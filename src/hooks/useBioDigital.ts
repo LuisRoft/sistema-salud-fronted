@@ -34,6 +34,7 @@ interface UseBioDigitalReturn {
   handleScriptLoad: () => void;
   handleScriptError: () => void;
   updatePartPainLevel: (partId: string, painLevel: number) => void;
+  updatePartNotes: (partId: string, notes: string) => void;
   addSelectedPart: (partId: string, painLevel?: number) => void;
   removeSelectedPart: (partId: string) => void;
 }
@@ -94,6 +95,23 @@ export function useBioDigital(
     },
     []
   );
+
+  // Función para actualizar las notas de una parte
+  const updatePartNotes = useCallback((partId: string, notes: string) => {
+    setSelectedPartsWithPain((prev) => {
+      const existingIndex = prev.findIndex((part) => part.id === partId);
+      if (existingIndex >= 0) {
+        // Actualizar notas de parte existente
+        const updated = [...prev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          notes,
+        };
+        return updated;
+      }
+      return prev; // Si no existe la parte, no hacer nada
+    });
+  }, []);
 
   // Función para agregar una parte seleccionada
   const addSelectedPart = useCallback(
@@ -273,6 +291,7 @@ export function useBioDigital(
     handleScriptLoad,
     handleScriptError,
     updatePartPainLevel,
+    updatePartNotes,
     addSelectedPart,
     removeSelectedPart,
   };

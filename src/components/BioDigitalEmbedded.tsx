@@ -20,6 +20,7 @@ export function BioDigitalEmbedded() {
     handleScriptLoad,
     handleScriptError,
     updatePartPainLevel,
+    updatePartNotes,
     removeSelectedPart,
   } = useBioDigital([
     PREDEFINED_PARTS.FRONTAL_BONE,
@@ -86,6 +87,7 @@ export function BioDigitalEmbedded() {
         <PainControlPanel
           selectedPartsWithPain={selectedPartsWithPain}
           onUpdatePainLevel={updatePartPainLevel}
+          onUpdatePartNotes={updatePartNotes}
           onRemovePart={removeSelectedPart}
           onSendToBackend={handleSendToBackend}
         />
@@ -150,11 +152,11 @@ export function BioDigitalEmbedded() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Usa el botón "✕" para quitar solo el color</span>
+              <span>Usa el botón &quot;✕&quot; para quitar solo el color</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Haz clic en "Enviar Datos" para procesar información</span>
+              <span>Haz clic en &quot;Enviar Datos&quot; para procesar información</span>
             </li>
           </ul>
         </div>

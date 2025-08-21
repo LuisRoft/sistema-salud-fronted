@@ -256,9 +256,9 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
         actividadesAgravan: '',
         comentariosDolor: '',
       },
-      cif: [],
-      diagnosticoFisioterapeutico: '',
-      planFisioterapeutico: '',
+             cif: [],
+       diagnosticoFisioterapeutico: '',
+       planFisioterapeutico: '',
     }
   });
   const { toast } = useToast();
