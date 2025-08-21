@@ -64,6 +64,7 @@ export interface EvaluacionNeurologica {
   comentariosExaminador?: string;
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
+  cif?: string[];
 }
 
 export interface CreateNeurologicaRequest {
@@ -91,4 +92,5 @@ export interface CreateNeurologicaRequest {
   comentariosExaminador?: string;
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
+  cif?: string[];
 } 

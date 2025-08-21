@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { PatientSelector } from '../shared/patient-selector';
 import { Patient } from '@/services/patientService';
+import AutocompleteCIF from '../cif/autocompleteCIF';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -63,6 +64,7 @@ const schema = z.object({
   alcanceMotor: z.string().optional(),
   comentariosExaminador: z.string().optional(),
   resumenResultados: z.string().optional(),
+  cif: z.array(z.string()).optional(),
 });
 
 type FormValues = CreateNeurologicaRequest;
@@ -252,6 +254,7 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
         actividadesAgravan: '',
         comentariosDolor: '',
       },
+      cif: [],
     }
   });
   const { toast } = useToast();
@@ -289,6 +292,9 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
   // Estado para el Mini Mental Test (solo frontend, no se envía al backend)
   const [miniMental, setMiniMental] = useState<{ [key: string]: number }>({});
   const totalMiniMental = Object.values(miniMental).reduce((a, b) => a + b, 0);
+
+  // Estado para CIF seleccionados
+  const [selectedCIFs, setSelectedCIFs] = useState<Array<{codigo: string, descripcion: string}>>([]);
 
   // Función para manejar la carga de imágenes
   const handleImageUpload = (type: keyof typeof screeningImages, file: File | null) => {
@@ -1831,6 +1837,84 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                   {...field} 
                 />
               </FormControl>
+            </FormItem>
+          )} />
+          
+          {/* CAMPO CIF MEJORADO */}
+          <FormField name='cif' control={form.control} render={({ field }) => (
+            <FormItem>
+              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>
+                Clasificación CIF (Estructuras Anatómicas)
+                {selectedCIFs.length > 0 && (
+                  <span className='text-sm text-blue-600 dark:text-blue-400 ml-2'>
+                    ({selectedCIFs.length} seleccionado{selectedCIFs.length > 1 ? 's' : ''})
+                  </span>
+                )}
+              </FormLabel>
+              <FormControl>
+                <div className='space-y-3'>
+                  <AutocompleteCIF
+                    onSelect={(cif, desc) => {
+                      // Verificar si ya existe
+                      const existe = selectedCIFs.find(item => item.codigo === cif);
+                      if (!existe) {
+                        const newCIFs = [...selectedCIFs, { codigo: cif, descripcion: desc }];
+                        setSelectedCIFs(newCIFs);
+                        field.onChange(newCIFs.map(item => item.codigo));
+                        console.log('CIF seleccionado:', cif, desc);
+                      }
+                    }}
+                    placeholder='Buscar y agregar estructuras anatómicas CIF...'
+                    className='w-full'
+                  />
+                  
+                  {/* Lista de CIF seleccionados */}
+                  {selectedCIFs.length > 0 && (
+                    <div className='space-y-2'>
+                      <div className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                        Estructuras seleccionadas:
+                      </div>
+                      <div className='flex flex-wrap gap-2'>
+                        {selectedCIFs.map((item, index) => (
+                          <div 
+                            key={`${item.codigo}-${index}`}
+                            className='flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2 text-sm'
+                          >
+                            <div className='flex flex-col'>
+                              <span className='font-medium text-blue-800 dark:text-blue-200'>
+                                {item.codigo}
+                              </span>
+                              <span className='text-blue-600 dark:text-blue-400 text-xs'>
+                                {item.descripcion}
+                              </span>
+                            </div>
+                            <button
+                              type='button'
+                              onClick={() => {
+                                const newCIFs = selectedCIFs.filter((_, i) => i !== index);
+                                setSelectedCIFs(newCIFs);
+                                field.onChange(newCIFs.map(item => item.codigo));
+                              }}
+                              className='text-red-500 hover:text-red-700 font-bold text-lg leading-none'
+                              title='Eliminar'
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Mensaje de ayuda */}
+                  {selectedCIFs.length === 0 && (
+                    <div className='text-xs text-gray-500 dark:text-gray-400 italic'>
+                      Puede agregar múltiples estructuras anatómicas. Busque por código (ej: s110) o descripción (ej: cerebro).
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )} />
         </div>
