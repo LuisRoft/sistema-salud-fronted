@@ -923,6 +923,15 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value='sin_dolor'>0 SIN DOLOR</SelectItem>
+                                  <SelectItem value='dolor_muy_leve'>1 DOLOR MUY LEVE</SelectItem>
+                                  <SelectItem value='dolor_leve'>2 DOLOR LEVE</SelectItem>
+                                  <SelectItem value='dolor_leve_moderado'>3 DOLOR LEVE-MODERADO</SelectItem>
+                                  <SelectItem value='dolor_moderado'>4 DOLOR MODERADO</SelectItem>
+                                  <SelectItem value='dolor_moderado_fuerte'>5 DOLOR MODERADO-FUERTE</SelectItem>
+                                  <SelectItem value='dolor_fuerte'>6 DOLOR FUERTE</SelectItem>
+                                  <SelectItem value='dolor_muy_fuerte'>7 DOLOR MUY FUERTE</SelectItem>
+                                  <SelectItem value='dolor_intenso'>8 DOLOR INTENSO</SelectItem>
+                                  <SelectItem value='dolor_muy_intenso'>9 DOLOR MUY INTENSO</SelectItem>
                                   <SelectItem value='peor_dolor'>10 PEOR DOLOR IMAGINABLE</SelectItem>
                                 </SelectContent>
                               </Select>
