@@ -2,271 +2,332 @@
 
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
 import { getSession } from 'next-auth/react';
+
+import { useToast } from '@/hooks/use-toast';
 import { createNursingForm } from '@/services/nursingService';
 import { useNursingValidation } from '@/hooks/use-nursing-validation';
 import { calculateCompletionPercentage } from '@/lib/nursing-validation';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Minus, Save } from 'lucide-react';
+
+import { Plus, Minus, Save, Users } from 'lucide-react';
+
 import { NursingFormData } from '@/types/nursing';
 import NursingValidationSummary from './nursing-validation-summary';
 import NursingCoherenceChecker from './nursing-coherence-checker';
 import NursingFieldValidator, { ArrayFieldValidator } from './nursing-field-validator';
 import NursingProgressTracker from './nursing-progress-tracker';
 
-// Datos de referencia (en un sistema real, estos vendrían de una API)
-const nandaData = [
-  { value: '00001', label: '00001 Desequilibrio nutricional por exceso' },
-  { value: '00002', label: '00002 Desequilibrio nutricional por defecto' },
-  { value: '00003', label: '00003 Riesgo de desequilibrio nutricional por exceso' },
-  { value: '00004', label: '00004 Riesgo de infección' },
-  { value: '00005', label: '00005 Riesgo de desequilibrio de la temperatura corporal' },
-];
+import { Patient } from '@/services/patientService';
+import { PatientSelector } from '../shared/patient-selector';
 
-const nicData = [
-  { value: '5612', label: '5612-Enseñanza: ejercicio prescrito' },
-  { value: '0140', label: '0140 Favorecimiento de la mecánica corporal' },
-  { value: '0200', label: '0200 Favorecimiento del ejercicio' },
-  { value: '0201', label: '0201 Favorecimiento del ejercicio: entrenamiento de fuerza' },
-  { value: '0202', label: '0202 Favorecimiento del ejercicio: estiramientos' },
-];
+// =====================================
+// Tipos locales
+// =====================================
+type RefItem = { value: string; label: string };
 
-const nocData = [
-  { value: '0002', label: '0002-Conservación de la energía' },
-  { value: '0003', label: '0003-Descanso' },
-  { value: '0006', label: '0006-Energía psicomotora' },
-  { value: '0007', label: '0007-Nivel de fatiga' },
-  { value: '0001', label: '0001-Resistencia' },
-];
+type Option = { value: string; label: string };
 
+function SearchSelectBasic({
+  value,
+  onChange,
+  options,
+  placeholder = 'Buscar…',
+  emptyText = 'Sin resultados',
+}: {
+  value?: string;
+  onChange: (val: string) => void;
+  options: Option[];
+  placeholder?: string;
+  emptyText?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+
+  const filtered = options.filter(
+    (o) =>
+      o.label.toLowerCase().includes(q.toLowerCase()) ||
+      o.value.toLowerCase().includes(q.toLowerCase())
+  );
+
+  const current = options.find((o) => o.value === value)?.label ?? '';
+
+  // cierra si haces click fuera
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!(e.target as HTMLElement)?.closest?.('[data-ssb-root]')) setOpen(false);
+    }
+    if (open) document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  return (
+    <div data-ssb-root className="relative w-full">
+      {/* Trigger */}
+      <button
+        type="button"
+        className="w-full min-h-10 rounded-md border border-input bg-background px-3 py-2 text-left text-sm flex items-center justify-between"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className={current ? '' : 'text-muted-foreground'}>
+          {current || 'Selecciona…'}
+        </span>
+        <svg width="16" height="16" viewBox="0 0 20 20" className="opacity-60">
+          <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-0 right-0 mt-2 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+        >
+          {/* input fijo arriba */}
+          <div className="p-2 border-b border-gray-100 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={placeholder}
+              className="h-9"
+              autoFocus
+            />
+          </div>
+
+          {/* lista */}
+          <div className="max-h-72 overflow-auto py-1">
+            {filtered.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                {emptyText}
+              </div>
+            ) : (
+              filtered.map((opt) => (
+                <div
+                  key={opt.value}
+                  className="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 whitespace-normal break-words"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                    setQ('');
+                  }}
+                >
+                  {opt.label}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// =====================================
+// Componente
+// =====================================
 export default function NursingForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // ---- UI / progreso
   const [showValidation, setShowValidation] = useState(true);
   const [completedFields, setCompletedFields] = useState(0);
   const [realCompletionPercentage, setRealCompletionPercentage] = useState(0);
   const totalFields = 17;
 
+  // ---- Paciente seleccionado
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+
+  // ---- Catálogos (desde /public/*.json)
+  const [nandaData, setNandaData] = useState<RefItem[]>([]);
+  const [nicData, setNicData] = useState<RefItem[]>([]);
+  const [nocData, setNocData] = useState<RefItem[]>([]);
+  const [loadingCatalogs, setLoadingCatalogs] = useState({
+    nanda: true,
+    nic: true,
+    noc: true,
+  });
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+
+  // ---- Form (custom hook)
   const {
     form,
     validationState,
     validateFormCompletely,
     clearValidationErrors,
-    isFormValid
   } = useNursingValidation();
 
-  // Contar campos completados con validación mejorada
+  // =====================================
+  // Cargar catálogos desde /public
+  // =====================================
+  useEffect(() => {
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const [nanda, nic, noc] = await Promise.all([
+          fetch('/nanda.json').then((r) => r.json()),
+          fetch('/nic.json').then((r) => r.json()),
+          fetch('/noc.json').then((r) => r.json()),
+        ]);
+
+        if (!isMounted) return;
+
+        setNandaData(Array.isArray(nanda) ? nanda : []);
+        setNicData(Array.isArray(nic) ? nic : []);
+        setNocData(Array.isArray(noc) ? noc : []);
+      } catch (err) {
+        if (isMounted) setCatalogError('No se pudieron cargar los catálogos (nanda/nic/noc).');
+      } finally {
+        if (isMounted) {
+          setLoadingCatalogs({ nanda: false, nic: false, noc: false });
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // =====================================
+  // Selección de paciente
+  // =====================================
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+    // Guardar id en el form (lo exige el backend)
+    form.setValue('patientId', patient.id, { shouldDirty: true, shouldValidate: true });
+  };
+
+  // =====================================
+  // Progreso en tiempo real
+  // =====================================
   useEffect(() => {
     const subscription = form.watch((value) => {
       const formData = value as NursingFormData;
       let completed = 0;
 
-      // Campos de texto simples - validación más estricta
-      if (formData.nanda_dominio && formData.nanda_dominio.trim()) completed++;
-      if (formData.nanda_clase && formData.nanda_clase.trim().length >= 3) completed++;
-      if (formData.nanda_etiqueta_diagnostica && formData.nanda_etiqueta_diagnostica.trim().length >= 3) completed++;
-      if (formData.nanda_factor_relacionado && formData.nanda_factor_relacionado.trim().length >= 3) completed++;
-      if (formData.nanda_planteamiento_del_diagnostico && formData.nanda_planteamiento_del_diagnostico.trim().length >= 10) completed++;
-      if (formData.noc_resultado_noc && formData.noc_resultado_noc.trim()) completed++;
-      if (formData.noc_dominio && formData.noc_dominio.trim().length >= 3) completed++;
-      if (formData.noc_clase && formData.noc_clase.trim().length >= 3) completed++;
+      // Reglas (coinciden con tu lógica previa)
+      if (formData.nanda_dominio?.trim()) completed++;
+      if (formData.nanda_clase?.trim().length >= 3) completed++;
+      if (formData.nanda_etiqueta_diagnostica?.trim().length >= 3) completed++;
+      if (formData.nanda_factor_relacionado?.trim().length >= 3) completed++;
+      if (formData.nanda_planteamiento_del_diagnostico?.trim().length >= 10) completed++;
 
-      // Arrays - validación más estricta (todos los elementos deben estar completos)
-      if (formData.noc_indicador && formData.noc_indicador.length > 0 && 
-          formData.noc_indicador.every(item => item && item.trim().length >= 3)) completed++;
-      if (formData.noc_rango && formData.noc_rango.length > 0 && 
-          formData.noc_rango.every(item => item && /^\d+$/.test(item.trim()))) completed++;
-      if (formData.noc_diana_inicial && formData.noc_diana_inicial.length > 0 && 
-          formData.noc_diana_inicial.every(item => item && /^[1-5]$/.test(item.trim()))) completed++;
-      if (formData.noc_diana_esperada && formData.noc_diana_esperada.length > 0 && 
-          formData.noc_diana_esperada.every(item => item && /^[1-5]$/.test(item.trim()))) completed++;
-      if (formData.noc_evaluacion && formData.noc_evaluacion.length > 0 && 
-          formData.noc_evaluacion.every(item => item && item.trim().length >= 3)) completed++;
-      if (formData.nic_intervencion && formData.nic_intervencion.length > 0 && 
-          formData.nic_intervencion.every(item => item && item.trim())) completed++;
-      if (formData.nic_clase && formData.nic_clase.length > 0 && 
-          formData.nic_clase.every(item => item && item.trim().length >= 3)) completed++;
-      if (formData.nic_actividades && formData.nic_actividades.length > 0 && 
-          formData.nic_actividades.every(item => item && item.trim().length >= 10)) completed++;
+      if (formData.noc_resultado_noc?.trim()) completed++;
+      if (formData.noc_dominio?.trim().length >= 3) completed++;
+      if (formData.noc_clase?.trim().length >= 3) completed++;
 
-      // Verificar coherencia entre arrays relacionados
-      if (formData.noc_indicador && formData.noc_rango && formData.noc_diana_inicial && formData.noc_diana_esperada) {
-        const lengthsMatch = formData.noc_indicador.length === formData.noc_rango.length &&
-                           formData.noc_rango.length === formData.noc_diana_inicial.length &&
-                           formData.noc_diana_inicial.length === formData.noc_diana_esperada.length;
-        
-        // Bonificación por coherencia de arrays
-        if (lengthsMatch && completed >= 12) {
-          completed = Math.min(completed + 1, totalFields);
-        }
-      }
+      if (formData.noc_indicador?.length && formData.noc_indicador.every((i) => i?.trim().length >= 3)) completed++;
+      if (formData.noc_rango?.length && formData.noc_rango.every((i) => /^\d+$/.test(i?.trim()))) completed++;
+      if (formData.noc_diana_inicial?.length && formData.noc_diana_inicial.every((i) => /^[1-5]$/.test(i?.trim()))) completed++;
+      if (formData.noc_diana_esperada?.length && formData.noc_diana_esperada.every((i) => /^[1-5]$/.test(i?.trim()))) completed++;
+      if (formData.noc_evaluacion?.length && formData.noc_evaluacion.every((i) => i?.trim().length >= 3)) completed++;
 
-      // Calcular el porcentaje real de completitud usando la nueva función
-      const realPercentage = calculateCompletionPercentage(formData);
-      
+      if (formData.nic_intervencion?.length && formData.nic_intervencion.every((i) => i?.trim())) completed++;
+      if (formData.nic_clase?.length && formData.nic_clase.every((i) => i?.trim().length >= 3)) completed++;
+      if (formData.nic_actividades?.length && formData.nic_actividades.every((i) => i?.trim().length >= 10)) completed++;
+
       setCompletedFields(completed);
-      setRealCompletionPercentage(realPercentage);
+      setRealCompletionPercentage(calculateCompletionPercentage(formData));
     });
 
     return () => subscription.unsubscribe();
   }, [form, totalFields]);
 
-  // Mutación para crear el formulario
+  // =====================================
+  // Helpers para arrays del form (NOC/NIC)
+  // =====================================
+  const addArrayItem = (fieldName: keyof NursingFormData) => {
+    const currentValue = (form.getValues(fieldName) as string[]) || [''];
+    form.setValue(fieldName, [...currentValue, ''], { shouldDirty: true, shouldValidate: true });
+  };
+
+  const removeArrayItem = (fieldName: keyof NursingFormData, index: number) => {
+    const currentValue = (form.getValues(fieldName) as string[]) || [''];
+    if (currentValue.length > 1) {
+      const newValue = currentValue.filter((_, i) => i !== index);
+      form.setValue(fieldName, newValue, { shouldDirty: true, shouldValidate: true });
+    }
+  };
+
+  // =====================================
+  // Mutación (crear formulario)
+  // =====================================
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: NursingFormData) => {
-      console.log('🔄 Mutación iniciada con valores:', values);
-      
       const session = await getSession();
-      console.log('👤 Sesión obtenida:', session);
-      
       const token = session?.user.access_token;
-      if (!token) {
-        console.log('❌ Token no disponible');
-        throw new Error('Token no disponible');
-      }
-      
-      console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
-      
-      // Obtener IDs reales de la sesión
-      // El UUID real del usuario está en el token JWT, no en session.user.id
+      if (!token) throw new Error('Token no disponible');
+
+      // El UUID real del usuario viene en el JWT
       let userId: string;
       try {
-        const token = session.user.access_token;
-        const tokenParts = token.split('.');
-        const payload = JSON.parse(atob(tokenParts[1]));
-        userId = payload.id; // Este es el UUID real del usuario
-        console.log('🔑 UUID extraído del token:', userId);
-      } catch (error) {
-        console.error('❌ Error al extraer UUID del token:', error);
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userId = payload.id;
+      } catch {
         throw new Error('No se pudo extraer el UUID del usuario del token');
       }
-      
-      // El paciente está en team.patient["0"] debido a la estructura del backend
-      const patientData = session.user.team?.patient;
-      let patientId: string | undefined;
-      
-      if (patientData && typeof patientData === 'object') {
-        // Buscar la primera clave que no sea "caregivers"
-        const patientKeys = Object.keys(patientData).filter(key => key !== 'caregivers');
-        if (patientKeys.length > 0) {
-          const firstPatientKey = patientKeys[0];
-          patientId = (patientData as any)[firstPatientKey]?.id;
-        }
-      }
-      
-      console.log('🔍 Datos de sesión:', {
-        userId: userId,
-        userIdType: typeof userId,
-        userIdLength: userId?.length,
-        team: session.user.team,
-        patient: session.user.team?.patient,
-        patientId: patientId,
-        patientIdType: typeof patientId,
-        patientKeys: patientData ? Object.keys(patientData) : [],
-        firstPatient: patientData && typeof patientData === 'object' ? 
-          (patientData as any)[Object.keys(patientData).filter(key => key !== 'caregivers')[0]] : null
-      });
-      
-      if (!userId) {
-        throw new Error('ID de usuario no disponible');
-      }
-      
-      if (!patientId) {
-        console.error('❌ Estructura de sesión:', JSON.stringify(session, null, 2));
-        throw new Error('ID de paciente no disponible');
-      }
-      
-      // Agregar IDs reales y fecha actual
+
+      if (!userId) throw new Error('ID de usuario no disponible');
+      if (!values.patientId) throw new Error('ID de paciente no disponible');
+
+      // Payload final
       const formData = {
         ...values,
-        userId: userId,
-        patientId: patientId,
-        fecha: new Date().toISOString() // Fecha actual en formato ISO
+        userId,
+        fecha: new Date().toISOString(),
       };
-      
-      console.log('📤 Enviando datos al servicio:', formData);
+
       return await createNursingForm(formData, token);
     },
-    onSuccess: (data) => {
-      console.log('🎉 Mutación exitosa:', data);
-      toast({ 
-        title: 'Éxito', 
-        description: 'Formulario de enfermería creado correctamente' 
-      });
+    onSuccess: () => {
+      toast({ title: 'Éxito', description: 'Formulario de enfermería creado correctamente' });
       queryClient.invalidateQueries({ queryKey: ['nursing'] });
       form.reset();
       clearValidationErrors();
+      setSelectedPatient(null);
     },
     onError: (error: unknown) => {
-      console.log('❌ Error en mutación:', error);
-      toast({ 
-        title: 'Error', 
-        description: (error as Error).message, 
-        variant: 'destructive' 
+      toast({
+        title: 'Error',
+        description: (error as Error).message,
+        variant: 'destructive',
       });
     },
   });
 
-  // Función para manejar el envío del formulario
+  // =====================================
+  // Submit
+  // =====================================
   const onSubmit = (data: NursingFormData) => {
-    console.log('🚀 onSubmit ejecutado con data:', data);
-    console.log('📊 Progreso real:', realCompletionPercentage);
-    
-    // Verificar que el progreso real sea 100%
     if (realCompletionPercentage < 100) {
-      console.log('❌ Formulario incompleto:', realCompletionPercentage);
       toast({
         title: 'Formulario incompleto',
         description: `Formulario al ${realCompletionPercentage}%. Complete todos los campos antes de enviar.`,
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return;
     }
 
-    // Verificar validación básica
-    const isValidationOk = validateFormCompletely();
-    console.log('✅ Validación completa:', isValidationOk);
-    
-    if (!isValidationOk) {
-      console.log('❌ Error de validación');
+    if (!validateFormCompletely()) {
       toast({
         title: 'Error de validación',
         description: 'Por favor, corrija los errores antes de enviar',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return;
     }
 
-    console.log('🎉 Formulario válido, iniciando envío...');
-    toast({
-      title: 'Enviando formulario',
-      description: 'Formulario válido y completo. Enviando...',
-    });
-
-    console.log('📤 Llamando mutate con data:', data);
     mutate(data);
   };
 
-  // Función para agregar elemento a un array
-  const addArrayItem = (fieldName: keyof NursingFormData) => {
-    const currentValue = form.getValues(fieldName) as string[] || [''];
-    form.setValue(fieldName, [...currentValue, '']);
-  };
-
-  // Función para remover elemento de un array
-  const removeArrayItem = (fieldName: keyof NursingFormData, index: number) => {
-    const currentValue = form.getValues(fieldName) as string[] || [''];
-    if (currentValue.length > 1) {
-      const newValue = currentValue.filter((_, i) => i !== index);
-      form.setValue(fieldName, newValue);
-    }
-  };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -322,7 +383,31 @@ export default function NursingForm() {
       {/* Formulario principal */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          
+          {/* Header / Selección de paciente */}
+            <div className="border rounded-lg p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    Formulario de Enfermería (NANDA–NOC–NIC)
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Seleccione el usuario/paciente para asociar el registro.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {selectedPatient && (
+                    <Badge variant="secondary" className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      <span>{selectedPatient.name} {selectedPatient.lastName}</span>
+                    </Badge>
+                  )}
+
+                  <PatientSelector onSelect={handlePatientSelect} />
+                </div>
+              </div>
+            </div>
+
           {/* Sección NANDA */}
           <div className="border rounded-lg p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="mb-6">
@@ -339,39 +424,18 @@ export default function NursingForm() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  name="nanda_dominio"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center space-x-2 mb-2">
+                    name="nanda_dominio"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
                         <FormLabel>Dominio NANDA *</FormLabel>
-                        <NursingFieldValidator
-                          fieldName="nanda_dominio"
-                          value={field.value}
-                          error={validationState.fieldErrors.nanda_dominio}
-                          isRequired={true}
-                          validationRules={['Seleccione un dominio NANDA válido']}
-                          showValidation={showValidation}
-                        />
-                      </div>
-                      <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccione un dominio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nandaData.map((item) => (
-                              <SelectItem key={item.value} value={item.value}>
-                                {item.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormControl>
+                          <Input {...field} placeholder="Ingrese el dominio (texto libre)" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                 <FormField
                   name="nanda_clase"
@@ -398,19 +462,25 @@ export default function NursingForm() {
                 />
               </div>
 
-              <FormField
+            <FormField
                 name="nanda_etiqueta_diagnostica"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Etiqueta Diagnóstica NANDA *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Ingrese la etiqueta diagnóstica" />
+                      <SearchSelectBasic
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={nandaData} // [{value,label}]
+                        placeholder="Buscar etiqueta NANDA…"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
 
               <FormField
                 name="nanda_factor_relacionado"
@@ -462,29 +532,24 @@ export default function NursingForm() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
-                  name="noc_resultado_noc"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Resultado NOC *</FormLabel>
-                      <FormControl>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccione un resultado" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {nocData.map((item) => (
-                              <SelectItem key={item.value} value={item.value}>
-                                {item.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    name="noc_resultado_noc"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Resultado NOC *</FormLabel>
+                        <FormControl>
+                          <SearchSelectBasic
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={nocData}
+                            placeholder="Buscar resultado NOC…"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
 
                 <FormField
                   name="noc_dominio"
@@ -707,67 +772,56 @@ export default function NursingForm() {
             </div>
             <div className="space-y-4">
               <FormField
-                name="nic_intervencion"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Intervenciones NIC *</FormLabel>
-                    <div className="space-y-2">
-                      {field.value?.map((_, index) => (
-                        <div key={index} className="flex space-x-2">
-                          <FormControl>
-                            <Select
-                              value={field.value?.[index] || ''}
-                              onValueChange={(value) => {
-                                const newValue = [...(field.value || [])];
-                                newValue[index] = value;
+                  name="nic_intervencion"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Intervenciones NIC *</FormLabel>
+                      <div className="space-y-2">
+                        {field.value?.map((_, index) => (
+                          <div key={index} className="flex gap-2">
+                            <FormControl>
+                              <SearchSelectBasic
+                                value={field.value?.[index] || ''}
+                                onChange={(val) => {
+                                  const newValue = [...(field.value || [])];
+                                  newValue[index] = val;
+                                  field.onChange(newValue);
+                                }}
+                                options={nicData}
+                                placeholder="Buscar intervención NIC…"
+                              />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const newValue = field.value?.filter((_, i) => i !== index) || [];
                                 field.onChange(newValue);
                               }}
                             >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccione una intervención" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {nicData.map((item) => (
-                                  <SelectItem key={item.value} value={item.value}>
-                                    {item.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="border-gray-300 dark:border-gray-600 hover:bg-red-50 dark:hover:bg-red-900 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
-                            onClick={() => {
-                              const newValue = field.value?.filter((_, i) => i !== index) || [];
-                              field.onChange(newValue);
-                            }}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-                        onClick={() => {
-                          const newValue = [...(field.value || []), ''];
-                          field.onChange(newValue);
-                        }}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Agregar Intervención
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const newValue = [...(field.value || []), ''];
+                            field.onChange(newValue);
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Agregar Intervención
+                        </Button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
               <FormField
                 name="nic_clase"
