@@ -100,12 +100,12 @@ export const columns: ColumnDef<ConsultationHistory>[] = [
       
       return (
         <div>
-          <div className="font-medium">
-            {patient.name && patient.lastName 
-              ? `${patient.name} ${patient.lastName}`
-              : 'Nombre no disponible'
-            }
+         <div className="font-medium">
+            {patient.name || patient.lastName
+              ? [patient.name, patient.lastName].filter(Boolean).join(' ')
+              : 'Nombre no disponible'}
           </div>
+
           <div className="text-sm text-gray-500">
             {patient.document || 'Sin documento'}
           </div>
