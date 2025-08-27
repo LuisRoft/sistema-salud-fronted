@@ -1,3 +1,5 @@
+// --- REEMPLAZA desde aquí ---
+
 async function downloadFile(response: Response, filename: string) {
   const blob = await response.blob();
   const url = window.URL.createObjectURL(blob);
@@ -10,15 +12,28 @@ async function downloadFile(response: Response, filename: string) {
   window.URL.revokeObjectURL(url);
 }
 
-function getEndpointByType(type: string, id: string): string {
+function getEndpointSingle(type: string, id: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-  console.log('Datos de la petición:', { type, id });
+  if (!id) throw new Error('Se requiere un ID para descargar el archivo');
 
-  if (!id) {
-    throw new Error('Se requiere un ID para descargar el archivo');
+  switch (type) {
+    case 'Consulta Externa':
+      return `${baseUrl}/consultations/download/${id}`;
+    case 'Consulta Interna':
+      return `${baseUrl}/consultations-internal/download/${id}`;
+    case 'Consulta Enfermería':
+      return `${baseUrl}/nursing/download/${id}`;
+    case 'Solicitud Laboratorio':
+      return `${baseUrl}/laboratory-request/download/${id}`;
+    case 'Evaluación Neurológica':
+      return `${baseUrl}/neurologica/download/${id}`;
+    default:
+      throw new Error(`Tipo de consulta no soportado: ${type}`);
   }
+}
 
-  // Asegurarnos de que las URLs incluyan el ID específico
+function getEndpointAll(type: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
   switch (type) {
     case 'Consulta Externa':
       return `${baseUrl}/consultations/download`;
@@ -36,46 +51,54 @@ function getEndpointByType(type: string, id: string): string {
 }
 
 export const downloadService = {
-  async downloadPDF(type: string, token: string, id: string) {
-    try {
-      console.log('Iniciando descarga:', { type, id });
-      const endpoint = getEndpointByType(type, id);
-      console.log('URL de descarga:', endpoint);
+  async downloadOne(type: string, token: string, id: string) {
+    const endpoint = getEndpointSingle(type, id);
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/pdf',
+      },
+    });
 
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/pdf',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error en la respuesta:', {
-          status: response.status,
-          data: errorData
-        });
-        throw new Error(`Error al descargar el archivo: ${response.statusText}`);
-      }
-
-      const filename = `${type.toLowerCase()}-${id}.pdf`;
-      await downloadFile(response, filename);
-    } catch (error) {
-      console.error('Error en la descarga:', error);
-      throw error;
+    if (!response.ok) {
+      let msg = response.statusText;
+      try { const e = await response.json(); msg = (e as any)?.message || msg; } catch {}
+      throw new Error(`Error al descargar: ${msg}`);
     }
+
+    const filename = `${type.toLowerCase().replace(/\s+/g, '-')}-${id}.pdf`;
+    await downloadFile(response as unknown as Response, filename);
+  },
+
+  // Opcional: descarga un PDF único con "todos de un tipo" (endpoint bulk /download)
+  async downloadAllOfType(type: string, token: string) {
+    const endpoint = getEndpointAll(type);
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/pdf',
+      },
+    });
+
+    if (!response.ok) {
+      let msg = response.statusText;
+      try { const e = await response.json(); msg = (e as any)?.message || msg; } catch {}
+      throw new Error(`Error al descargar: ${msg}`);
+    }
+
+    const filename = `${type.toLowerCase().replace(/\s+/g, '-')}-all.pdf`;
+    await downloadFile(response as unknown as Response, filename);
   },
 };
 
-// Función para descargar todas las consultas
+// Descarga CADA registro por separado (varios PDFs) usando /download/:id
 export const downloadAllConsultations = async (token: string, consultations: any[]) => {
   try {
-    console.log('Descargando todas las consultas:', consultations.length);
-    
     for (const consultation of consultations) {
-      await downloadService.downloadPDF(consultation.tipo, token, consultation.id);
-      // Pequeña pausa entre descargas para no sobrecargar el servidor
+      // ⬇️ antes usabas "tipo", debe ser "type"
+      await downloadService.downloadOne(consultation.type, token, consultation.id);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   } catch (error) {
@@ -83,3 +106,4 @@ export const downloadAllConsultations = async (token: string, consultations: any
     throw error;
   }
 };
+// --- HASTA aquí ---

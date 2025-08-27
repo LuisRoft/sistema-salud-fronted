@@ -10,7 +10,7 @@ import { getAllConsultations } from '@/services/consultationHistory.service';
 import { ConsultationFilters } from './consultation-filters';
 import { Button } from '../ui/button';
 import { Download } from 'lucide-react';
-import { downloadAllConsultations } from '@/services/downloadService';
+import { downloadAllConsultations, downloadService } from '@/services/downloadService';
 import { toast } from '@/hooks/use-toast';
 
 export default function ConsultationHistoryTable() {
@@ -55,21 +55,29 @@ export default function ConsultationHistoryTable() {
 
   const filteredConsultations = filterConsultations(sortedConsultations);
 
-  const handleBulkDownload = async (consultations: ConsultationHistory[]) => {
-    try {
-      const session = await getSession();
-      if (!session?.user?.access_token) throw new Error('No autorizado');
-      
-      await downloadAllConsultations(session.user.access_token, consultations);
-    } catch (error) {
-      console.error('Error en la descarga masiva:', error);
-      toast({
-        title: 'Error',
-        description: 'Error al descargar los archivos. Por favor, intente nuevamente.',
-        variant: 'destructive',
-      });
+const handleBulkDownload = async (consultations: ConsultationHistory[]) => {
+  try {
+    const session = await getSession();
+    if (!session?.user?.access_token) throw new Error('No autorizado');
+
+    // Si el usuario filtró por tipo (distinto a 'Todos'), puedes generar un único PDF:
+    if (typeFilter !== 'Todos') {
+      await downloadService.downloadAllOfType(typeFilter, session.user.access_token);
+      return;
     }
-  };
+
+    // Si está en 'Todos', descarga cada registro por separado:
+    await downloadAllConsultations(session.user.access_token, consultations);
+  } catch (error) {
+    console.error('Error en la descarga masiva:', error);
+    toast({
+      title: 'Error',
+      description: 'Error al descargar los archivos. Por favor, intente nuevamente.',
+      variant: 'destructive',
+    });
+  }
+};
+
 
   return (
     <div>
