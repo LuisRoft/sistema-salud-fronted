@@ -1,76 +1,195 @@
+// src/services/neurologica.service.ts
+
 import { CreateNeurologicaRequest } from '@/types/neurologica';
 import { get, post } from './requestHandler';
 
+// === Tipos ===
 type PaginationParams = {
   page: number;
   limit: number;
 };
 
-interface NeurologicaResponse {
-  neurologicas: Array<{
-    id: string;
-    name: string;
-    ci: string;
-    edad: number;
-    discapacidad: string;
-    diagnostico: string;
-    createdAt?: string;
-    updatedAt?: string;
-  }>;
+export interface NeurologicaItem {
+  id: string;
+  name: string;
+  ci: string;
+  edad: number;
+  discapacidad: string;
+  diagnostico: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NeurologicaResponse {
+  neurologicas: NeurologicaItem[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
 }
 
-export async function getNeurologicas(token: string, params: PaginationParams): Promise<NeurologicaResponse> {
+export type ScreeningFiles = {
+  vistaAnterior?: File | null;
+  vistaPosterior?: File | null;
+  vistaLateralDerecha?: File | null;
+  vistaLateralIzquierda?: File | null;
+};
+
+// === Helpers ===
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Evita dobles / si la env var trae slash al final
+const API_BASE = RAW_API_BASE.replace(/\/$/, '');
+
+function authHeader(token: string) {
+  return { Authorization: `Bearer ${token}` };
+}
+
+// ======================================
+// ============ LISTAR ==================
+// ======================================
+export async function getNeurologicas(
+  token: string,
+  params: PaginationParams
+): Promise<NeurologicaResponse> {
   const queryParams = new URLSearchParams();
-  
-  if (params.page) queryParams.append('page', params.page.toString());
-  if (params.limit) queryParams.append('limit', params.limit.toString());
-  
-  const queryString = queryParams.toString();
-  const endpoint = `/neurologica?${queryString}`;
-  
+  if (params.page) queryParams.append('page', String(params.page));
+  if (params.limit) queryParams.append('limit', String(params.limit));
+  const endpoint = `/neurologica?${queryParams.toString()}`;
+
   const response = await get(endpoint, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeader(token),
   });
-  
   return response.data;
 }
 
-export async function createNeurologica(data: CreateNeurologicaRequest, token: string) {
-  console.log('📤 Enviando datos de evaluación neurológica:', data);
-  
+// ======================================
+// ============ CREAR (JSON) ============
+// (fallback si no hay imágenes)
+// ======================================
+export async function createNeurologica(
+  data: CreateNeurologicaRequest,
+  token: string
+) {
   const response = await post('/neurologica', data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeader(token),
   });
-  
-  console.log('✅ Respuesta del servidor:', response.data);
   return response.data;
 }
 
+// ======================================
+// ===== CREAR (multipart + imágenes) ====
+// ===> Flujo recomendado (1 request) ✅
+// ======================================
+export async function createNeurologicaWithImages(
+  payload: { data: CreateNeurologicaRequest; files?: ScreeningFiles },
+  token: string
+) {
+  const fd = new FormData();
+  fd.append('data', JSON.stringify(payload.data));
+
+  // Los nombres deben coincidir con el controller
+  if (payload.files?.vistaAnterior) fd.append('vistaAnterior', payload.files.vistaAnterior);
+  if (payload.files?.vistaPosterior) fd.append('vistaPosterior', payload.files.vistaPosterior);
+  if (payload.files?.vistaLateralDerecha) fd.append('vistaLateralDerecha', payload.files.vistaLateralDerecha);
+  if (payload.files?.vistaLateralIzquierda) fd.append('vistaLateralIzquierda', payload.files.vistaLateralIzquierda);
+
+  const resp = await fetch(`${API_BASE}/neurologica/with-images`, {
+    method: 'POST',
+    headers: authHeader(token), // NO poner Content-Type (lo maneja el browser)
+    body: fd,
+  });
+
+  if (!resp.ok) {
+    let msg = 'Error creando evaluación';
+    try {
+      const err = await resp.json();
+      msg = err?.message || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+  return resp.json();
+}
+
+// ======================================
+// ============ OBTENER UNA =============
+// ======================================
 export async function getNeurologicaById(id: string, token: string) {
   const response = await get(`/neurologica/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeader(token),
   });
-  
   return response.data;
 }
 
+// ======================================
+// ============ POR CÉDULA ==============
+// ======================================
 export async function getNeurologicasByCI(ci: string, token: string) {
   const response = await get(`/neurologica/by-ci/${ci}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeader(token),
   });
-  
   return response.data;
 }
 
+// ======================================
+// ============ ACTUALIZAR (JSON) =======
+// (este endpoint SÍ existe en tu backend)
+// ======================================
+export async function updateNeurologica(
+  id: string,
+  data: Partial<CreateNeurologicaRequest>,
+  token: string
+) {
+  const resp = await fetch(`${API_BASE}/neurologica/${id}`, {
+    method: 'PATCH',
+    headers: {
+      ...authHeader(token),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data || {}),
+  });
+
+  if (!resp.ok) {
+    let msg = 'Error actualizando evaluación';
+    try {
+      const err = await resp.json();
+      msg = err?.message || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+  return resp.json();
+}
+
+// ======================================
+// === (Opcional) ACTUALIZAR con files ===
+// SOLO si implementas en backend:
+//   @Patch(':id/with-images')
+// ======================================
+export async function updateNeurologicaWithImages(
+  id: string,
+  payload: { data?: Partial<CreateNeurologicaRequest>; files?: ScreeningFiles },
+  token: string
+) {
+  const fd = new FormData();
+  fd.append('data', JSON.stringify(payload.data || {}));
+
+  if (payload.files?.vistaAnterior) fd.append('vistaAnterior', payload.files.vistaAnterior);
+  if (payload.files?.vistaPosterior) fd.append('vistaPosterior', payload.files.vistaPosterior);
+  if (payload.files?.vistaLateralDerecha) fd.append('vistaLateralDerecha', payload.files.vistaLateralDerecha);
+  if (payload.files?.vistaLateralIzquierda) fd.append('vistaLateralIzquierda', payload.files.vistaLateralIzquierda);
+
+  const resp = await fetch(`${API_BASE}/neurologica/${id}/with-images`, {
+    method: 'PATCH',
+    headers: authHeader(token), // no Content-Type
+    body: fd,
+  });
+
+  if (!resp.ok) {
+    let msg = 'Error actualizando evaluación con imágenes';
+    try {
+      const err = await resp.json();
+      msg = err?.message || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+  return resp.json();
+}

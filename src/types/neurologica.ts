@@ -1,3 +1,8 @@
+
+export interface CIFItem {
+  codigo: string;
+  descripcion: string;
+}
 export interface AlteracionesMarcha {
   marchaTrendelenburg: boolean;
   marchaTuerca: boolean;
@@ -64,7 +69,7 @@ export interface EvaluacionNeurologica {
   comentariosExaminador?: string;
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
-  cif?: string[];
+  cif?: CIFItem[];
   // Campos para observaciones del screening postural
   observacionesVistaAnterior?: string;
   observacionesVistaPosterior?: string;
@@ -99,7 +104,7 @@ export interface CreateNeurologicaRequest {
   comentariosExaminador?: string;
   resumenResultados?: string;
   evaluacionDolor?: EvaluacionDolor;
-  cif?: string[];
+  cif?: CIFItem[];
   // Campos para observaciones del screening postural
   observacionesVistaAnterior?: string;
   observacionesVistaPosterior?: string;

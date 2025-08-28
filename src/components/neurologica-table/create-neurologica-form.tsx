@@ -9,7 +9,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { getSession } from 'next-auth/react';
-import { createNeurologica } from '@/services/neurologicaService';
+import { createNeurologica, createNeurologicaWithImages } from '@/services/neurologicaService';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
@@ -25,6 +25,11 @@ import { Badge } from '@/components/ui/badge';
 import { PatientSelector } from '../shared/patient-selector';
 import { Patient } from '@/services/patientService';
 import AutocompleteCIF from '../cif/autocompleteCIF';
+
+export const CIFItemSchema = z.object({
+  codigo: z.string().min(1),
+  descripcion: z.string().min(1),
+});
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -64,7 +69,7 @@ const schema = z.object({
   alcanceMotor: z.string().optional(),
   comentariosExaminador: z.string().optional(),
   resumenResultados: z.string().optional(),
-  cif: z.array(z.string()).optional(),
+  cif: z.array(CIFItemSchema).optional(),
   // Campos para observaciones del screening postural
   observacionesVistaAnterior: z.string().optional(),
   observacionesVistaPosterior: z.string().optional(),
@@ -278,17 +283,27 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
   const totalBarthel = Object.values(barthel).reduce((a, b) => a + b, 0);
 
   // Estado para las imágenes del screening postural
-  const [screeningImages, setScreeningImages] = useState<{
-    vistaAnterior: string | null;
-    vistaPosterior: string | null;
-    vistaLateralDerecha: string | null;
-    vistaLateralIzquierda: string | null;
+  // Estado ACTUAL (preview en base64):
+  const [screeningImages, setScreeningImages] = useState({
+    vistaAnterior: null,
+    vistaPosterior: null,
+    vistaLateralDerecha: null,
+    vistaLateralIzquierda: null,
+  });
+
+  // ➕ NUEVO: estado paralelo para los FILES reales
+  const [screeningFiles, setScreeningFiles] = useState<{
+    vistaAnterior: File | null;
+    vistaPosterior: File | null;
+    vistaLateralDerecha: File | null;
+    vistaLateralIzquierda: File | null;
   }>({
     vistaAnterior: null,
     vistaPosterior: null,
     vistaLateralDerecha: null,
     vistaLateralIzquierda: null,
   });
+
 
   // Estado para la evaluación de dolor (solo frontend, no se envía al backend)
   const [evaluacionDolor, setEvaluacionDolor] = useState({
@@ -307,60 +322,87 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
   const [miniMental, setMiniMental] = useState<{ [key: string]: number }>({});
   const totalMiniMental = Object.values(miniMental).reduce((a, b) => a + b, 0);
 
-  // Estado para CIF seleccionados
-  const [selectedCIFs, setSelectedCIFs] = useState<Array<{codigo: string, descripcion: string}>>([]);
+// Estado local (lo puedes tipar con CIFItem si lo importas de tus tipos)
+const [selectedCIFs, setSelectedCIFs] = useState<Array<{ codigo: string; descripcion: string }>>([]);
+
+const addCIF = (codigo: string, descripcion: string) => {
+  setSelectedCIFs(prev => {
+    if (prev.some(x => x.codigo === codigo)) return prev; // evita duplicados
+    const next = [...prev, { codigo, descripcion }];
+    form.setValue('cif', next, { shouldValidate: true, shouldDirty: true });
+    return next;
+  });
+};
+
+const removeCIF = (codigo: string) => {
+  setSelectedCIFs(prev => {
+    const next = prev.filter(x => x.codigo !== codigo);
+    form.setValue('cif', next, { shouldValidate: true, shouldDirty: true });
+    return next;
+  });
+};
 
   // Función para manejar la carga de imágenes
+  // Cambia tu handler para guardar ambos: preview + file
   const handleImageUpload = (type: keyof typeof screeningImages, file: File | null) => {
     if (file) {
+      setScreeningFiles(prev => ({ ...prev, [type]: file }));
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setScreeningImages(prev => ({
-          ...prev,
-          [type]: e.target?.result as string
-        }));
-      };
+      reader.onload = (e) => setScreeningImages(prev => ({ ...prev, [type]: e.target?.result as string }));
       reader.readAsDataURL(file);
     } else {
-      setScreeningImages(prev => ({
-        ...prev,
-        [type]: null
-      }));
+      setScreeningFiles(prev => ({ ...prev, [type]: null }));
+      setScreeningImages(prev => ({ ...prev, [type]: null }));
     }
   };
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (values: FormValues) => {
-      const session = await getSession();
-      const token = session?.user.access_token;
-      if (!token) throw new Error('Token no disponible');
-      
-      // Incluir los datos del índice de Barthel en el envío
-      const dataToSend = {
-        ...values,
-        barthel: {
-          vestirse: barthel.vestirse,
-          arreglarse: barthel.arreglarse,
-          deposicion: barthel.deposicion,
-          miccion: barthel.miccion,
-          usoRetrete: barthel.usoRetrete,
-          trasladarse: barthel.trasladarse,
-          deambular: barthel.deambular,
-          escaleras: barthel.escaleras,
-        }
-      };
-      
-      return await createNeurologica(dataToSend, token);
-    },
-    onSuccess: () => {
-      toast({ title: 'Éxito', description: 'Evaluación registrada correctamente' });
-      queryClient.invalidateQueries({ queryKey: ['neurologicas'] });
-      onClose();
-    },
-    onError: (error: unknown) => {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-    },
-  });
+
+const { mutate, isPending } = useMutation({
+  mutationFn: async (values: FormValues) => {
+    const session = await getSession();
+    const token = session?.user.access_token;
+    if (!token) throw new Error('Token no disponible');
+
+    const dataToSend: CreateNeurologicaRequest = {
+      ...values,
+      // 👇 ahora mandas el array de objetos (codigo + descripcion)
+      cif: selectedCIFs.map(c => ({
+        codigo: c.codigo,
+        descripcion: c.descripcion,
+      })),
+      barthel: {
+        vestirse: barthel.vestirse,
+        arreglarse: barthel.arreglarse,
+        deposicion: barthel.deposicion,
+        miccion: barthel.miccion,
+        usoRetrete: barthel.usoRetrete,
+        trasladarse: barthel.trasladarse,
+        deambular: barthel.deambular,
+        escaleras: barthel.escaleras,
+      },
+      observacionesVistaAnterior: form.getValues('observacionesVistaAnterior') ?? '',
+      observacionesVistaPosterior: form.getValues('observacionesVistaPosterior') ?? '',
+      observacionesVistaLateralDerecha: form.getValues('observacionesVistaLateralDerecha') ?? '',
+      observacionesVistaLateralIzquierda: form.getValues('observacionesVistaLateralIzquierda') ?? '',
+    };
+
+    // 👉 Un solo request multipart
+    return await createNeurologicaWithImages(
+      { data: dataToSend, files: screeningFiles },
+      token
+    );
+  },
+  onSuccess: () => {
+    toast({ title: 'Éxito', description: 'Evaluación registrada correctamente' });
+    queryClient.invalidateQueries({ queryKey: ['neurologicas'] });
+    onClose();
+  },
+  onError: (error: unknown) => {
+    toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+  },
+});
+
+
 
   // Función para manejar la selección de paciente
   const handlePatientSelect = (patient: Patient) => {
@@ -1926,77 +1968,83 @@ export default function CreateNeurologicaForm({ onClose }: { onClose: () => void
               </span>
             )}
           </div>
-          <FormField name='cif' control={form.control} render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-gray-700 dark:text-gray-300 font-medium'>
-                Seleccionar estructuras anatómicas según clasificación CIF
-              </FormLabel>
-              <FormControl>
-                <div className='space-y-3'>
-                  <AutocompleteCIF
-                    onSelect={(cif, desc) => {
-                      // Verificar si ya existe
-                      const existe = selectedCIFs.find(item => item.codigo === cif);
-                      if (!existe) {
-                        const newCIFs = [...selectedCIFs, { codigo: cif, descripcion: desc }];
+          <FormField
+  name="cif"
+  control={form.control}
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">
+        Seleccionar estructuras anatómicas según clasificación CIF
+      </FormLabel>
+      <FormControl>
+        <div className="space-y-3">
+          <AutocompleteCIF
+            onSelect={(cif, desc) => {
+              const existe = selectedCIFs.find(item => item.codigo === cif);
+              if (!existe) {
+                const newCIFs = [...selectedCIFs, { codigo: cif, descripcion: desc }];
+                setSelectedCIFs(newCIFs);
+                // ✅ ahora guardamos objetos completos en el form
+                field.onChange(newCIFs);
+                console.log("CIF seleccionado:", cif, desc);
+              }
+            }}
+            placeholder="Buscar y agregar estructuras anatómicas CIF..."
+            className="w-full"
+          />
+
+          {/* Lista de CIF seleccionados */}
+          {selectedCIFs.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Estructuras seleccionadas:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedCIFs.map((item, index) => (
+                  <div
+                    key={`${item.codigo}-${index}`}
+                    className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2 text-sm"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium text-blue-800 dark:text-blue-200">
+                        {item.codigo}
+                      </span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xs">
+                        {item.descripcion}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newCIFs = selectedCIFs.filter((_, i) => i !== index);
                         setSelectedCIFs(newCIFs);
-                        field.onChange(newCIFs.map(item => item.codigo));
-                        console.log('CIF seleccionado:', cif, desc);
-                      }
-                    }}
-                    placeholder='Buscar y agregar estructuras anatómicas CIF...'
-                    className='w-full'
-                  />
-                  
-                  {/* Lista de CIF seleccionados */}
-                  {selectedCIFs.length > 0 && (
-                    <div className='space-y-2'>
-                      <div className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                        Estructuras seleccionadas:
-                      </div>
-                      <div className='flex flex-wrap gap-2'>
-                        {selectedCIFs.map((item, index) => (
-                          <div 
-                            key={`${item.codigo}-${index}`}
-                            className='flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2 text-sm'
-                          >
-                            <div className='flex flex-col'>
-                              <span className='font-medium text-blue-800 dark:text-blue-200'>
-                                {item.codigo}
-                              </span>
-                              <span className='text-blue-600 dark:text-blue-400 text-xs'>
-                                {item.descripcion}
-                              </span>
-                            </div>
-                            <button
-                              type='button'
-                              onClick={() => {
-                                const newCIFs = selectedCIFs.filter((_, i) => i !== index);
-                                setSelectedCIFs(newCIFs);
-                                field.onChange(newCIFs.map(item => item.codigo));
-                              }}
-                              className='text-red-500 hover:text-red-700 font-bold text-lg leading-none'
-                              title='Eliminar'
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Mensaje de ayuda */}
-                  {selectedCIFs.length === 0 && (
-                    <div className='text-xs text-gray-500 dark:text-gray-400 italic'>
-                      Puede agregar múltiples estructuras anatómicas. Busque por código (ej: s110) o descripción (ej: cerebro).
-                    </div>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
+                        // ✅ actualizar también en el form
+                        field.onChange(newCIFs);
+                      }}
+                      className="text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+                      title="Eliminar"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Mensaje de ayuda */}
+          {selectedCIFs.length === 0 && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+              Puede agregar múltiples estructuras anatómicas. Busque por código
+              (ej: s110) o descripción (ej: cerebro).
+            </div>
+          )}
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
         </div>
 
         {/* SECCIÓN: DIAGNÓSTICO FISIOTERAPÉUTICO */}

@@ -57,6 +57,7 @@ export interface BaseConsultation {
   edad?: number;
   discapacidad?: string;
   diagnostico?: string;
+  cif?: CIFItem[];
   antecedentesHeredofamiliares?: string;
   antecedentesFarmacologicos?: string;
   alergias?: string;
@@ -70,7 +71,10 @@ export interface ConsultationResponse {
   consultations: BaseConsultation[];
   total: number;
 }
-
+export interface CIFItem {
+  codigo: string;
+  descripcion: string;
+}
 /* ========= Fetch: listas por módulo ========= */
 
 export const getConsultations = async (token: string): Promise<ConsultationResponse> => {
@@ -229,6 +233,8 @@ export const getNeurologicEvaluations = async (token: string): Promise<Consultat
         comentariosExaminador: e.comentariosExaminador,
         resumenResultados: e.resumenResultados,
         barthelTotal: e.barthelTotal,
+        cif: Array.isArray(e.cif) ? e.cif : [],
+
       })),
       total: list.length,
     };
@@ -340,6 +346,7 @@ export const getAllConsultations = async (token: string) => {
       comentariosExaminador: e.comentariosExaminador,
       resumenResultados: e.resumenResultados,
       barthelTotal: e.barthelTotal,
+      cif: Array.isArray(e.cif) ? e.cif : [],
     }));
 
     const allConsultations = [...externas, ...internas, ...enfermeria, ...laboratorio, ...neurologica];
@@ -438,6 +445,8 @@ export const downloadService = {
     await downloadFile(response as unknown as Response, filename);
   },
 };
+
+
 
 /**
  * Descarga **cada** registro por separado (varios PDFs, uno por consulta).
