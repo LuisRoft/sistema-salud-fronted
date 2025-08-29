@@ -1,23 +1,35 @@
-// middleware.ts
 import { getToken } from 'next-auth/jwt';
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Rutas públicas que no requieren autenticación
-const publicPaths = ['/login', '/_next', '/favicon.ico', '/api/auth'];
+const publicPaths = [
+  '/login', 
+  '/_next', 
+  '/favicon.ico', 
+  '/api/auth', 
+  '/_static',
+  '/_vercel',
+  '/__nextjs_original-stack-frame',
+  '/__nextjs_router_state_tree'
+];
 
 export default withAuth(
   async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
+    
     // Permitir acceso a rutas públicas
     if (publicPaths.some(path => pathname.startsWith(path))) {
       return NextResponse.next();
     }
 
-    // Manejar rutas de API
+    const token = await getToken({ 
+      req, 
+      secret: process.env.NEXTAUTH_SECRET 
+    });
+
+    // Si es una ruta de API
     if (pathname.startsWith('/api')) {
       if (!token) {
         return new NextResponse(
@@ -28,7 +40,7 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // Redirigir a login si no está autenticado
+    // Si no hay token y no es una ruta pública, redirigir a login
     if (!token) {
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
@@ -44,10 +56,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
-        // La autenticación se maneja en la función principal
-        return true;
-      },
+      authorized: () => true, // La autenticación se maneja en la función principal
     },
     pages: {
       signIn: '/login',
