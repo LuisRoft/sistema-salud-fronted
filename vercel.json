@@ -3,14 +3,13 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next@canary",
-      "config": {
-        "distDir": ".next"
-      }
+      "use": "@vercel/next"
     }
   ],
-  "buildCommand": "next build",
-  "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "outputDirectory": ".next"
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ]
 }
