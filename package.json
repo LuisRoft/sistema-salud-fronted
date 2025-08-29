@@ -31,6 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "jspdf": "^3.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.453.0",
     "next": "^14.2.30",
@@ -53,6 +54,7 @@
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.60.1",
+    "@types/jspdf": "^2.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

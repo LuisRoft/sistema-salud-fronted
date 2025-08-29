@@ -36,9 +36,8 @@ export type ScreeningFiles = {
 };
 
 // === Helpers ===
-const RAW_API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-// Evita dobles / si la env var trae slash al final
-const API_BASE = RAW_API_BASE.replace(/\/$/, '');
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+const API_BASE = `${BACKEND_URL}/api`;
 
 function authHeader(token: string) {
   return { Authorization: `Bearer ${token}` };

@@ -13,17 +13,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
-interface ActionsCellsProps<T> {
+interface ActionsCellsProps {
   data: User;
   DeleteDialog: React.ComponentType<{ id: string; open: boolean; onClose: () => void }>;
   EditDialog: React.ComponentType<{ data: User; onClose: () => void }>;
 }
 
-export default function ActionsCells<T>({
+export default function ActionsCells({
   data,
   DeleteDialog,
   EditDialog,
-}: ActionsCellsProps<T>) {
+}: ActionsCellsProps) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 

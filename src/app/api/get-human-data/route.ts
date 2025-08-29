@@ -16,8 +16,8 @@ const BIODIGITAL_API_BASE_URL =
   "https://apis.biodigital.com/services/v2" as const;
 const COLLECTION_ENDPOINT = "/content/collections/myhuman" as const;
 
-export async function GET(request: Request) {
-  const API_KEY = process.env.NEXT_PUBLIC_BIODIGITAL_API_KEY;
+export async function GET() {
+  const API_KEY = process.env.NEXT_PUBLIC_BIODIGITAL_API_KEY?.trim();
 
   // Validación de API key
   if (!API_KEY) {
@@ -29,19 +29,24 @@ export async function GET(request: Request) {
   }
 
   try {
+    console.log('Attempting to fetch from BioDigital API with endpoint:', `${BIODIGITAL_API_BASE_URL}${COLLECTION_ENDPOINT}`);
+    console.log('Using API Key:', API_KEY ? `${API_KEY.substring(0, 5)}...${API_KEY.substring(API_KEY.length - 5)}` : 'No Key');
+    
     const response = await fetch(
       `${BIODIGITAL_API_BASE_URL}${COLLECTION_ENDPOINT}`,
       {
         method: "GET",
         headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-          "User-Agent": "test-model/1.0.0", // Identificar tu aplicación
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`,
+          'User-Agent': 'test-model/1.0.0',
+          'Content-Type': 'application/json',
         },
-        // Timeout después de 10 segundos
         signal: AbortSignal.timeout(10000),
       }
     );
+    
+    console.log('API Response Status:', response.status, response.statusText);
 
     if (!response.ok) {
       const errorText = await response.text();
