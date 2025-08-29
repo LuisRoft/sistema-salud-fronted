@@ -6,6 +6,9 @@
       "use": "@vercel/next"
     }
   ],
+  "env": {
+    "NEXT_PUBLIC_COOKIE_DOMAIN": ".vercel.app"
+  },
   "routes": [
     {
       "src": "/(.*)",
