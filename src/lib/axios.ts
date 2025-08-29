@@ -12,14 +12,19 @@ export const axiosInstance = axios.create({
 });
 
 // Interceptor para agregar el token
-axiosInstance.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use(async (config) => {
   if (typeof window !== 'undefined') {
-    // Obtener el token de la sesión de NextAuth
-    const session = JSON.parse(localStorage.getItem('next-auth.session-token') || '{}');
-    const token = session?.user?.access_token;
+    try {
+      // Obtener el token de la sesión de NextAuth usando getSession
+      const { getSession } = await import('next-auth/react');
+      const session = await getSession();
+      const token = session?.user?.access_token;
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error obteniendo la sesión:', error);
     }
   }
   return config;
@@ -37,4 +42,4 @@ axiosInstance.interceptors.response.use(
     }
     return Promise.reject(error);
   }
-); 
+);
