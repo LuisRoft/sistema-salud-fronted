@@ -55,8 +55,12 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: '/login',
+    error: '/login',
   },
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -123,10 +127,11 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
+        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost',
       }
     }
-  }
+  },
+  useSecureCookies: process.env.NODE_ENV === 'production'
 };
 
 const handler = NextAuth(authOptions);
