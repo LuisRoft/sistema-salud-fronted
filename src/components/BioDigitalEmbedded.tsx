@@ -5,11 +5,13 @@ import Script from "next/script";
 import {
   PREDEFINED_PARTS,
   BIODIGITAL_SCRIPT_CONFIG,
+  getPainLevelName,
 } from "@/utils/biodigital-config";
 import { useBioDigital } from "@/hooks/useBioDigital";
 import { PainControlPanel } from "./PainControlPanel";
+import { set } from "date-fns";
 
-export function BioDigitalEmbedded() {
+export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any) => void }) {
   const {
     data,
     isLoading,
@@ -25,15 +27,14 @@ export function BioDigitalEmbedded() {
   } = useBioDigital([
     PREDEFINED_PARTS.FRONTAL_BONE,
     PREDEFINED_PARTS.SUPERIOR_FRONTAL_GYRUS,
-  ]);
+  ], setDataModel);
 
   useEffect(() => {
     fetchHumanData();
   }, [fetchHumanData]);
 
   const handleSendToBackend = () => {
-    // Esta función se expandirá más tarde para el envío real
-    console.log("🚀 Preparando envío al backend...");
+   console.log("🚀 Enviando datos al backend:", selectedPartsWithPain);
   };
 
   // Mostrar estados de carga y error
@@ -123,42 +124,6 @@ export function BioDigitalEmbedded() {
             title="Modelo anatómico BioDigital"
             loading="lazy"
           />
-        </div>
-
-        {/* Instrucciones */}
-        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-muted/30 border border-border/50 rounded-lg">
-          <div className="flex items-center gap-2 mb-2 sm:mb-3">
-            <span className="text-sm sm:text-base">📖</span>
-            <h4 className="text-xs sm:text-sm font-semibold text-foreground">
-              Cómo usar:
-            </h4>
-          </div>
-          <ul className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Haz clic en partes del modelo 3D para seleccionarlas</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Usa los botones de colores para asignar niveles de dolor (1-5)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Las partes se colorearán según el nivel de dolor seleccionado</span>
-            </li>
-            <li className="flex items-start gap-2 xl:hidden">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Panel de control disponible debajo del modelo</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Usa el botón &quot;✕&quot; para quitar solo el color</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5 flex-shrink-0">•</span>
-              <span>Haz clic en &quot;Enviar Datos&quot; para procesar información</span>
-            </li>
-          </ul>
         </div>
       </div>
     </div>

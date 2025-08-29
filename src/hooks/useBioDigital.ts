@@ -40,7 +40,8 @@ interface UseBioDigitalReturn {
 }
 
 export function useBioDigital(
-  initialParts: SelectedPart[]
+  initialParts: SelectedPart[],
+  setDataModel: (data: any) => void
 ): UseBioDigitalReturn {
   const [data, setData] = useState<BioDigitalResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +59,7 @@ export function useBioDigital(
   // Mantener ref sincronizado con estado
   useEffect(() => {
     selectedPartsWithPainRef.current = selectedPartsWithPain;
+    setDataModel(selectedPartsWithPain);
   }, [selectedPartsWithPain]);
 
   // Función para actualizar el nivel de dolor de una parte
@@ -230,11 +232,6 @@ export function useBioDigital(
               // Aplicar color en el modelo
               const colorConfig = createPainColorConfig(objectId, 1);
               human.send("scene.colorObject", colorConfig);
-
-              console.log(
-                `🎯 Nueva parte seleccionada: ${objectId} (Nivel de dolor: 1)`
-              );
-             
             }
           } else {
             // Deshabilitar highlight para objetos no seleccionados

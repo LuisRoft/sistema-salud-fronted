@@ -356,6 +356,7 @@ const removeCIF = (codigo: string) => {
     }
   };
 
+const [dataModel, setDataModel] = useState({});
 
 const { mutate, isPending } = useMutation({
   mutationFn: async (values: FormValues) => {
@@ -363,6 +364,7 @@ const { mutate, isPending } = useMutation({
     const token = session?.user.access_token;
     if (!token) throw new Error('Token no disponible');
 
+    
     const dataToSend: CreateNeurologicaRequest = {
       ...values,
       // 👇 ahora mandas el array de objetos (codigo + descripcion)
@@ -384,7 +386,10 @@ const { mutate, isPending } = useMutation({
       observacionesVistaPosterior: form.getValues('observacionesVistaPosterior') ?? '',
       observacionesVistaLateralDerecha: form.getValues('observacionesVistaLateralDerecha') ?? '',
       observacionesVistaLateralIzquierda: form.getValues('observacionesVistaLateralIzquierda') ?? '',
+      datosModelo: dataModel
     };
+
+    console.log('Datos a enviar:', dataToSend);
 
     // 👉 Un solo request multipart
     return await createNeurologicaWithImages(
@@ -744,7 +749,7 @@ const { mutate, isPending } = useMutation({
             <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
               <h6 className='font-medium mb-4 text-center text-gray-800 dark:text-gray-100 text-lg'>MODELO ANATÓMICO INTERACTIVO</h6>
               <div className='min-h-[600px] border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700'>
-                <BioDigitalEmbedded />
+                <BioDigitalEmbedded setDataModel={setDataModel} />
               </div>
             </div>
           </div>
