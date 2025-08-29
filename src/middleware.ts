@@ -5,14 +5,19 @@ import type { NextRequest } from 'next/server';
 
 // Rutas públicas que no requieren autenticación
 const publicPaths = [
-  '/login', 
-  '/_next', 
-  '/favicon.ico', 
-  '/api/auth', 
-  '/_static',
+  '/login',
+  '/api/auth',
+  '/_next',
+  '/static',
+  '/favicon.ico',
+  '/images',
   '/_vercel',
+  '/_static',
   '/__nextjs_original-stack-frame',
-  '/__nextjs_router_state_tree'
+  '/__nextjs_router_state_tree',
+  '/site.webmanifest',
+  '/sitemap.xml',
+  '/robots.txt'
 ];
 
 export default withAuth(
