@@ -1,19 +1,42 @@
 // middleware.ts
+import { getToken } from 'next-auth/jwt';
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// Rutas públicas que no requieren autenticación
+const publicPaths = ['/login', '/_next', '/favicon.ico', '/api/auth'];
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
-    const { token } = req.nextauth;
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    // Si no hay token, redirigir a login
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url));
+    // Permitir acceso a rutas públicas
+    if (publicPaths.some(path => pathname.startsWith(path))) {
+      return NextResponse.next();
     }
 
-    // Si intenta acceder a /dashboard sin ser admin, enviarlo a /pucem en lugar de /unauthorized
-    if (pathname.startsWith('/dashboard') && token?.role !== 'admin') {
+    // Manejar rutas de API
+    if (pathname.startsWith('/api')) {
+      if (!token) {
+        return new NextResponse(
+          JSON.stringify({ error: 'No autorizado' }), 
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      return NextResponse.next();
+    }
+
+    // Redirigir a login si no está autenticado
+    if (!token) {
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Redirigir a /pucem si intenta acceder a /dashboard sin ser admin
+    if (pathname.startsWith('/dashboard') && token.role !== 'admin') {
       return NextResponse.redirect(new URL('/pucem', req.url));
     }
 
@@ -21,13 +44,20 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ token }) => {
+        // La autenticación se maneja en la función principal
+        return true;
+      },
+    },
+    pages: {
+      signIn: '/login',
+      error: '/login',
     },
   }
 );
 
 export const config = {
-  matcher: [],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 };
-
-//'/dashboard', '/dashboard/:path*', '/pucem', '/pucem/:path*'
