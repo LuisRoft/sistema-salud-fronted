@@ -28,9 +28,15 @@ const PainLevelButton = ({
     color[1] * 255
   )}, ${Math.round(color[2] * 255)})`;
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  };
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
+      type="button"
       className={`
         w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-200 relative flex-shrink-0
         ${
