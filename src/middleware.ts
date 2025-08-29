@@ -5,58 +5,55 @@ import type { NextRequest } from 'next/server';
 // Rutas públicas que no requieren autenticación
 const publicPaths = [
   '/login',
-  '/api/auth',
   '/_next',
-  '/static',
+  '/api/auth',
   '/favicon.ico',
-  '/images',
+  '/logo.svg',
+  '/logo-pucem-white.png',
   '/_vercel',
-  '/_static',
-  '/__nextjs_original-stack-frame',
-  '/__nextjs_router_state_tree',
-  '/site.webmanifest',
-  '/sitemap.xml',
-  '/robots.txt'
+  '/vercel.svg'
 ];
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  
-  // Permitir acceso a rutas públicas
-  if (publicPaths.some(path => pathname.startsWith(path))) {
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Skip middleware for public paths
+  if (publicPaths.some((path) => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
+
+  // Skip middleware for API routes
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 
   const token = await getToken({ 
-    req, 
+    req: request,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === 'production'
+    secureCookie: process.env.NODE_ENV === 'production',
   });
 
-  // Si es una ruta de API
-  if (pathname.startsWith('/api')) {
-    if (!token) {
-      return new NextResponse(
-        JSON.stringify({ error: 'No autorizado' }), 
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-    return NextResponse.next();
-  }
-
-  // Si no hay token, redirigir a login
+  // If there's no token and we're not on a public path, redirect to login
   if (!token) {
-    const loginUrl = new URL('/login', req.url);
-    // Solo establece callbackUrl si no es la ruta de login para evitar bucles
+    // Prevent redirect loop by checking if we're already going to /login
     if (!pathname.startsWith('/login')) {
+      const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
     }
-    return NextResponse.redirect(loginUrl);
   }
 
-  // Redirigir a /pucem si intenta acceder a /dashboard sin ser admin
-  if (pathname.startsWith('/dashboard') && token.role !== 'admin') {
-    return NextResponse.redirect(new URL('/pucem', req.url));
+  // If user is authenticated but trying to access login page, redirect to home
+  if (token && pathname.startsWith('/login')) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // If user is authenticated, check role-based access
+  if (token) {
+    // Redirect to /pucem if trying to access /dashboard without admin role
+    if (pathname.startsWith('/dashboard') && token.role !== 'admin') {
+      return NextResponse.redirect(new URL('/pucem', request.url));
+    }
   }
 
   return NextResponse.next();
@@ -64,6 +61,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/auth).*)',
+    '/((?!_next/static|_next/image|favicon.ico|logo.svg|api/auth|_next/data).*)',
   ],
 };
