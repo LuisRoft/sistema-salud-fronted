@@ -30,12 +30,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get token
-  const token = await getToken({ 
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === 'production',
-  });
+  // Get token with error handling
+  let token;
+  try {
+    token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production',
+    });
+  } catch (error) {
+    console.error('Error getting token:', error);
+    // If token retrieval fails, treat as unauthenticated
+    token = null;
+  }
 
   // Handle unauthenticated users
   if (!token) {
@@ -43,14 +50,29 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
+    // Prevent redirect loops by checking if we're already being redirected
+    const isRedirect = request.headers.get('x-middleware-redirect');
+    if (isRedirect) {
+      return NextResponse.next();
+    }
+    
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname || '/');
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    response.headers.set('x-middleware-redirect', 'true');
+    return response;
   }
 
   // Handle authenticated users
   if (pathname === '/login') {
-    return NextResponse.redirect(new URL('/', request.url));
+    const dashboardUrl = token.role === 'admin' ? '/dashboard' : '/pucem';
+    return NextResponse.redirect(new URL(dashboardUrl, request.url));
+  }
+
+  // Handle root path for authenticated users
+  if (pathname === '/') {
+    const dashboardUrl = token.role === 'admin' ? '/dashboard' : '/pucem';
+    return NextResponse.redirect(new URL(dashboardUrl, request.url));
   }
 
   // Role-based access control
