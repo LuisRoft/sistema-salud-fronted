@@ -1,9 +1,6 @@
 {
   "version": 2,
-  "framework": {
-    "name": "nextjs",
-    "envVars": []
-  },
+  "framework": "nextjs",
   "builds": [
     {
       "src": "package.json",
