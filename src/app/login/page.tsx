@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import React from 'react';
@@ -38,7 +38,9 @@ export default function LoginPage() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState);
 
@@ -61,6 +63,7 @@ export default function LoginPage() {
     }
   }, [toast]);
 
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
@@ -68,6 +71,7 @@ export default function LoginPage() {
         identification: values.identification,
         password: values.password,
         redirect: false,
+        callbackUrl,
       });
 
       if (res?.error) {
@@ -77,14 +81,20 @@ export default function LoginPage() {
           variant: 'destructive',
           duration: 3000,
         });
-        return
+        return;
       }
 
-      toast({ title: '¡Bienvenido!', description: 'Inicio de sesión exitoso', duration: 3000 });
-      router.push('/dashboard');
+      // If we get here, authentication was successful
+      // The server-side will handle the redirect based on the callbackUrl
+      window.location.href = callbackUrl;
     } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: 'Hubo un problema al iniciar sesión', variant: 'destructive' });
+      console.error('Login error:', error);
+      toast({ 
+        title: 'Error', 
+        description: 'Hubo un problema al iniciar sesión', 
+        variant: 'destructive',
+        duration: 3000,
+      });
     } finally {
       setIsLoading(false);
     }
