@@ -52,10 +52,12 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
     if (data?.myhuman?.[0]?.content_url && typeof window !== 'undefined') {
       const originalUrl = data.myhuman[0].content_url;
       
-      // Log del estado de WebGL
-      logWebGLStatus();
-      const webglConfig = getBioDigitalConfig();
-      console.log('🎮 Configuración WebGL recomendada:', webglConfig);
+      // Log del estado de WebGL solo una vez por URL
+      if (!embedUrl) {
+        logWebGLStatus();
+        const webglConfig = getBioDigitalConfig();
+        console.log('🎮 Configuración WebGL recomendada:', webglConfig);
+      }
       
       // Optimizar URL con parámetros WebGL inteligentes
       const optimizedUrl = getWebGLOptimizedParams(originalUrl);

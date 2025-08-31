@@ -61,7 +61,7 @@ export function useBioDigital(
   useEffect(() => {
     selectedPartsWithPainRef.current = selectedPartsWithPain;
     setDataModel(selectedPartsWithPain);
-  }, [selectedPartsWithPain]);
+  }, [selectedPartsWithPain, setDataModel]);
 
   // Función para actualizar el nivel de dolor de una parte
   const updatePartPainLevel = useCallback(
