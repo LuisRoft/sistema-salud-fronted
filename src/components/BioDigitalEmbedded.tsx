@@ -46,12 +46,11 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
       console.log('🌍 Entorno:', process.env.NODE_ENV);
       
       if (useProxy) {
-        // Usar proxy como respaldo
-        const baseUrl = process.env.NODE_ENV === 'production' 
-          ? window.location.origin 
-          : 'http://localhost:3000';
+        // Usar proxy como respaldo - siempre usar la URL actual del frontend
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
         const proxyUrl = `${baseUrl}/api/biodigital-proxy?url=${encodeURIComponent(originalUrl)}`;
         console.log('🔄 Usando proxy como respaldo:', proxyUrl);
+        console.log('🌐 Base URL detectada:', baseUrl);
         setEmbedUrl(proxyUrl);
       } else {
         // Intentar usar la URL original directamente

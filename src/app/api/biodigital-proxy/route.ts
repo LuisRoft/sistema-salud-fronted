@@ -1,5 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Función para generar token de BioDigital
+async function generateBioDigitalToken(): Promise<string> {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+    const response = await fetch(`${backendUrl}/api/api-key/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al generar token: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.token;
+  } catch (error) {
+    console.error('❌ Error al generar token de BioDigital en proxy:', error);
+    throw error;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -17,17 +41,35 @@ export async function GET(request: NextRequest) {
     
     console.log('🔗 Proxy BioDigital - URL solicitada:', decodedUrl);
 
+    // Generar token de autenticación
+    let authToken: string | null = null;
+    try {
+      authToken = await generateBioDigitalToken();
+      console.log('🔑 Token de autenticación generado para proxy');
+    } catch (error) {
+      console.warn('⚠️ No se pudo generar token, continuando sin autenticación:', error);
+    }
+
+    // Preparar headers con autenticación si está disponible
+    const headers: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.5',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'DNT': '1',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1',
+    };
+
+    // Agregar token de autorización si está disponible
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     // Realizar la petición al modelo de BioDigital
     const response = await fetch(decodedUrl, {
       method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
+      headers,
       },
     });
 
