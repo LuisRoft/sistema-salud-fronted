@@ -49,7 +49,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://human.biodigital.com https://assets-human.biodigital.com",
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' data: https://human.biodigital.com https://assets-human.biodigital.com",
-              "connect-src 'self' https://apis.biodigital.com https://human.biodigital.com https://assets-human.biodigital.com wss://assets-human.biodigital.com",
+              "connect-src 'self' https://apis.biodigital.com https://human.biodigital.com https://assets-human.biodigital.com wss://assets-human.biodigital.com https://wily-tawsha-luxtar-7eb4e29c.koyeb.app",
               "frame-src 'self' https://human.biodigital.com",
               "worker-src 'self' blob:",
               "child-src 'self' blob:",

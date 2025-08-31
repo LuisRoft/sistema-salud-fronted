@@ -354,15 +354,36 @@ export const getNeurologicEvaluations = async (token: string): Promise<Consultat
 /* ========= Fetch: todas combinadas ========= */
 
 export const getAllConsultations = async (token: string) => {
+  console.log('🔍 getAllConsultations - Iniciando peticiones con token:', token ? 'Token presente' : 'Token ausente');
+  console.log('🌐 Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
+  
   try {
+    console.log('📡 Realizando peticiones paralelas a los endpoints...');
     const [externasResp, internasResp, enfermeriaResp, laboratorioResp, neurologicaResp] =
       await Promise.all([
-        get('/consultations', { headers: { Authorization: `Bearer ${token}` } }),
-        get('/consultations-internal', { headers: { Authorization: `Bearer ${token}` } }),
-        get('/nursing', { headers: { Authorization: `Bearer ${token}` } }),
-        get('/laboratory-request', { headers: { Authorization: `Bearer ${token}` } }),
-        get('/neurologica', { headers: { Authorization: `Bearer ${token}` } }),
+        get('/consultations', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /consultations:', err.message);
+          throw err;
+        }),
+        get('/consultations-internal', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /consultations-internal:', err.message);
+          throw err;
+        }),
+        get('/nursing', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /nursing:', err.message);
+          throw err;
+        }),
+        get('/laboratory-request', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /laboratory-request:', err.message);
+          throw err;
+        }),
+        get('/neurologica', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /neurologica:', err.message);
+          throw err;
+        }),
       ]);
+    
+    console.log('✅ Todas las peticiones completadas exitosamente');
 
     const externas =
       externasResp.data?.consultations?.map((c: any) => ({
@@ -469,9 +490,42 @@ export const getAllConsultations = async (token: string) => {
         total: allConsultations.length,
       },
     };
-  } catch (error) {
-    console.error('Error al obtener las consultas:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('❌ Error detallado en getAllConsultations:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
+      }
+    });
+    
+    // Proporcionar información específica del error
+    if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+      console.error('🌐 Error de conectividad de red - Backend posiblemente no disponible');
+      throw new Error('Error de conectividad: No se puede conectar al servidor. Verifique su conexión a internet.');
+    }
+    
+    if (error.response?.status === 401) {
+      console.error('🔐 Error de autenticación - Token inválido o expirado');
+      throw new Error('Error de autenticación: Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
+    }
+    
+    if (error.response?.status === 403) {
+      console.error('🚫 Error de autorización - Permisos insuficientes');
+      throw new Error('Error de autorización: No tiene permisos para acceder a esta información.');
+    }
+    
+    if (error.response?.status >= 500) {
+      console.error('🔥 Error del servidor - Problema interno del backend');
+      throw new Error('Error del servidor: Problema interno del sistema. Intente nuevamente más tarde.');
+    }
+    
+    // Error genérico
+    throw new Error(`Error al obtener las consultas: ${error.message || 'Error desconocido'}`);
   }
 };
 
