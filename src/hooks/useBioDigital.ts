@@ -40,7 +40,8 @@ interface UseBioDigitalReturn {
 }
 
 export function useBioDigital(
-  initialParts: SelectedPart[]
+  initialParts: SelectedPart[],
+  setDataModel: (data: any) => void
 ): UseBioDigitalReturn {
   const [data, setData] = useState<BioDigitalResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +59,7 @@ export function useBioDigital(
   // Mantener ref sincronizado con estado
   useEffect(() => {
     selectedPartsWithPainRef.current = selectedPartsWithPain;
+    setDataModel(selectedPartsWithPain);
   }, [selectedPartsWithPain]);
 
   // Función para actualizar el nivel de dolor de una parte
@@ -131,15 +133,10 @@ export function useBioDigital(
     if (humanAPI.current) {
       try {
         // Aplicar color que simule el aspecto original/natural del músculo
-        humanAPI.current.send("scene.colorObject", {
-          objectId: partId,
-          tintColor: ANATOMICAL_COLORS.MUSCLE, // Color muscular natural 
-          opacity: 1.0, // Completamente opaco
-          brightness: 0.0, // Sin modificación de brillo
-          saturation: 0.0, // Sin saturación adicional
-          contrast: 0.0 // Sin contraste adicional
+        humanAPI.current.send("scene.uncolorObject", {
+          objectId: partId
         });
-        
+
         console.log(`🎨 Color restaurado a natural: ${partId} (parte sigue seleccionada)`);
       } catch (error) {
         console.warn(`⚠️ Error al restaurar color de ${partId}:`, error);
@@ -223,7 +220,7 @@ export function useBioDigital(
               human.send("scene.colorObject", colorConfig);
               console.log(`🔄 Parte ya existe, actualizando color: ${objectId} (Nivel: ${existingPart.painLevel})`);
             } else {
-              // Agregar nueva parte con dolor nivel 1 por defecto
+             
               const newPart: PartWithPain = {
                 id: objectId,
                 painLevel: 1,
@@ -235,10 +232,6 @@ export function useBioDigital(
               // Aplicar color en el modelo
               const colorConfig = createPainColorConfig(objectId, 1);
               human.send("scene.colorObject", colorConfig);
-
-              console.log(
-                `🎯 Nueva parte seleccionada: ${objectId} (Nivel de dolor: 1)`
-              );
             }
           } else {
             // Deshabilitar highlight para objetos no seleccionados

@@ -5,6 +5,7 @@ import {
   PAIN_LEVEL_COLORS,
   getPainLevelName,
 } from "@/utils/biodigital-config";
+import { set } from "date-fns";
 
 interface PainControlPanelProps {
   selectedPartsWithPain: PartWithPain[];
@@ -28,9 +29,15 @@ const PainLevelButton = ({
     color[1] * 255
   )}, ${Math.round(color[2] * 255)})`;
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  };
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
+      type="button"
       className={`
         w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-200 relative flex-shrink-0
         ${
@@ -58,30 +65,7 @@ export function PainControlPanel({
   onUpdatePartNotes,
 }: PainControlPanelProps) {
 
-  const handleSendData = () => {
-    const dataToSend = selectedPartsWithPain.map((part) => ({
-      id: part.id,
-      painLevel: part.painLevel,
-      painLevelName: getPainLevelName(part.painLevel),
-      color: part.tintColor,
-    }));
-
-    console.log("📊 Datos de dolor para enviar al backend:", {
-      timestamp: new Date().toISOString(),
-      totalParts: dataToSend.length,
-      data: dataToSend,
-      summary: {
-        sinDolor: dataToSend.filter((p) => p.painLevel === 1).length,
-        dolorLeve: dataToSend.filter((p) => p.painLevel === 2).length,
-        dolorModerado: dataToSend.filter((p) => p.painLevel === 3).length,
-        dolorFuerte: dataToSend.filter((p) => p.painLevel === 4).length,
-        dolorSevero: dataToSend.filter((p) => p.painLevel === 5).length,
-      },
-    });
-
-    onSendToBackend();
-  };
-
+ 
   return (
     <div className="bg-background border border-border rounded-xl shadow-lg p-3 sm:p-4 w-full backdrop-blur-sm">
       <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
@@ -211,27 +195,6 @@ export function PainControlPanel({
 
       {/* Botón de envío */}
       <div className="space-y-3 sm:space-y-4">
-        <button
-          onClick={handleSendData}
-          disabled={selectedPartsWithPain.length === 0}
-          className={`
-            w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2
-            ${
-              selectedPartsWithPain.length > 0
-                ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            }
-          `}
-        >
-          <span className="text-sm sm:text-base">📤</span>
-          <span className="text-xs sm:text-sm lg:text-base">Enviar Datos al Backend</span>
-          {selectedPartsWithPain.length > 0 && (
-            <div className="ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
-              {selectedPartsWithPain.length}
-            </div>
-          )}
-        </button>
-
         {/* Resumen estadístico */}
         {selectedPartsWithPain.length > 0 && (
           <div className="p-3 sm:p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">

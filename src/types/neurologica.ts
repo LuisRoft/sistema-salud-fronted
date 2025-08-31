@@ -112,4 +112,5 @@ export interface CreateNeurologicaRequest {
   observacionesVistaLateralIzquierda?: string;
   diagnosticoFisioterapeutico?: string;
   planFisioterapeutico?: string;
+  datosModelo?: any;
 } 
