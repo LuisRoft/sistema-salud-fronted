@@ -6,6 +6,7 @@ import {
   createPainColorConfig,
   ANATOMICAL_COLORS,
 } from "@/utils/biodigital-config";
+import { checkWebGLSupport, logWebGLStatus } from '@/utils/webgl-config';
 
 // Tipos para BioDigital HumanAPI
 interface HumanAPIEventHandler {
@@ -175,12 +176,26 @@ export function useBioDigital(
     }
   }, []);
 
+  // Usar la función centralizada de verificación WebGL
+   const webglSupport = useCallback(() => checkWebGLSupport(), []);
+
   // Configuración optimizada del Human API
   const initializeHumanAPI = useCallback(() => {
     try {
       console.log('🔧 Iniciando inicialización de HumanAPI...');
       console.log('🌍 Entorno actual:', process.env.NODE_ENV);
       console.log('🌐 User Agent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'N/A');
+      
+      // Verificar WebGL antes de inicializar
+       const webglInfo = webglSupport();
+       logWebGLStatus();
+       
+       if (!webglInfo.supported) {
+         const errorMsg = `WebGL no está disponible: ${webglInfo.error}`;
+         console.error('❌', errorMsg);
+         setError(errorMsg);
+         return;
+       }
       
       const windowWithHuman = window as typeof window & {
         HumanAPI: new (containerId: string) => HumanAPI;
@@ -196,6 +211,18 @@ export function useBioDigital(
       const human = new windowWithHuman.HumanAPI("biodigital");
       humanAPI.current = human; // Guardar referencia
       console.log('✅ Instancia de HumanAPI creada exitosamente');
+      
+      // Listener para errores de WebGL
+      human.on('webgl.error', (error: any) => {
+        console.error('❌ Error de WebGL detectado:', error);
+        setError(`Error de WebGL: ${error.message || 'Error desconocido'}`);
+      });
+      
+      // Listener para errores de contexto perdido
+      human.on('webgl.contextlost', () => {
+        console.error('❌ Contexto WebGL perdido');
+        setError('El contexto WebGL se ha perdido. Por favor, recarga la página.');
+      });
 
       // Seleccionar objetos iniciales con timeout
       console.log('🎯 Seleccionando objetos iniciales:', selectedParts.current);
