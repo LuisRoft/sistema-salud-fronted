@@ -70,7 +70,6 @@ export async function GET(request: NextRequest) {
     const response = await fetch(decodedUrl, {
       method: 'GET',
       headers,
-      },
     });
 
     if (!response.ok) {
