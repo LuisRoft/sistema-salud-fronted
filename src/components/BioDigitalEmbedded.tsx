@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import {
   PREDEFINED_PARTS,
@@ -12,6 +12,10 @@ import { PainControlPanel } from "./PainControlPanel";
 import { set } from "date-fns";
 
 export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any) => void }) {
+  const [embedUrl, setEmbedUrl] = useState<string>('');
+  const [useProxy, setUseProxy] = useState<boolean>(false);
+  const [iframeError, setIframeError] = useState<boolean>(false);
+  
   const {
     data,
     isLoading,
@@ -32,6 +36,39 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
   useEffect(() => {
     fetchHumanData();
   }, [fetchHumanData]);
+
+  // Construir URL del embed - intentar primero directamente, luego con proxy si falla
+  useEffect(() => {
+    if (data?.myhuman?.[0]?.content_url && typeof window !== 'undefined') {
+      const originalUrl = data.myhuman[0].content_url;
+      
+      console.log('🔗 URL original de BioDigital:', originalUrl);
+      console.log('🌍 Entorno:', process.env.NODE_ENV);
+      
+      if (useProxy) {
+        // Usar proxy como respaldo
+        const baseUrl = process.env.NODE_ENV === 'production' 
+          ? window.location.origin 
+          : 'http://localhost:3000';
+        const proxyUrl = `${baseUrl}/api/biodigital-proxy?url=${encodeURIComponent(originalUrl)}`;
+        console.log('🔄 Usando proxy como respaldo:', proxyUrl);
+        setEmbedUrl(proxyUrl);
+      } else {
+        // Intentar usar la URL original directamente
+        console.log('🎯 Intentando carga directa');
+        setEmbedUrl(originalUrl);
+      }
+    }
+  }, [data, useProxy]);
+  
+  // Manejar errores del iframe y cambiar a proxy automáticamente
+  const handleIframeError = () => {
+    if (!useProxy && !iframeError) {
+      console.log('❌ Error en carga directa, cambiando a proxy...');
+      setIframeError(true);
+      setUseProxy(true);
+    }
+  };
 
   const handleSendToBackend = () => {
    console.log("🚀 Enviando datos al backend:", selectedPartsWithPain);
@@ -115,15 +152,28 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
             </div>
           )}
 
-          <iframe
-            src={data?.myhuman[0].content_url}
-            width="100%"
-            height="100%"
-            className="border-0 w-full h-full"
-            id="biodigital"
-            title="Modelo anatómico BioDigital"
-            loading="lazy"
-          />
+          {embedUrl ? (
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="100%"
+              className="border-0 w-full h-full"
+              id="biodigital"
+              title="Modelo anatómico BioDigital"
+              loading="eager"
+              allow="fullscreen; scripts-src 'self' 'unsafe-inline' 'unsafe-eval' https://human.biodigital.com"
+              referrerPolicy="no-referrer-when-downgrade"
+              onError={handleIframeError}
+              onLoad={() => console.log('✅ Iframe cargado exitosamente')}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-100">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-muted-foreground text-sm">Preparando modelo 3D...</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
