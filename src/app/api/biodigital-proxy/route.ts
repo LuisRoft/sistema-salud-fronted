@@ -87,8 +87,31 @@ export async function GET(request: NextRequest) {
       .replace(/src="\//g, 'src="https://human.biodigital.com/')
       .replace(/href="\//g, 'href="https://human.biodigital.com/')
       .replace(/url\(\//g, 'url(https://human.biodigital.com/')
-      .replace(/<head>/i, '<head><meta http-equiv="Content-Security-Policy" content="default-src * \'unsafe-inline\' \'unsafe-eval\' data: blob:; worker-src * blob: data:; script-src * \'unsafe-inline\' \'unsafe-eval\';">')
-      .replace(/<\/head>/i, '<script>window.addEventListener("error", function(e) { console.log("Error capturado:", e); });</script></head>');
+      .replace(/<head>/i, `<head>
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss: ws:; worker-src * blob: data:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * wss: ws: data: blob:; img-src * data: blob:; font-src * data:; style-src * 'unsafe-inline';">
+        <meta http-equiv="X-Content-Type-Options" content="nosniff">
+        <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">`)
+      .replace(/<\/head>/i, `<script>
+          // Manejo robusto de errores para BioDigital
+          window.addEventListener("error", function(e) { 
+            console.log("🔍 Error capturado en proxy:", e.error, e.filename, e.lineno); 
+          });
+          window.addEventListener("unhandledrejection", function(e) {
+            console.log("🔍 Promise rechazada en proxy:", e.reason);
+          });
+          // Configurar WebGL con fallback
+          if (typeof WebGLRenderingContext !== 'undefined') {
+            const originalGetContext = HTMLCanvasElement.prototype.getContext;
+            HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
+              if (contextType === 'webgl' || contextType === 'experimental-webgl') {
+                contextAttributes = contextAttributes || {};
+                contextAttributes.failIfMajorPerformanceCaveat = false;
+                contextAttributes.powerPreference = 'default';
+              }
+              return originalGetContext.call(this, contextType, contextAttributes);
+            };
+          }
+        </script></head>');
 
     console.log('✅ Proxy BioDigital - Contenido servido exitosamente');
 
@@ -102,6 +125,10 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'no-referrer-when-downgrade',
+        'Permissions-Policy': 'accelerometer=*, camera=*, geolocation=*, gyroscope=*, magnetometer=*, microphone=*, payment=*, usb=*',
       },
     });
   } catch (error: any) {

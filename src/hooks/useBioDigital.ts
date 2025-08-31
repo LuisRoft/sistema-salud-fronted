@@ -178,19 +178,35 @@ export function useBioDigital(
   // Configuración optimizada del Human API
   const initializeHumanAPI = useCallback(() => {
     try {
+      console.log('🔧 Iniciando inicialización de HumanAPI...');
+      console.log('🌍 Entorno actual:', process.env.NODE_ENV);
+      console.log('🌐 User Agent:', typeof window !== 'undefined' ? window.navigator.userAgent : 'N/A');
+      
       const windowWithHuman = window as typeof window & {
         HumanAPI: new (containerId: string) => HumanAPI;
       };
       
       if (!windowWithHuman.HumanAPI) {
+        console.error('❌ HumanAPI no está disponible en window');
+        console.log('🔍 Propiedades disponibles en window:', Object.keys(window).filter(key => key.toLowerCase().includes('human')));
         throw new Error("HumanAPI no está disponible");
       }
 
+      console.log('✅ HumanAPI encontrado, creando instancia...');
       const human = new windowWithHuman.HumanAPI("biodigital");
       humanAPI.current = human; // Guardar referencia
+      console.log('✅ Instancia de HumanAPI creada exitosamente');
 
-      // Seleccionar objetos iniciales
-      human.send("scene.selectObjects", selectedParts.current);
+      // Seleccionar objetos iniciales con timeout
+      console.log('🎯 Seleccionando objetos iniciales:', selectedParts.current);
+      setTimeout(() => {
+        try {
+          human.send("scene.selectObjects", selectedParts.current);
+          console.log('✅ Objetos iniciales seleccionados');
+        } catch (error) {
+          console.error('❌ Error seleccionando objetos iniciales:', error);
+        }
+      }, 1000); // Esperar 1 segundo para que el modelo se cargue
 
       // Manejar eventos de selección de objetos
       const handleObjectSelection = (event: Record<string, boolean>) => {
@@ -242,10 +258,19 @@ export function useBioDigital(
         });
       };
 
-      // Registrar event listener
-      human.on("scene.objectsSelected", handleObjectSelection);
-
-      setScriptLoaded(true);
+      // Registrar event listener con timeout
+      console.log('👂 Registrando event listener...');
+      setTimeout(() => {
+        try {
+          human.on("scene.objectsSelected", handleObjectSelection);
+          console.log('✅ Event listener registrado');
+          setScriptLoaded(true);
+          console.log('🎉 HumanAPI inicializado completamente');
+        } catch (error) {
+          console.error('❌ Error registrando event listener:', error);
+          setError("Error al registrar eventos del visor 3D");
+        }
+      }, 1500); // Esperar 1.5 segundos
 
       // Cleanup function para remover listeners si es necesario
       return () => {
@@ -262,11 +287,21 @@ export function useBioDigital(
   }, []); // Remover dependencia problemática
 
   const handleScriptLoad = useCallback(() => {
-    initializeHumanAPI();
+    console.log('📜 Script de BioDigital cargado exitosamente');
+    console.log('⏰ Timestamp:', new Date().toISOString());
+    console.log('🌍 Entorno:', process.env.NODE_ENV);
+    
+    // Esperar un poco antes de inicializar para asegurar que el script esté completamente disponible
+    setTimeout(() => {
+      console.log('🚀 Iniciando HumanAPI después del delay...');
+      initializeHumanAPI();
+    }, 500);
   }, [initializeHumanAPI]);
 
   const handleScriptError = useCallback(() => {
-    console.error("Error cargando el script de BioDigital");
+    console.error("❌ Error cargando el script de BioDigital");
+    console.log('⏰ Timestamp del error:', new Date().toISOString());
+    console.log('🌍 Entorno:', process.env.NODE_ENV);
     setError("Error al cargar el script de BioDigital");
   }, []);
 

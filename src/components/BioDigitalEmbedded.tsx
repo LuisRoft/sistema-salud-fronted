@@ -15,6 +15,8 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
   const [embedUrl, setEmbedUrl] = useState<string>('');
   const [useProxy, setUseProxy] = useState<boolean>(false);
   const [iframeError, setIframeError] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
+  const [forceProxy, setForceProxy] = useState<boolean>(false);
   
   const {
     data,
@@ -35,6 +37,13 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
 
   useEffect(() => {
     fetchHumanData();
+    
+    // En producción, usar proxy automáticamente para evitar problemas de CORS y CSP
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      console.log('🏭 Entorno de producción detectado, activando proxy automáticamente');
+      setForceProxy(true);
+      setUseProxy(true);
+    }
   }, [fetchHumanData]);
 
   // Construir URL del embed - intentar primero directamente, luego con proxy si falla
@@ -44,28 +53,45 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
       
       console.log('🔗 URL original de BioDigital:', originalUrl);
       console.log('🌍 Entorno:', process.env.NODE_ENV);
+      console.log('⏰ Timestamp construcción URL:', new Date().toISOString());
+      console.log('🌐 Window location:', window.location.href);
+      console.log('🔄 Usando proxy:', useProxy);
       
-      if (useProxy) {
+      if (useProxy || forceProxy) {
         // Usar proxy como respaldo - siempre usar la URL actual del frontend
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
         const proxyUrl = `${baseUrl}/api/biodigital-proxy?url=${encodeURIComponent(originalUrl)}`;
-        console.log('🔄 Usando proxy como respaldo:', proxyUrl);
+        console.log('🔄 Usando proxy:', proxyUrl);
         console.log('🌐 Base URL detectada:', baseUrl);
+        console.log('🏭 Forzado por producción:', forceProxy);
         setEmbedUrl(proxyUrl);
       } else {
-        // Intentar usar la URL original directamente
-        console.log('🎯 Intentando carga directa');
+        // Intentar usar la URL original directamente (solo en desarrollo)
+        console.log('🎯 Intentando carga directa (desarrollo)');
         setEmbedUrl(originalUrl);
       }
     }
-  }, [data, useProxy]);
+  }, [data, useProxy, forceProxy]);
   
   // Manejar errores del iframe y cambiar a proxy automáticamente
   const handleIframeError = () => {
-    if (!useProxy && !iframeError) {
-      console.log('❌ Error en carga directa, cambiando a proxy...');
+    console.log('❌ Error en iframe detectado');
+    console.log('⏰ Timestamp error:', new Date().toISOString());
+    console.log('🌍 Entorno:', process.env.NODE_ENV);
+    console.log('🔄 useProxy actual:', useProxy);
+    console.log('❌ iframeError actual:', iframeError);
+    console.log('🔢 Retry count:', retryCount);
+    
+    if (!useProxy && !iframeError && retryCount < 2) {
+      console.log('🔄 Cambiando a proxy debido a error en carga directa...');
       setIframeError(true);
       setUseProxy(true);
+      setRetryCount(prev => prev + 1);
+    } else if (retryCount >= 2) {
+      console.log('⚠️ Máximo número de reintentos alcanzado');
+      setError('Error persistente cargando el modelo 3D. Por favor, recarga la página.');
+    } else {
+      console.log('⚠️ Ya se intentó con proxy o ya hay error registrado');
     }
   };
 
@@ -163,7 +189,12 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
               allow="fullscreen; scripts-src 'self' 'unsafe-inline' 'unsafe-eval' https://human.biodigital.com"
               referrerPolicy="no-referrer-when-downgrade"
               onError={handleIframeError}
-              onLoad={() => console.log('✅ Iframe cargado exitosamente')}
+              onLoad={() => {
+                console.log('✅ Iframe cargado exitosamente');
+                console.log('⏰ Timestamp carga iframe:', new Date().toISOString());
+                console.log('🌍 Entorno:', process.env.NODE_ENV);
+                console.log('🔗 URL cargada:', embedUrl);
+              }}
             />
           ) : (
             <div className="flex items-center justify-center h-full bg-gray-100">
