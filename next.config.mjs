@@ -57,7 +57,6 @@ const nextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'self'",
-              "webgl-src 'self' https://human.biodigital.com https://assets-human.biodigital.com",
               "media-src 'self' data: blob: https://human.biodigital.com https://assets-human.biodigital.com"
             ].join('; ')
           },

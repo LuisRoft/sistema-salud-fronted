@@ -239,7 +239,7 @@ export default function NursingForm() {
     });
 
     return () => subscription.unsubscribe();
-  }, [form, totalFields]);
+  }, [form, setCompletedFields, setRealCompletionPercentage]);
 
   // =====================================
   // Helpers para arrays del form (NOC/NIC)
