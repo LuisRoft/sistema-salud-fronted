@@ -49,15 +49,13 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
 
   // Construir URL del embed - intentar primero directamente, luego con proxy si falla
   useEffect(() => {
-    if (data?.myhuman?.[0]?.content_url && typeof window !== 'undefined') {
+    if (data?.myhuman?.[0]?.content_url && typeof window !== 'undefined' && !embedUrl) {
       const originalUrl = data.myhuman[0].content_url;
       
       // Log del estado de WebGL solo una vez por URL
-      if (!embedUrl) {
-        logWebGLStatus();
-        const webglConfig = getBioDigitalConfig();
-        console.log('🎮 Configuración WebGL recomendada:', webglConfig);
-      }
+      logWebGLStatus();
+      const webglConfig = getBioDigitalConfig();
+      console.log('🎮 Configuración WebGL recomendada:', webglConfig);
       
       // Optimizar URL con parámetros WebGL inteligentes
       const optimizedUrl = getWebGLOptimizedParams(originalUrl);
@@ -83,7 +81,7 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
         setEmbedUrl(optimizedUrl);
       }
     }
-  }, [data, useProxy, forceProxy]);
+  }, [data?.myhuman?.[0]?.content_url, useProxy, forceProxy, embedUrl]);
   
   // Manejar errores del iframe y cambiar a proxy automáticamente
   const handleIframeError = () => {
