@@ -110,7 +110,7 @@ export const coherenceValidationSchema = z.object({
   nanda_dominio: z.string().optional(),
   noc_dominio: z.string().optional(),
   nic_clase: z.array(z.string()).optional(),
-}).refine((data) => {
+}).refine(() => {
   // Validación simplificada: si los campos existen, son válidos
   return true;
 }, {
@@ -172,7 +172,7 @@ export const validateFormCoherence = (data: Partial<NursingFormData>) => {
 // Función para calcular el porcentaje de completitud real
 export const calculateCompletionPercentage = (data: Partial<NursingFormData>): number => {
   let score = 0;
-  const maxScore = 100;
+  const MAX_SCORE = 100; // Using UPPER_SNAKE_CASE for constants
   
   // Validación NANDA (25 puntos)
   if (data.nanda_dominio?.trim()) score += 3;
@@ -202,5 +202,5 @@ export const calculateCompletionPercentage = (data: Partial<NursingFormData>): n
   const coherenceResult = validateFormCoherence(data);
   if (coherenceResult.isValid) score += 4;
   
-  return Math.min(score, 100);
+  return Math.min(MAX_SCORE, Math.round((score / 100) * 100));
 };

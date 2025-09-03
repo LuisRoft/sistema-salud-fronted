@@ -13,7 +13,7 @@ async function downloadFile(response: Response, filename: string) {
 }
 
 function getEndpointSingle(type: string, id: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/api`;
   if (!id) throw new Error('Se requiere un ID para descargar el archivo');
 
   switch (type) {
@@ -33,7 +33,7 @@ function getEndpointSingle(type: string, id: string): string {
 }
 
 function getEndpointAll(type: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/api`;
   switch (type) {
     case 'Consulta Externa':
       return `${baseUrl}/consultations/download`;

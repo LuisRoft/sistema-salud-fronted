@@ -17,7 +17,8 @@ import {
   UserCheck,
   Clock,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  RotateCcw
 } from 'lucide-react';
 import { getAllConsultations } from '@/services/consultationHistory.service';
 import { getPatients } from '@/services/patientService';
@@ -64,14 +65,24 @@ export default function PucemDashboard() {
   const token = session?.user?.access_token;
 
   // Consultas principales
-  const { data: consultationsData, isLoading: consultationsLoading } = useQuery({
+  const { data: consultationsData, isLoading: consultationsLoading, error: consultationsError } = useQuery({
     queryKey: ['dashboard-consultations'],
     queryFn: async () => {
       if (!token) return null;
+      console.log('🔍 Dashboard - Obteniendo consultas con token:', token ? 'presente' : 'ausente');
       return await getAllConsultations(token);
     },
     enabled: !!token,
     staleTime: 60000,
+    retry: (failureCount, error: any) => {
+      console.log(`🔄 Reintento ${failureCount} para consultas:`, error.message);
+      // Solo reintentar si es un error de red, no si es de autenticación
+      if (error.message?.includes('autenticación') || error.message?.includes('autorización')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Pacientes
@@ -195,6 +206,46 @@ export default function PucemDashboard() {
           <Activity className="h-12 w-12 animate-pulse text-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Cargando dashboard...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Mostrar error de consultas si existe
+  if (consultationsError) {
+    return (
+      <div className="p-6">
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-800">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              Error de Conectividad
+            </CardTitle>
+            <CardDescription className="text-red-600">
+              {consultationsError.message || 'No se pueden cargar los datos del dashboard'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p className="text-sm text-red-700">
+                • Verifique su conexión a internet
+              </p>
+              <p className="text-sm text-red-700">
+                • El servidor puede estar temporalmente no disponible
+              </p>
+              <p className="text-sm text-red-700">
+                • Su sesión puede haber expirado
+              </p>
+            </div>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+              variant="outline"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

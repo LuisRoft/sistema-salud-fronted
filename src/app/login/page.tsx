@@ -1,14 +1,12 @@
 'use client';
 
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
-import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +22,6 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SimpleModeToggle } from '@/components/ui/simple-mode-toggle';
 
-
 const formSchema = z.object({
   identification: z.string().min(10, {
     message: 'Número de identificación es requerido.',
@@ -34,11 +31,13 @@ const formSchema = z.object({
   }),
 });
 
-export default function LoginPage() {
+function LoginForm() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState);
 
@@ -68,6 +67,7 @@ export default function LoginPage() {
         identification: values.identification,
         password: values.password,
         redirect: false,
+        callbackUrl,
       });
 
       if (res?.error) {
@@ -77,14 +77,19 @@ export default function LoginPage() {
           variant: 'destructive',
           duration: 3000,
         });
-        return
+        return;
       }
 
-      toast({ title: '¡Bienvenido!', description: 'Inicio de sesión exitoso', duration: 3000 });
-      router.push('/dashboard');
+      // If we get here, authentication was successful
+      window.location.href = callbackUrl;
     } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: 'Hubo un problema al iniciar sesión', variant: 'destructive' });
+      console.error('Login error:', error);
+      toast({ 
+        title: 'Error', 
+        description: 'Hubo un problema al iniciar sesión', 
+        variant: 'destructive',
+        duration: 3000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +102,7 @@ export default function LoginPage() {
           <SimpleModeToggle />
         </div>
 
-        {/* Lado izquierdo - Imagen */}
+        {/* Left Side - Image */}
         <div className="hidden md:flex md:w-1/2 bg-[#1e3a8a] p-8 flex-col items-center justify-center text-white">
           <div className="mb-10 -mt-4">
             <Image
@@ -115,7 +120,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Lado derecho - Formulario */}
+        {/* Right Side - Form */}
         <div className="w-full md:w-1/2 p-8">
           <div className="max-w-sm mx-auto space-y-6">
             <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Bienvenido</h1>
@@ -145,7 +150,12 @@ export default function LoginPage() {
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input type={isVisible ? 'text' : 'password'} {...field} className="pr-10" placeholder="********" />
+                          <Input 
+                            type={isVisible ? 'text' : 'password'} 
+                            {...field} 
+                            className="pr-10" 
+                            placeholder="********" 
+                          />
                           <button
                             type="button"
                             onClick={toggleVisibility}
@@ -160,7 +170,11 @@ export default function LoginPage() {
                   )}
                 />
 
-                <Button type="submit" className="w-full bg-[#1e3a8a] hover:bg-blue-800" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#1e3a8a] hover:bg-blue-800" 
+                  disabled={isLoading}
+                >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Iniciar Sesión'}
                 </Button>
               </form>
@@ -169,5 +183,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main page component that wraps the form in a Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

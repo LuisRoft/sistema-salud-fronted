@@ -1,17 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Script from "next/script";
 import {
   PREDEFINED_PARTS,
   BIODIGITAL_SCRIPT_CONFIG,
   getPainLevelName,
 } from "@/utils/biodigital-config";
+import { getWebGLOptimizedParams, logWebGLStatus, getBioDigitalConfig } from '@/utils/webgl-config';
 import { useBioDigital } from "@/hooks/useBioDigital";
 import { PainControlPanel } from "./PainControlPanel";
 import { set } from "date-fns";
 
 export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any) => void }) {
+  const [embedUrl, setEmbedUrl] = useState<string>('');
+  const [useProxy, setUseProxy] = useState<boolean>(false);
+  const [iframeError, setIframeError] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState<number>(0);
+  const [forceProxy, setForceProxy] = useState<boolean>(false);
+  
   const {
     data,
     isLoading,
@@ -31,7 +38,72 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
 
   useEffect(() => {
     fetchHumanData();
+    
+    // En producción, usar proxy automáticamente para evitar problemas de CORS y CSP
+    if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
+      console.log('🏭 Entorno de producción detectado, activando proxy automáticamente');
+      setForceProxy(true);
+      setUseProxy(true);
+    }
   }, [fetchHumanData]);
+
+  // Construir URL del embed - intentar primero directamente, luego con proxy si falla
+  useEffect(() => {
+    if (data?.myhuman?.[0]?.content_url && typeof window !== 'undefined' && !embedUrl) {
+      const originalUrl = data.myhuman[0].content_url;
+      
+      // Log del estado de WebGL solo una vez por URL
+      logWebGLStatus();
+      const webglConfig = getBioDigitalConfig();
+      console.log('🎮 Configuración WebGL recomendada:', webglConfig);
+      
+      // Optimizar URL con parámetros WebGL inteligentes
+      const optimizedUrl = getWebGLOptimizedParams(originalUrl);
+      
+      console.log('🔗 URL original de BioDigital:', originalUrl);
+      console.log('🔗 URL optimizada con WebGL:', optimizedUrl);
+      console.log('🌍 Entorno:', process.env.NODE_ENV);
+      console.log('⏰ Timestamp construcción URL:', new Date().toISOString());
+      console.log('🌐 Window location:', window.location.href);
+      console.log('🔄 Usando proxy:', useProxy);
+      
+      if (useProxy || forceProxy) {
+        // Usar proxy como respaldo - siempre usar la URL actual del frontend
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const proxyUrl = `${baseUrl}/api/biodigital-proxy?url=${encodeURIComponent(optimizedUrl)}`;
+        console.log('🔄 Usando proxy:', proxyUrl);
+        console.log('🌐 Base URL detectada:', baseUrl);
+        console.log('🏭 Forzado por producción:', forceProxy);
+        setEmbedUrl(proxyUrl);
+      } else {
+        // Intentar usar la URL optimizada directamente (solo en desarrollo)
+        console.log('🎯 Intentando carga directa (desarrollo)');
+        setEmbedUrl(optimizedUrl);
+      }
+    }
+  }, [data?.myhuman?.[0]?.content_url, useProxy, forceProxy, embedUrl]);
+  
+  // Manejar errores del iframe y cambiar a proxy automáticamente
+  const handleIframeError = () => {
+    console.log('❌ Error en iframe detectado');
+    console.log('⏰ Timestamp error:', new Date().toISOString());
+    console.log('🌍 Entorno:', process.env.NODE_ENV);
+    console.log('🔄 useProxy actual:', useProxy);
+    console.log('❌ iframeError actual:', iframeError);
+    console.log('🔢 Retry count:', retryCount);
+    
+    if (!useProxy && !iframeError && retryCount < 2) {
+      console.log('🔄 Cambiando a proxy debido a error en carga directa...');
+      setIframeError(true);
+      setUseProxy(true);
+      setRetryCount(prev => prev + 1);
+    } else if (retryCount >= 2) {
+      console.log('⚠️ Máximo número de reintentos alcanzado');
+      setError('Error persistente cargando el modelo 3D. Por favor, recarga la página.');
+    } else {
+      console.log('⚠️ Ya se intentó con proxy o ya hay error registrado');
+    }
+  };
 
   const handleSendToBackend = () => {
    console.log("🚀 Enviando datos al backend:", selectedPartsWithPain);
@@ -115,15 +187,74 @@ export function BioDigitalEmbedded({ setDataModel }: { setDataModel: (data: any)
             </div>
           )}
 
-          <iframe
-            src={data?.myhuman[0].content_url}
-            width="100%"
-            height="100%"
-            className="border-0 w-full h-full"
-            id="biodigital"
-            title="Modelo anatómico BioDigital"
-            loading="lazy"
-          />
+          {embedUrl ? (
+            <iframe
+              src={embedUrl}
+              width="100%"
+              height="100%"
+              className="border-0 w-full h-full"
+              id="biodigital"
+              title="Modelo anatómico BioDigital"
+              loading="eager"
+              allow="fullscreen; scripts-src 'self' 'unsafe-inline' 'unsafe-eval' https://human.biodigital.com; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
+              referrerPolicy="no-referrer-when-downgrade"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                backgroundColor: '#f0f0f0'
+              }}
+              onError={handleIframeError}
+              onLoad={() => {
+                console.log('✅ Iframe cargado exitosamente');
+                console.log('⏰ Timestamp carga iframe:', new Date().toISOString());
+                console.log('🌍 Entorno:', process.env.NODE_ENV);
+                console.log('🔗 URL cargada:', embedUrl);
+                
+                // Verificar WebGL después de cargar el iframe
+                setTimeout(() => {
+                  try {
+                    const iframe = document.getElementById('biodigital') as HTMLIFrameElement;
+                    if (iframe && iframe.contentWindow) {
+                      console.log('🔍 Verificando estado del iframe...');
+                      console.log('📏 Dimensiones iframe:', {
+                        width: iframe.offsetWidth,
+                        height: iframe.offsetHeight,
+                        display: window.getComputedStyle(iframe).display,
+                        visibility: window.getComputedStyle(iframe).visibility
+                      });
+                      
+                      // Verificar WebGL en el contexto principal
+                      const canvas = document.createElement('canvas');
+                      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                      if (gl) {
+                        console.log('✅ WebGL disponible en contexto principal');
+                        console.log('🎮 Información WebGL:', {
+                          vendor: gl.getParameter(gl.VENDOR),
+                          renderer: gl.getParameter(gl.RENDERER),
+                          version: gl.getParameter(gl.VERSION),
+                          shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION)
+                        });
+                      } else {
+                        console.error('❌ WebGL NO disponible en contexto principal');
+                      }
+                    }
+                  } catch (error) {
+                    console.error('❌ Error verificando estado del iframe:', error);
+                  }
+                }, 2000);
+              }}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-100">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-muted-foreground text-sm">Preparando modelo 3D...</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

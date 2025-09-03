@@ -166,7 +166,7 @@ export const useNursingValidation = (): UseNursingValidationReturn => {
     });
 
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, setValidationState]);
 
   // Validar arrays cuando cambien
   useEffect(() => {
