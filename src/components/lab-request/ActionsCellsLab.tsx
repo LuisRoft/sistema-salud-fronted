@@ -20,11 +20,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { LabRequestRow } from './columns';
+import { LabRequestManagementRow } from './management-columns';
 
 interface ActionsCellsLabProps {
-  data: LabRequestRow;
+  data: LabRequestRow | LabRequestManagementRow;
   DeleteDialog: React.ComponentType<{ id: string; open: boolean; onClose: () => void }>;
-  EditDialog: React.ComponentType<{ data: LabRequestRow; onClose: () => void }>;
+  EditDialog: React.ComponentType<{ data: LabRequestRow | LabRequestManagementRow; onClose: () => void }>;
 }
 
 export default function ActionsCellsLab({

@@ -17,11 +17,14 @@ export default function CreateManagerDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Agregar Gestor</Button>
+        <Button variant="outline" className="w-full sm:w-auto text-sm">
+          <span className="hidden sm:inline">Agregar Gestor</span>
+          <span className="sm:hidden">+ Gestor</span>
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-[95vw] max-w-lg sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Crear Gestor</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">Crear Gestor</DialogTitle>
         </DialogHeader>
         <CreateManagerForm onClose={() => setIsOpen(false)} />
       </DialogContent>

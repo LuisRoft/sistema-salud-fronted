@@ -31,10 +31,26 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
       
       // First check if user has patients in team
       const teamData = session?.user?.team;
-      if (teamData?.patient && Object.values(teamData.patient).length > 0) {
-        const teamPatients = Object.values(teamData.patient) as Patient[];
-        console.log('✅ Using patients from team assignment:', teamPatients);
-        return teamPatients;
+      console.log('teamdata', teamData)
+      if (teamData?.patient) {
+        const raw = teamData.patient as unknown;
+        const isPatientLike = (item: unknown): item is Patient =>
+          !!item && typeof item === 'object' && !Array.isArray(item) &&
+          'id' in item && 'document' in item && 'name' in item && 'lastName' in item;
+
+        let teamPatients: Patient[] = [];
+        if (Array.isArray(raw)) {
+          teamPatients = (raw as unknown[]).filter(isPatientLike);
+        } else if (typeof raw === 'object' && raw !== null) {
+          // When team.patient is an object like { "0": {patient}, caregivers: [...] }
+          teamPatients = Object.values(raw as Record<string, unknown>)
+            .filter(isPatientLike);
+        }
+
+        if (teamPatients.length > 0) {
+          console.log('✅ Using patients from team assignment (normalized):', teamPatients);
+          return teamPatients;
+        }
       }
       
       // Get user ID from token
@@ -44,6 +60,7 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
       
       console.log('🔑 Using token:', session.user.access_token);
       console.log('👤 User ID:', userId);
+      
       
       try {
         return await getPatientByUserAssigned(userId, session.user.access_token);
@@ -62,6 +79,7 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
     console.log('Loading state:', isLoading);
     if (error) console.error('Error:', error);
   }, [patients, isLoading, error]);
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -90,12 +108,11 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
               No hay pacientes asignados a este usuario. Por favor contacte a un administrador para que le asigne pacientes.
             </div>
           ) : (
-            <div className="grid gap-2 max-h-[60vh] overflow-y-auto p-2">
+            <div className="grid gap-2 overflow-y-auto py-2">
            {patients.map((patient, index) => (
             <Button
-              key={`${patient.id}-${index}`}  // <-- Combina el id y el índice para asegurar unicidad
+              key={`${patient.id}-${index}`}  
               variant="outline"
-              className="justify-start text-left"
               onClick={() => {
                 console.log('Selecting patient:', patient);
                 onSelect(patient);
@@ -103,13 +120,13 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({ onSelect }) =>
               }}
             >
 
-                  <div>
+                  <div className="flex justify-between w-full">
                     <strong>{patient.lastName}, {patient.name}</strong>
                     <div className="text-sm text-gray-500">
                       Documento: {patient.document}
                     </div>
                   </div>
-                </Button>
+              </Button>
               ))}
             </div>
           )}

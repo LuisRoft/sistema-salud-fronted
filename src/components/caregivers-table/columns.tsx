@@ -28,22 +28,33 @@ export const columns: ColumnDef<Caregiver>[] = [
   {
     accessorKey: 'document',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Identificación" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.document}</div>,
+    cell: ({ row }) => (
+      <div className="text-sm font-medium min-w-[120px]">{row.original.document}</div>
+    ),
   },
   {
     accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre Completo" />,
     cell: ({ row }) => {
       const { name, lastName } = row.original;
-      return <div className="text-sm uppercase">{name} {lastName}</div>;
+      const fullName = `${name} ${lastName}`.toUpperCase();
+      return (
+        <div className="text-sm capitalize min-w-[150px] max-w-[200px] truncate" title={fullName}>
+          {fullName}
+        </div>
+      );
     },
   },
   {
     accessorKey: 'patientName',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del Paciente" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Paciente" />,
     cell: ({ row }) => {
-      console.log('Fila en tabla:', row.original);
-      return <div className="text-sm uppercase">{row.original.patientName || 'NO ASIGNADO'}</div>;
+      const patientName = row.original.patientName || 'NO ASIGNADO';
+      return (
+        <div className="text-sm min-w-[120px] max-w-[150px] truncate" title={patientName}>
+          {patientName}
+        </div>
+      );
     },
   },
   {
@@ -51,38 +62,86 @@ export const columns: ColumnDef<Caregiver>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Género" />,
     cell: ({ row }) => {
       const gender = row.original.gender;
-      const genderText = gender === 'male' ? 'HOMBRE' : gender === 'female' ? 'MUJER' : 'NO ESPECIFICADO';
-      return <div className="text-sm uppercase">{genderText}</div>;
+      const genderText = gender === 'male' ? 'M' : gender === 'female' ? 'F' : 'N/E';
+      const fullGenderText = gender === 'male' ? 'HOMBRE' : gender === 'female' ? 'MUJER' : 'NO ESPECIFICADO';
+      return (
+        <div className="text-sm min-w-[60px] text-center" title={fullGenderText}>
+          {genderText}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'cellphoneNumbers',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    cell: ({ row }) => {
+      const phones = row.original.cellphoneNumbers.join(', ');
+      return (
+        <div className="text-sm min-w-[120px] max-w-[160px] truncate" title={phones}>
+          {phones}
+        </div>
+      );
     },
   },
   {
     accessorKey: 'canton',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Cantón" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.canton}</div>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Cantón" className="hidden lg:table-cell" />
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm min-w-[100px] max-w-[120px] truncate hidden lg:table-cell" title={row.original.canton}>
+        {row.original.canton}
+      </div>
+    ),
   },
   {
     accessorKey: 'parish',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Parroquia" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.parish}</div>,
-  },
-  {
-    accessorKey: 'cellphoneNumbers',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono Celular" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.cellphoneNumbers.join(', ')}</div>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Parroquia" className="hidden lg:table-cell" />
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm min-w-[100px] max-w-[120px] truncate hidden lg:table-cell" title={row.original.parish}>
+        {row.original.parish}
+      </div>
+    ),
   },
   {
     accessorKey: 'conventionalNumbers',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono Convencional" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.conventionalNumbers?.join(', ') || '-'}</div>,
-  },
-  {
-    accessorKey: 'reference',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Referencia" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.reference || '-'}</div>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tel. Convencional" className="hidden xl:table-cell" />
+    ),
+    cell: ({ row }) => {
+      const conventionalPhones = row.original.conventionalNumbers?.join(', ') || '-';
+      return (
+        <div className="text-sm min-w-[120px] max-w-[140px] truncate hidden xl:table-cell" title={conventionalPhones}>
+          {conventionalPhones}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'zoneType',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Zona" />,
-    cell: ({ row }) => <div className="text-sm uppercase">{row.original.zoneType}</div>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Zona" className="hidden lg:table-cell" />
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm min-w-[80px] max-w-[100px] truncate hidden lg:table-cell" title={row.original.zoneType}>
+        {row.original.zoneType}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'reference',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Referencia" className="hidden xl:table-cell" />
+    ),
+    cell: ({ row }) => {
+      const reference = row.original.reference || '-';
+      return (
+        <div className="text-sm min-w-[100px] max-w-[150px] truncate hidden xl:table-cell" title={reference}>
+          {reference}
+        </div>
+      );
+    },
   },
 ];

@@ -1,4 +1,7 @@
+// consultations.client.ts
 import { get } from './requestHandler';
+
+/* ========= Tipos ========= */
 
 export interface BaseConsultation {
   id: string;
@@ -11,14 +14,16 @@ export interface BaseConsultation {
   };
   motivoConsulta: string;
   diagnosticosDesc: string[] | string;
-  type?: string; // Para identificar el tipo de consulta
-  // Campos adicionales para consulta externa
+  type?: string;
+
+  // Externa
   antecedentesPersonales?: string[];
   antecedentesFamiliares?: string[];
   sistemasRevisados?: string[];
   diagnosticosCie?: string[];
   planTratamiento?: string;
-  // Campos adicionales para consulta interna
+
+  // Interna
   servicio?: string;
   especialidadConsultada?: string;
   esUrgente?: boolean;
@@ -26,13 +31,15 @@ export interface BaseConsultation {
   examenesResultados?: string[];
   planDiagnosticoPropuesto?: string;
   planTerapeuticoPropuesto?: string;
-  // Campos adicionales para enfermería
+
+  // Enfermería
   nanda_dominio?: string;
   nanda_clase?: string;
   nanda_factor_relacionado?: string;
   resultadosNoc?: string[];
   intervencionesNic?: string[];
-  // Campos adicionales para laboratorio
+
+  // Laboratorio
   diagnostico_descripcion1?: string;
   diagnostico_descripcion2?: string;
   diagnostico_cie1?: string;
@@ -45,41 +52,70 @@ export interface BaseConsultation {
   heces_examenes?: string[];
   hormonas_examenes?: string[];
   serologia_examenes?: string[];
+
+  // Neurológica
+  edad?: number;
+  discapacidad?: string;
+  diagnostico?: string;
+  cif?: CIFItem[];
+  antecedentesHeredofamiliares?: string;
+  antecedentesFarmacologicos?: string;
+  alergias?: string;
+  utilizaSillaRuedas?: boolean;
+  comentariosExaminador?: string;
+  resumenResultados?: string;
+  barthelTotal?: number;
 }
 
 export interface ConsultationResponse {
   consultations: BaseConsultation[];
   total: number;
 }
+export interface CIFItem {
+  codigo: string;
+  descripcion: string;
+}
+/* ========= Fetch: listas por módulo ========= */
 
-// Obtener consultas externas
+interface ApiConsultation extends Omit<BaseConsultation, 'diagnosticosDesc'> {
+  diagnosticosDesc: string | string[];
+  patient: {
+    name: string;
+    lastName: string;
+    document: string;
+  };
+  servicio?: string;
+  antecedentesPersonales?: string[];
+  antecedentesFamiliares?: string[];
+  sistemasRevisados?: string[];
+  diagnosticosCie?: string[];
+  planTratamiento?: string;
+}
+
 export const getConsultations = async (token: string): Promise<ConsultationResponse> => {
   try {
     const response = await get('/consultations', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
-    
-    // Procesar directamente los datos de la respuesta
-    const consultations = response.data?.consultations || [];
+    const responseData = response.data as { consultations?: ApiConsultation[] };
+    const consultations = responseData.consultations || [];
     return {
-      consultations: consultations.map((consultation: any) => ({
-        id: consultation.id,
-        numeroDeArchivo: consultation.numeroDeArchivo,
-        fecha: consultation.fecha,
-        patient: consultation.patient,
-        motivoConsulta: consultation.motivoConsulta,
-        diagnosticosDesc: Array.isArray(consultation.diagnosticosDesc) 
-          ? consultation.diagnosticosDesc 
-          : [consultation.diagnosticosDesc].filter(Boolean),
+      consultations: consultations.map((c: ApiConsultation) => ({
+        id: c.id,
+        numeroDeArchivo: c.numeroDeArchivo,
+        fecha: c.fecha,
+        patient: c.patient,
+        motivoConsulta: c.motivoConsulta,
+        diagnosticosDesc: Array.isArray(c.diagnosticosDesc) ? c.diagnosticosDesc : [c.diagnosticosDesc].filter(Boolean),
         type: 'Consulta Externa',
-        servicio: consultation.servicio,
-        antecedentesPersonales: consultation.antecedentesPersonales,
-        antecedentesFamiliares: consultation.antecedentesFamiliares,
-        sistemasRevisados: consultation.sistemasRevisados,
-        diagnosticosCie: consultation.diagnosticosCie,
-        planTratamiento: consultation.planTratamiento
+        servicio: c.servicio,
+        antecedentesPersonales: c.antecedentesPersonales,
+        antecedentesFamiliares: c.antecedentesFamiliares,
+        sistemasRevisados: c.sistemasRevisados,
+        diagnosticosCie: c.diagnosticosCie,
+        planTratamiento: c.planTratamiento,
       })),
-      total: consultations.length
+      total: consultations.length,
     };
   } catch (error) {
     console.error('Error en consultas externas:', error);
@@ -87,32 +123,47 @@ export const getConsultations = async (token: string): Promise<ConsultationRespo
   }
 };
 
-// Obtener consultas internas
+interface InternalConsultation extends Omit<BaseConsultation, 'diagnosticosDesc'> {
+  diagnosticosDesc: string | string[];
+  patient: {
+    name: string;
+    lastName: string;
+    document: string;
+  };
+  servicio?: string;
+  especialidadConsultada?: string;
+  esUrgente?: boolean;
+  cuadroClinicoActual?: string;
+  examenesResultados?: string[];
+  planDiagnosticoPropuesto?: string;
+  planTerapeuticoPropuesto?: string;
+}
+
 export const getInternalConsultations = async (token: string): Promise<ConsultationResponse> => {
   try {
     const response = await get('/consultations-internal', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
-    
-    const consultations = Array.isArray(response.data) ? response.data : [];
+    const responseData = response.data as InternalConsultation[];
+    const consultations = Array.isArray(responseData) ? responseData : [];
     return {
-      consultations: consultations.map((consultation: any) => ({
-        id: consultation.id,
-        numeroDeArchivo: consultation.numeroDeArchivo,
-        fecha: consultation.fecha,
-        patient: consultation.patient,
-        motivoConsulta: consultation.motivoConsulta,
-        diagnosticosDesc: consultation.diagnosticosDesc || [],
+      consultations: consultations.map((c) => ({
+        id: c.id,
+        numeroDeArchivo: c.numeroDeArchivo,
+        fecha: c.fecha,
+        patient: c.patient,
+        motivoConsulta: c.motivoConsulta,
+        diagnosticosDesc: c.diagnosticosDesc || [],
         type: 'Consulta Interna',
-        servicio: consultation.servicio,
-        especialidadConsultada: consultation.especialidadConsultada,
-        esUrgente: consultation.esUrgente,
-        cuadroClinicoActual: consultation.cuadroClinicoActual,
-        examenesResultados: consultation.examenesResultados,
-        planDiagnosticoPropuesto: consultation.planDiagnosticoPropuesto,
-        planTerapeuticoPropuesto: consultation.planTerapeuticoPropuesto
+        servicio: c.servicio,
+        especialidadConsultada: c.especialidadConsultada,
+        esUrgente: c.esUrgente,
+        cuadroClinicoActual: c.cuadroClinicoActual,
+        examenesResultados: c.examenesResultados,
+        planDiagnosticoPropuesto: c.planDiagnosticoPropuesto,
+        planTerapeuticoPropuesto: c.planTerapeuticoPropuesto,
       })),
-      total: consultations.length
+      total: consultations.length,
     };
   } catch (error) {
     console.error('Error en consultas internas:', error);
@@ -120,30 +171,45 @@ export const getInternalConsultations = async (token: string): Promise<Consultat
   }
 };
 
-// Obtener consultas de enfermería
+interface NursingConsultation extends Omit<BaseConsultation, 'diagnosticosDesc' | 'type'> {
+  nanda_etiqueta_diagnostica?: string;
+  nanda_dominio?: string;
+  nanda_clase?: string;
+  nanda_factor_relacionado?: string;
+  resultadosNoc?: string[];
+  intervencionesNic?: string[];
+  createdAt?: string;
+  patient: {
+    name: string;
+    lastName: string;
+    document: string;
+  };
+}
+
 export const getNursingConsultations = async (token: string): Promise<ConsultationResponse> => {
   try {
     const response = await get('/nursing', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
+    const responseData = response.data as NursingConsultation[];
+    const consultations = Array.isArray(responseData) ? responseData : [];
     
-    const consultations = Array.isArray(response.data) ? response.data : [];
     return {
-      consultations: consultations.map((consultation: any) => ({
-        id: consultation.id,
-        numeroDeArchivo: consultation.numeroDeArchivo || 0,
-        fecha: consultation.fecha || consultation.createdAt,
-        patient: consultation.patient,
-        motivoConsulta: consultation.nanda_etiqueta_diagnostica || 'Sin motivo especificado',
-        diagnosticosDesc: [consultation.nanda_dominio, consultation.nanda_clase].filter(Boolean),
+      consultations: consultations.map((c) => ({
+        id: c.id,
+        numeroDeArchivo: c.numeroDeArchivo || 0,
+        fecha: c.fecha || c.createdAt || new Date().toISOString(),
+        patient: c.patient,
+        motivoConsulta: c.nanda_etiqueta_diagnostica || 'Sin motivo especificado',
+        diagnosticosDesc: [c.nanda_dominio, c.nanda_clase].filter(Boolean) as string[],
         type: 'Consulta Enfermería',
-        nanda_dominio: consultation.nanda_dominio,
-        nanda_clase: consultation.nanda_clase,
-        nanda_factor_relacionado: consultation.nanda_factor_relacionado,
-        resultadosNoc: consultation.resultadosNoc,
-        intervencionesNic: consultation.intervencionesNic
+        nanda_dominio: c.nanda_dominio,
+        nanda_clase: c.nanda_clase,
+        nanda_factor_relacionado: c.nanda_factor_relacionado,
+        resultadosNoc: c.resultadosNoc,
+        intervencionesNic: c.intervencionesNic,
       })),
-      total: consultations.length
+      total: consultations.length,
     };
   } catch (error) {
     console.error('Error en consultas de enfermería:', error);
@@ -151,40 +217,64 @@ export const getNursingConsultations = async (token: string): Promise<Consultati
   }
 };
 
-// Obtener solicitudes de laboratorio
+interface LaboratoryRequest {
+  id: string;
+  numero_de_archivo?: number;
+  diagnostico_descripcion1?: string;
+  diagnostico_descripcion2?: string;
+  diagnostico_cie1?: string;
+  diagnostico_cie2?: string;
+  prioridad?: string;
+  hematologia_examenes?: string[];
+  coagulacion_examenes?: string[];
+  quimica_sanguinea_examenes?: string[];
+  orina_examenes?: string[];
+  heces_examenes?: string[];
+  hormonas_examenes?: string[];
+  serologia_examenes?: string[];
+  patient: {
+    name: string;
+    lastName: string;
+    document: string;
+  };
+  createdAt?: string;
+  fecha?: string;
+}
+
+interface LaboratoryResponse {
+  requests?: LaboratoryRequest[];
+}
+
 export const getLaboratoryRequests = async (token: string): Promise<ConsultationResponse> => {
   try {
     const response = await get('/laboratory-request', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     
     const requests = response.data?.requests || [];
     return {
-      consultations: requests.map((request: any) => ({
-        id: request.id,
-        numeroDeArchivo: request.numero_de_archivo || 0,
-        fecha: request.createdAt || request.fecha,
-        patient: request.patient,
+      consultations: requests.map((r: LaboratoryRequest) => ({
+        id: r.id,
+        numeroDeArchivo: r.numero_de_archivo || 0,
+        fecha: r.createdAt || r.fecha || new Date().toISOString(),
+        patient: r.patient,
         motivoConsulta: 'Solicitud de exámenes de laboratorio',
-        diagnosticosDesc: [
-          request.diagnostico_descripcion1,
-          request.diagnostico_descripcion2
-        ].filter(Boolean),
+        diagnosticosDesc: [r.diagnostico_descripcion1, r.diagnostico_descripcion2].filter(Boolean) as string[],
         type: 'Solicitud Laboratorio',
-        diagnostico_descripcion1: request.diagnostico_descripcion1,
-        diagnostico_descripcion2: request.diagnostico_descripcion2,
-        diagnostico_cie1: request.diagnostico_cie1,
-        diagnostico_cie2: request.diagnostico_cie2,
-        prioridad: request.prioridad,
-        hematologia_examenes: request.hematologia_examenes,
-        coagulacion_examenes: request.coagulacion_examenes,
-        quimica_sanguinea_examenes: request.quimica_sanguinea_examenes,
-        orina_examenes: request.orina_examenes,
-        heces_examenes: request.heces_examenes,
-        hormonas_examenes: request.hormonas_examenes,
-        serologia_examenes: request.serologia_examenes
+        diagnostico_descripcion1: r.diagnostico_descripcion1,
+        diagnostico_descripcion2: r.diagnostico_descripcion2,
+        diagnostico_cie1: r.diagnostico_cie1,
+        diagnostico_cie2: r.diagnostico_cie2,
+        prioridad: r.prioridad,
+        hematologia_examenes: r.hematologia_examenes,
+        coagulacion_examenes: r.coagulacion_examenes,
+        quimica_sanguinea_examenes: r.quimica_sanguinea_examenes,
+        orina_examenes: r.orina_examenes,
+        heces_examenes: r.heces_examenes,
+        hormonas_examenes: r.hormonas_examenes,
+        serologia_examenes: r.serologia_examenes,
       })),
-      total: requests.length
+      total: requests.length,
     };
   } catch (error) {
     console.error('Error en solicitudes de laboratorio:', error);
@@ -192,106 +282,202 @@ export const getLaboratoryRequests = async (token: string): Promise<Consultation
   }
 };
 
-// Nuevo método para obtener todas las consultas en una sola llamada
-export const getAllConsultations = async (token: string) => {
+interface NeurologicEvaluation {
+  id: string;
+  name?: string;
+  ci?: string;
+  createdAt?: string;
+  fecha?: string;
+  diagnostico?: string;
+  discapacidad?: string;
+  edad?: number;
+  antecedentesHeredofamiliares?: string;
+  antecedentesFarmacologicos?: string;
+  alergias?: string;
+  utilizaSillaRuedas?: boolean;
+  comentariosExaminador?: string;
+  resumenResultados?: string;
+  barthelTotal?: number;
+  cif?: CIFItem[];
+}
+
+interface NeurologicResponse {
+  neurologicas?: NeurologicEvaluation[];
+}
+
+export const getNeurologicEvaluations = async (token: string): Promise<ConsultationResponse> => {
   try {
-    // Hacer todas las llamadas en paralelo
-    const [externasResp, internasResp, enfermeriaResp, laboratorioResp] = await Promise.all([
-      get('/consultations', {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      get('/consultations-internal', {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      get('/nursing', {
-        headers: { Authorization: `Bearer ${token}` }
-      }),
-      get('/laboratory-request', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-    ]);
+    const response = await get('/neurologica', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+    const responseData = response.data as NeurologicResponse | NeurologicEvaluation[];
+    const neurologicas = (Array.isArray(responseData) 
+      ? responseData 
+      : responseData?.neurologicas) || [];
+    
+    const list = Array.isArray(neurologicas) ? neurologicas : [];
+    
+    return {
+      consultations: list.map((e) => ({
+        id: e.id,
+        numeroDeArchivo: 0,
+        fecha: e.createdAt || e.fecha || new Date().toISOString(),
+        patient: {
+          name: e.name || 'Sin nombre',
+          lastName: '',
+          document: e.ci || 'Sin documento',
+        },
+        motivoConsulta: 'Evaluación neurológica',
+        diagnosticosDesc: [e.diagnostico, e.discapacidad].filter(Boolean) as string[],
+        type: 'Evaluación Neurológica',
+        edad: e.edad,
+        discapacidad: e.discapacidad,
+        diagnostico: e.diagnostico,
+        antecedentesHeredofamiliares: e.antecedentesHeredofamiliares,
+        antecedentesFarmacologicos: e.antecedentesFarmacologicos,
+        alergias: e.alergias,
+        utilizaSillaRuedas: e.utilizaSillaRuedas,
+        comentariosExaminador: e.comentariosExaminador,
+        resumenResultados: e.resumenResultados,
+        barthelTotal: e.barthelTotal,
+        cif: Array.isArray(e.cif) ? e.cif : [],
+      })),
+      total: list.length,
+    };
+  } catch (error) {
+    console.error('Error en evaluaciones neurológicas:', error);
+    return { consultations: [], total: 0 };
+  }
+};
 
-    // Procesar consultas externas
-    const externas = externasResp.data?.consultations?.map((consultation: any) => ({
-      id: consultation.id,
-      numeroDeArchivo: consultation.numeroDeArchivo,
-      fecha: consultation.fecha,
-      patient: consultation.patient,
-      motivoConsulta: consultation.motivoConsulta,
-      diagnosticosDesc: Array.isArray(consultation.diagnosticosDesc) 
-        ? consultation.diagnosticosDesc 
-        : [consultation.diagnosticosDesc].filter(Boolean),
-      type: 'Consulta Externa',
-      servicio: consultation.servicio,
-      antecedentesPersonales: consultation.antecedentesPersonales,
-      antecedentesFamiliares: consultation.antecedentesFamiliares,
-      sistemasRevisados: consultation.sistemasRevisados,
-      diagnosticosCie: consultation.diagnosticosCie,
-      planTratamiento: consultation.planTratamiento
-    })) || [];
+/* ========= Fetch: todas combinadas ========= */
 
-    // Procesar consultas internas
-    const internas = (Array.isArray(internasResp.data) ? internasResp.data : []).map((consultation: any) => ({
-      id: consultation.id,
-      numeroDeArchivo: consultation.numeroDeArchivo,
-      fecha: consultation.fecha,
-      patient: consultation.patient,
-      motivoConsulta: consultation.motivoConsulta,
-      diagnosticosDesc: consultation.diagnosticosDesc || [],
+export const getAllConsultations = async (token: string) => {
+  console.log('🔍 getAllConsultations - Iniciando peticiones con token:', token ? 'Token presente' : 'Token ausente');
+  console.log('🌐 Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
+  
+  try {
+    console.log('📡 Realizando peticiones paralelas a los endpoints...');
+    const [externasResp, internasResp, enfermeriaResp, laboratorioResp, neurologicaResp] =
+      await Promise.all([
+        get('/consultations', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /consultations:', err.message);
+          throw err;
+        }),
+        get('/consultations-internal', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /consultations-internal:', err.message);
+          throw err;
+        }),
+        get('/nursing', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /nursing:', err.message);
+          throw err;
+        }),
+        get('/laboratory-request', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /laboratory-request:', err.message);
+          throw err;
+        }),
+        get('/neurologica', { headers: { Authorization: `Bearer ${token}` } }).catch(err => {
+          console.error('❌ Error en /neurologica:', err.message);
+          throw err;
+        }),
+      ]);
+    
+    console.log('✅ Todas las peticiones completadas exitosamente');
+
+    const externas =
+      externasResp.data?.consultations?.map((c: any) => ({
+        id: c.id,
+        numeroDeArchivo: c.numeroDeArchivo,
+        fecha: c.fecha,
+        patient: c.patient,
+        motivoConsulta: c.motivoConsulta,
+        diagnosticosDesc: Array.isArray(c.diagnosticosDesc) ? c.diagnosticosDesc : [c.diagnosticosDesc].filter(Boolean),
+        type: 'Consulta Externa',
+        servicio: c.servicio,
+        antecedentesPersonales: c.antecedentesPersonales,
+        antecedentesFamiliares: c.antecedentesFamiliares,
+        sistemasRevisados: c.sistemasRevisados,
+        diagnosticosCie: c.diagnosticosCie,
+        planTratamiento: c.planTratamiento,
+      })) || [];
+
+    const internas = (Array.isArray(internasResp.data) ? internasResp.data : []).map((c: any) => ({
+      id: c.id,
+      numeroDeArchivo: c.numeroDeArchivo,
+      fecha: c.fecha,
+      patient: c.patient,
+      motivoConsulta: c.motivoConsulta,
+      diagnosticosDesc: c.diagnosticosDesc || [],
       type: 'Consulta Interna',
-      servicio: consultation.servicio,
-      especialidadConsultada: consultation.especialidadConsultada,
-      esUrgente: consultation.esUrgente,
-      cuadroClinicoActual: consultation.cuadroClinicoActual,
-      examenesResultados: consultation.examenesResultados,
-      planDiagnosticoPropuesto: consultation.planDiagnosticoPropuesto,
-      planTerapeuticoPropuesto: consultation.planTerapeuticoPropuesto
+      servicio: c.servicio,
+      especialidadConsultada: c.especialidadConsultada,
+      esUrgente: c.esUrgente,
+      cuadroClinicoActual: c.cuadroClinicoActual,
+      examenesResultados: c.examenesResultados,
+      planDiagnosticoPropuesto: c.planDiagnosticoPropuesto,
+      planTerapeuticoPropuesto: c.planTerapeuticoPropuesto,
     }));
 
-    // Procesar consultas de enfermería
-    const enfermeria = (Array.isArray(enfermeriaResp.data) ? enfermeriaResp.data : []).map((consultation: any) => ({
-      id: consultation.id,
-      numeroDeArchivo: consultation.numeroDeArchivo || 0,
-      fecha: consultation.fecha || consultation.createdAt,
-      patient: consultation.patient,
-      motivoConsulta: consultation.nanda_etiqueta_diagnostica || 'Sin motivo especificado',
-      diagnosticosDesc: [consultation.nanda_dominio, consultation.nanda_clase].filter(Boolean),
+    const enfermeria = (Array.isArray(enfermeriaResp.data) ? enfermeriaResp.data : []).map((c: any) => ({
+      id: c.id,
+      numeroDeArchivo: c.numeroDeArchivo || 0,
+      fecha: c.fecha || c.createdAt,
+      patient: c.patient,
+      motivoConsulta: c.nanda_etiqueta_diagnostica || 'Sin motivo especificado',
+      diagnosticosDesc: [c.nanda_dominio, c.nanda_clase].filter(Boolean),
       type: 'Consulta Enfermería',
-      nanda_dominio: consultation.nanda_dominio,
-      nanda_clase: consultation.nanda_clase,
-      nanda_factor_relacionado: consultation.nanda_factor_relacionado,
-      resultadosNoc: consultation.resultadosNoc,
-      intervencionesNic: consultation.intervencionesNic
+      nanda_dominio: c.nanda_dominio,
+      nanda_clase: c.nanda_clase,
+      nanda_factor_relacionado: c.nanda_factor_relacionado,
+      resultadosNoc: c.resultadosNoc,
+      intervencionesNic: c.intervencionesNic,
     }));
 
-    // Procesar solicitudes de laboratorio
-    const laboratorio = (laboratorioResp.data?.requests || []).map((request: any) => ({
-      id: request.id,
-      numeroDeArchivo: request.numero_de_archivo || 0,
-      fecha: request.createdAt || request.fecha,
-      patient: request.patient,
+    const laboratorio = (laboratorioResp.data?.requests || []).map((r: any) => ({
+      id: r.id,
+      numeroDeArchivo: r.numero_de_archivo || 0,
+      fecha: r.createdAt || r.fecha,
+      patient: r.patient,
       motivoConsulta: 'Solicitud de exámenes de laboratorio',
-      diagnosticosDesc: [
-        request.diagnostico_descripcion1,
-        request.diagnostico_descripcion2
-      ].filter(Boolean),
+      diagnosticosDesc: [r.diagnostico_descripcion1, r.diagnostico_descripcion2].filter(Boolean),
       type: 'Solicitud Laboratorio',
-      diagnostico_descripcion1: request.diagnostico_descripcion1,
-      diagnostico_descripcion2: request.diagnostico_descripcion2,
-      diagnostico_cie1: request.diagnostico_cie1,
-      diagnostico_cie2: request.diagnostico_cie2,
-      prioridad: request.prioridad,
-      hematologia_examenes: request.hematologia_examenes,
-      coagulacion_examenes: request.coagulacion_examenes,
-      quimica_sanguinea_examenes: request.quimica_sanguinea_examenes,
-      orina_examenes: request.orina_examenes,
-      heces_examenes: request.heces_examenes,
-      hormonas_examenes: request.hormonas_examenes,
-      serologia_examenes: request.serologia_examenes
+      diagnostico_descripcion1: r.diagnostico_descripcion1,
+      diagnostico_descripcion2: r.diagnostico_descripcion2,
+      diagnostico_cie1: r.diagnostico_cie1,
+      diagnostico_cie2: r.diagnostico_cie2,
+      prioridad: r.prioridad,
+      hematologia_examenes: r.hematologia_examenes,
+      coagulacion_examenes: r.coagulacion_examenes,
+      quimica_sanguinea_examenes: r.quimica_sanguinea_examenes,
+      orina_examenes: r.orina_examenes,
+      heces_examenes: r.heces_examenes,
+      hormonas_examenes: r.hormonas_examenes,
+      serologia_examenes: r.serologia_examenes,
     }));
 
-    // Combinar todas las consultas
-    const allConsultations = [...externas, ...internas, ...enfermeria, ...laboratorio];
+    const neurologica = (neurologicaResp.data?.neurologicas || []).map((e: any) => ({
+      id: e.id,
+      numeroDeArchivo: 0,
+      fecha: e.createdAt || e.fecha,
+      patient: { name: e.name || '', lastName: '', document: e.ci || '' },
+      motivoConsulta: 'Evaluación neurológica',
+      diagnosticosDesc: [e.diagnostico, e.discapacidad].filter(Boolean),
+      type: 'Evaluación Neurológica',
+      edad: e.edad,
+      discapacidad: e.discapacidad,
+      diagnostico: e.diagnostico,
+      antecedentesHeredofamiliares: e.antecedentesHeredofamiliares,
+      antecedentesFarmacologicos: e.antecedentesFarmacologicos,
+      alergias: e.alergias,
+      utilizaSillaRuedas: e.utilizaSillaRuedas,
+      comentariosExaminador: e.comentariosExaminador,
+      resumenResultados: e.resumenResultados,
+      barthelTotal: e.barthelTotal,
+      cif: Array.isArray(e.cif) ? e.cif : [],
+    }));
+
+    const allConsultations = [...externas, ...internas, ...enfermeria, ...laboratorio, ...neurologica];
 
     return {
       consultations: allConsultations,
@@ -300,11 +486,136 @@ export const getAllConsultations = async (token: string) => {
         internas: internas.length,
         enfermeria: enfermeria.length,
         laboratorio: laboratorio.length,
-        total: allConsultations.length
-      }
+        neurologica: neurologica.length,
+        total: allConsultations.length,
+      },
     };
-  } catch (error) {
-    console.error('Error al obtener las consultas:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('❌ Error detallado en getAllConsultations:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
+      }
+    });
+    
+    // Proporcionar información específica del error
+    if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
+      console.error('🌐 Error de conectividad de red - Backend posiblemente no disponible');
+      throw new Error('Error de conectividad: No se puede conectar al servidor. Verifique su conexión a internet.');
+    }
+    
+    if (error.response?.status === 401) {
+      console.error('🔐 Error de autenticación - Token inválido o expirado');
+      throw new Error('Error de autenticación: Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
+    }
+    
+    if (error.response?.status === 403) {
+      console.error('🚫 Error de autorización - Permisos insuficientes');
+      throw new Error('Error de autorización: No tiene permisos para acceder a esta información.');
+    }
+    
+    if (error.response?.status >= 500) {
+      console.error('🔥 Error del servidor - Problema interno del backend');
+      throw new Error('Error del servidor: Problema interno del sistema. Intente nuevamente más tarde.');
+    }
+    
+    // Error genérico
+    throw new Error(`Error al obtener las consultas: ${error.message || 'Error desconocido'}`);
+  }
+};
+
+/* ========= Descargas (uno vs todos) ========= */
+
+async function downloadFile(response: Response, filename: string) {
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+function getEndpointSingle(type: string, id: string): string {
+  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/api`;
+  if (!id) throw new Error('Se requiere un ID para descargar un registro');
+
+  switch (type) {
+    case 'Consulta Externa':       return `${baseUrl}/consultations/download/${id}`;
+    case 'Consulta Interna':       return `${baseUrl}/consultations-internal/download/${id}`;
+    case 'Consulta Enfermería':    return `${baseUrl}/nursing/download/${id}`;
+    case 'Solicitud Laboratorio':  return `${baseUrl}/laboratory-request/download/${id}`;
+    case 'Evaluación Neurológica': return `${baseUrl}/neurologica/download/${id}`;
+    default: throw new Error(`Tipo no soportado: ${type}`);
+  }
+}
+
+function getEndpointAll(type: string): string {
+  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/api`;
+  switch (type) {
+    case 'Consulta Externa':       return `${baseUrl}/consultations/download`;
+    case 'Consulta Interna':       return `${baseUrl}/consultations-internal/download`;
+    case 'Consulta Enfermería':    return `${baseUrl}/nursing/download`;
+    case 'Solicitud Laboratorio':  return `${baseUrl}/laboratory-request/download`;
+    case 'Evaluación Neurológica': return `${baseUrl}/neurologica/download`;
+    default: throw new Error(`Tipo no soportado: ${type}`);
+  }
+}
+
+export const downloadService = {
+  async downloadOne(type: string, token: string, id: string) {
+    const endpoint = getEndpointSingle(type, id);
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/pdf',
+      },
+    });
+    if (!response.ok) {
+      let msg = response.statusText;
+      try { const e = await response.json(); msg = e?.message || msg; } catch {}
+      throw new Error(`Error al descargar: ${msg}`);
+    }
+    const filename = `${type.toLowerCase().replace(/\s+/g, '-')}-${id}.pdf`;
+    await downloadFile(response as unknown as Response, filename);
+  },
+
+  async downloadAllOfType(type: string, token: string) {
+    const endpoint = getEndpointAll(type);
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/pdf',
+      },
+    });
+    if (!response.ok) {
+      let msg = response.statusText;
+      try { const e = await response.json(); msg = e?.message || msg; } catch {}
+      throw new Error(`Error al descargar: ${msg}`);
+    }
+    const filename = `${type.toLowerCase().replace(/\s+/g, '-')}-all.pdf`;
+    await downloadFile(response as unknown as Response, filename);
+  },
+};
+
+
+
+/**
+ * Descarga **cada** registro por separado (varios PDFs, uno por consulta).
+ * Si prefieres un solo PDF con “todos de un tipo”, usa downloadService.downloadAllOfType(type, token).
+ */
+export const downloadAllConsultations = async (token: string, consultations: Array<{ tipo: string; id: string }>) => {
+  for (const c of consultations) {
+    await downloadService.downloadOne(c.tipo, token, c.id);
+    await new Promise((r) => setTimeout(r, 500)); // pequeña pausa
   }
 };

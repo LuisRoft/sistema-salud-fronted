@@ -11,7 +11,7 @@ export const createInitialConsultation = async (consultationData: any) => {
       throw new Error('No hay token de autenticación');
     }
 
-    const response = await axiosInstance.post('/api/consultations/initial', consultationData, {
+    const response = await axiosInstance.post('/consultations/initial', consultationData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -30,7 +30,7 @@ export const createInitialConsultation = async (consultationData: any) => {
 };
 
 export const getAllInitialConsultations = async (token: string) => {
-  const response = await get('/api/consultations/initial', {
+  const response = await get('/api/consultations', {
     headers: {
       Authorization: `Bearer ${token}`,
     },

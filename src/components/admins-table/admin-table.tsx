@@ -32,19 +32,21 @@ export default function AdminTable() {
   if (isError) return <div>Error loading admins</div>;
 
   return (
-    <div>
+    <div className="w-full">
       {isLoading ? (
         <TableSkeleton rows={pageSize} columns={columns.length} />
       ) : (
-        <DataTable
-          columns={columns}
-          data={data?.admins || []}
-          pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          totalPages={data?.total || 0}
-        />
+        <div className="w-full overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={data?.admins || []}
+            pageIndex={pageIndex}
+            setPageIndex={setPageIndex}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            totalPages={Math.ceil((data?.total || 1) / pageSize)}
+          />
+        </div>
       )}
     </div>
   );

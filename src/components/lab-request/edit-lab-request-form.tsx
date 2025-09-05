@@ -24,8 +24,10 @@ import {
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { updateLaboratoryRequest } from '@/services/labRequestService';
 import { getSession } from 'next-auth/react';
 import { LabRequestRow } from './columns';
+import { LabRequestManagementRow } from './management-columns';
 
 // ✅ Esquema de validación
 const editFormSchema = z.object({
@@ -41,24 +43,17 @@ const editFormSchema = z.object({
     .string()
     .min(1, { message: 'El diagnóstico 2 es requerido.' }),
   diagnostico_cie2: z.string().min(1, { message: 'El CIE 2 es requerido.' }),
+  fecha: z.string().min(1, { message: 'La fecha es requerida.' }),
   prioridad: z.string().min(1, { message: 'La prioridad es requerida.' }),
 });
 
 type EditLabRequestFormProps = {
   onClose: () => void;
   id: string;
-  defaultValues: LabRequestRow; // ✅ Ahora `defaultValues` incluye `id`
+  defaultValues: LabRequestRow | LabRequestManagementRow; // ✅ Ahora `defaultValues` incluye `id`
 };
 
 // ✅ Función para actualizar la solicitud
-async function updateLabRequest(
-  values: z.infer<typeof editFormSchema>,
-  id: string,
-  token: string
-): Promise<void> {
-  console.log('Actualizando solicitud:', values, id, token);
-  // Aquí iría la lógica para llamar al backend
-}
 
 export default function EditLabRequestForm({
   onClose,
@@ -77,9 +72,57 @@ export default function EditLabRequestForm({
   // ✅ Mutación para actualizar la solicitud
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof editFormSchema>) => {
+      // Simular la actualización
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('🔄 Actualizando solicitud:', values);
+      console.log('📝 ID de solicitud:', id);
+      
+      // Obtener la función de actualización del query client
+      const actions = queryClient.getQueryData(['lab-management-actions']) as any;
+      if (actions?.updateRequest) {
+        actions.updateRequest(id, {
+          numero_de_archivo: values.numero_de_archivo,
+          diagnostico_descripcion1: values.diagnostico_descripcion1,
+          diagnostico_cie1: values.diagnostico_cie1,
+          diagnostico_descripcion2: values.diagnostico_descripcion2,
+          diagnostico_cie2: values.diagnostico_cie2,
+          fecha: values.fecha,
+          prioridad: values.prioridad,
+        });
+      }
+      
+      return { message: 'Solicitud actualizada exitosamente' };
+
+      /* 
+      // CÓDIGO REAL - Descomenta cuando tengas conexión al backend
       const session = await getSession();
       const token = session?.user.access_token;
-      return await updateLabRequest(values, id, token as string);
+      
+      if (!token) {
+        throw new Error('No se encontró el token de sesión');
+      }
+
+      const updateData = {
+        numero_de_archivo: values.numero_de_archivo,
+        diagnostico_descripcion1: values.diagnostico_descripcion1,
+        diagnostico_cie1: values.diagnostico_cie1,
+        diagnostico_descripcion2: values.diagnostico_descripcion2,
+        diagnostico_cie2: values.diagnostico_cie2,
+        fecha: values.fecha,
+        prioridad: values.prioridad,
+        // Mantener los arrays de exámenes existentes
+        hematologia_examenes: defaultValues.hematologia_examenes || [],
+        coagulacion_examenes: defaultValues.coagulacion_examenes || [],
+        quimica_sanguinea_examenes: defaultValues.quimica_sanguinea_examenes || [],
+        orina_examenes: defaultValues.orina_examenes || [],
+        heces_examenes: defaultValues.heces_examenes || [],
+        hormonas_examenes: defaultValues.hormonas_examenes || [],
+        serologia_examenes: defaultValues.serologia_examenes || [],
+      };
+
+      return await updateLaboratoryRequest(id, updateData, token);
+      */
     },
     onSuccess: () => {
       toast({
@@ -87,6 +130,7 @@ export default function EditLabRequestForm({
         description: 'Solicitud de laboratorio actualizada exitosamente.',
       });
       queryClient.invalidateQueries({ queryKey: ['lab-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['lab-requests-management'] });
       onClose();
     },
     onError: (error: unknown) => {
@@ -165,6 +209,60 @@ export default function EditLabRequestForm({
 
           <FormField
             control={form.control}
+            name='diagnostico_descripcion2'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='text-[#575756]'>Diagnóstico 2</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='Descripción del diagnóstico 2'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='diagnostico_cie2'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='text-[#575756]'>CIE 2</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='CIE 2'
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='fecha'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='text-[#575756]'>Fecha</FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    className='h-10 text-[#575756]'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name='prioridad'
             render={({ field }) => (
               <FormItem>
@@ -178,9 +276,8 @@ export default function EditLabRequestForm({
                       <SelectValue placeholder='Seleccionar prioridad' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='Alta'>Alta</SelectItem>
-                      <SelectItem value='Media'>Media</SelectItem>
-                      <SelectItem value='Baja'>Baja</SelectItem>
+                      <SelectItem value='URGENTE'>Urgente</SelectItem>
+                      <SelectItem value='RUTINA'>Rutina</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>

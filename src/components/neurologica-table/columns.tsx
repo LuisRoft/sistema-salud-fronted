@@ -3,18 +3,12 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table-header';
 import { Badge } from '@/components/ui/badge'; 
+import { EvaluacionNeurologica } from '@/types/neurologica';
 //import ActionsCells from '@/components/actions-cells'; 
 //import EditNeurologicaDialog from './edit-neurologica-dialog';
 //import DeleteNeurologicaDialog from './delete-neurologica-dialog';
 
-export type NeurologicaEval = {
-  id: string;
-  name: string;
-  ci: string;
-  edad: number;
-  discapacidad: string;
-  diagnostico: string;
-};
+export type NeurologicaEval = EvaluacionNeurologica;
 
 export const columns: ColumnDef<NeurologicaEval>[] = [
   {

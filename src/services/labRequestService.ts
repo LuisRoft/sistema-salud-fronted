@@ -29,7 +29,7 @@ export const createLaboratoryRequest = async (data: CreateLaboratoryRequestDTO, 
 /**
  * Obtiene todas las solicitudes de laboratorio
  */
-export const getLaboratoryRequests = async (token: string): Promise<LabRequestRow[]> => {
+export const getLaboratoryRequests = async (token: string): Promise<any[]> => {
   try {
     const res = await get('/api/laboratory-request', {
       headers: { Authorization: `Bearer ${token}` },
@@ -42,6 +42,7 @@ export const getLaboratoryRequests = async (token: string): Promise<LabRequestRo
       diagnostico_cie1: req.diagnostico_cie1,
       diagnostico_descripcion2: req.diagnostico_descripcion2,
       diagnostico_cie2: req.diagnostico_cie2,
+      fecha: req.fecha || new Date().toISOString().split('T')[0],
       prioridad: req.prioridad,
       hematologia_examenes: req.hematologia_examenes ?? [],
       coagulacion_examenes: req.coagulacion_examenes ?? [],
@@ -52,6 +53,7 @@ export const getLaboratoryRequests = async (token: string): Promise<LabRequestRo
       serologia_examenes: req.serologia_examenes ?? [],
       userId: req.user?.id ?? '',
       patientId: req.patient?.id ?? '',
+      patient: req.patient || null,
     }));
   } catch (error) {
     console.error('❌ Error al obtener las solicitudes de laboratorio:', error);

@@ -2,8 +2,9 @@
 import axios from 'axios';
 
 // Configure base URL for all requests
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: `${backendUrl}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

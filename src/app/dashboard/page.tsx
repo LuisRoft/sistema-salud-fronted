@@ -1,92 +1,231 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { LoaderIcon } from 'lucide-react';
+import { LoaderIcon, Users, Shield, UserCheck, Building2, Heart } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
-const fetchAllData = async (token: any) => {
-  const headers = { Authorization: `Bearer ${token}` };
-  const [usersRes, careersRes, patientsRes, teamsRes] = await Promise.all([
-    fetch('http://localhost:3000/api/users/role/user', { headers }).then((res) => res.json()),
-    fetch('http://localhost:3000/api/careers', { headers }).then((res) => res.json()),
-    fetch('http://localhost:3000/api/patients', { headers }).then((res) => res.json()),
-    fetch('http://localhost:3000/api/teams', { headers }).then((res) => res.json()),
-  ]);
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getManagers } from '@/services/managerService';
+import { getAdmins } from '@/services/adminService';
+import { getPatients } from '@/services/patientService';
+import { getTeams } from '@/services/teamsService';
+import { getCaregivers } from '@/services/caregiverService';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 
-  return {
-    users: usersRes.users || usersRes,
-    careers: careersRes.careers || careersRes,
-    patients: patientsRes.patients || patientsRes,
-    teams: teamsRes.teams || teamsRes,
-  };
-};
+const COLORS = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))', 
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))'
+];
 
 export default function Page() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [data, setData] = useState({ users: [], careers: [], patients: [], teams: [] });
-  const [loading, setLoading] = useState(true);
+  const token = session?.user?.access_token;
 
-  useEffect(() => {
-    if (status === 'loading') return;
+  // Consultas usando React Query y servicios existentes
+  const { data: managersData, isLoading: managersLoading } = useQuery({
+    queryKey: ['dashboard-managers'],
+    queryFn: async () => {
+      if (!token) return null;
+      return await getManagers(token, { page: 1, limit: 1000 });
+    },
+    enabled: !!token,
+    staleTime: 60000,
+  });
 
-    // Temporalmente desactivado para pruebas
-    // if (!session || session.user.role !== 'admin') {
-    //   router.push('/unauthorized');
-    //   return;
-    // }
+  const { data: adminsData, isLoading: adminsLoading } = useQuery({
+    queryKey: ['dashboard-admins'],
+    queryFn: async () => {
+      if (!token) return null;
+      return await getAdmins(token, { page: 1, limit: 1000 });
+    },
+    enabled: !!token,
+    staleTime: 60000,
+  });
 
-    const loadData = async () => {
-      setLoading(true);
-      const result = await fetchAllData(session?.user.access_token);
-      setData(result);
-      setLoading(false);
-    };
+  const { data: patientsData, isLoading: patientsLoading } = useQuery({
+    queryKey: ['dashboard-patients'],
+    queryFn: async () => {
+      if (!token) return null;
+      return await getPatients(token, { page: 1, limit: 1000 });
+    },
+    enabled: !!token,
+    staleTime: 60000,
+  });
 
-    if (session) loadData();
-  }, [session, status, router]);
+  const { data: teamsData, isLoading: teamsLoading } = useQuery({
+    queryKey: ['dashboard-teams'],
+    queryFn: async () => {
+      if (!token) return null;
+      return await getTeams(token, { page: 1, limit: 1000 });
+    },
+    enabled: !!token,
+    staleTime: 60000,
+  });
+
+  const { data: caregiversData, isLoading: caregiversLoading } = useQuery({
+    queryKey: ['dashboard-caregivers'],
+    queryFn: async () => {
+      if (!token) return null;
+      return await getCaregivers(token, 1000, 1);
+    },
+    enabled: !!token,
+    staleTime: 60000,
+  });
+
+  const isLoading = status === 'loading' || managersLoading || adminsLoading || patientsLoading || teamsLoading || caregiversLoading;
 
 
-  if (loading || status === 'loading') {
+  // Preparar datos para gráficos
+  const statsData = [
+    { 
+      name: 'Gestores', 
+      value: managersData?.users?.length || 0, 
+      color: COLORS[0],
+      icon: UserCheck 
+    },
+    { 
+      name: 'Administradores', 
+      value: adminsData?.admins?.length || 0, 
+      color: COLORS[1],
+      icon: Shield 
+    },
+    { 
+      name: 'Pacientes', 
+      value: patientsData?.patients?.length || 0, 
+      color: COLORS[2],
+      icon: Heart 
+    },
+    { 
+      name: 'Equipos', 
+      value: teamsData?.teams?.length || 0, 
+      color: COLORS[3],
+      icon: Building2 
+    },
+    { 
+      name: 'Cuidadores', 
+      value: caregiversData?.caregivers?.length || 0, 
+      color: COLORS[4],
+      icon: Users 
+    }
+  ];
+
+  if (isLoading) {
     return (
       <div className='flex h-full items-center justify-center'>
-        <LoaderIcon className='h-10 w-10 animate-spin' />
+        <div className="text-center">
+          <LoaderIcon className='h-12 w-12 animate-spin text-primary mx-auto mb-4' />
+          <p className="text-muted-foreground">Cargando dashboard administrativo...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className='p-6'>
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-6'>
-        <div className='bg-blue-400 p-4 rounded-lg'>
-          <h3 className='font-bold'>Total Gestores</h3>
-          <p className='text-2xl'>{data.users?.length || 0}</p>
-        </div>
-        <div className='bg-green-400 p-4 rounded-lg'>
-          <h3 className='font-bold'>Total Carreras</h3>
-          <p className='text-2xl'>{data.careers?.length || 0}</p>
-        </div>
-        <div className='bg-yellow-400 p-4 rounded-lg'>
-          <h3 className='font-bold'>Total Usuarios</h3>
-          <p className='text-2xl'>{data.patients?.length || 0}</p>
-        </div>
-        <div className='bg-purple-400 p-4 rounded-lg'>
-          <h3 className='font-bold'>Total Equipos</h3>
-          <p className='text-2xl'>{data.teams?.length || 0}</p>
+    <div className='p-6 space-y-6'>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard Administrativo</h1>
+          <p className="text-muted-foreground">
+            Resumen general del sistema de salud PUCEM
+          </p>
         </div>
       </div>
 
-      <div className='flex h-full items-center justify-center'>
-        <Image
-          src='/logo-vinculacion.jpeg'
-          alt='PUC-EM'
-          width={400}
-          height={400}
-          className='rounded-3xl'
-        />
+      {/* Métricas principales */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        {statsData.map((stat) => {
+          const IconComponent = stat.icon;
+          return (
+            <Card key={stat.name}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.name}</CardTitle>
+                <IconComponent className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total registrados
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Gráficos */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Gráfico de barras */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribución por Roles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              config={{
+                value: {
+                  label: "Cantidad",
+                  color: "hsl(var(--chart-1))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statsData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
+                  />
+                  <Bar dataKey="value" fill="var(--color-value)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Gráfico circular */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribución Porcentual</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              config={{
+                value: {
+                  label: "Cantidad",
+                  color: "hsl(var(--chart-1))",
+                },
+              }}
+              className="h-[300px]"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statsData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {statsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -26,30 +26,19 @@ async function handleDownloadPDF(consultation: ConsultationHistory) {
     const session = await getSession();
     if (!session?.user?.access_token) throw new Error('No autorizado');
 
-    // Log para debug
-    console.log('Datos de la consulta:', {
-      id: consultation.id,
-      tipo: consultation.type
-    });
+    console.log('Descarga individual:', { id: consultation.id, type: consultation.type });
 
-    if (!consultation.id) {
-      throw new Error('ID de consulta no válido');
-    }
-
-    await downloadService.downloadPDF(
+    await downloadService.downloadOne(
       consultation.type,
       session.user.access_token,
       consultation.id
     );
   } catch (error) {
     console.error('Error detallado:', error);
-    if (error instanceof Error) {
-      alert(`Error al descargar el PDF: ${error.message}`);
-    } else {
-      alert('Error al descargar el PDF');
-    }
+    alert(error instanceof Error ? `Error al descargar el PDF: ${error.message}` : 'Error al descargar el PDF');
   }
 }
+
 
 export const columns: ColumnDef<ConsultationHistory>[] = [
   {
@@ -100,12 +89,12 @@ export const columns: ColumnDef<ConsultationHistory>[] = [
       
       return (
         <div>
-          <div className="font-medium">
-            {patient.name && patient.lastName 
-              ? `${patient.name} ${patient.lastName}`
-              : 'Nombre no disponible'
-            }
+         <div className="font-medium">
+            {patient.name || patient.lastName
+              ? [patient.name, patient.lastName].filter(Boolean).join(' ')
+              : 'Nombre no disponible'}
           </div>
+
           <div className="text-sm text-gray-500">
             {patient.document || 'Sin documento'}
           </div>

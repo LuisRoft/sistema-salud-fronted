@@ -34,7 +34,7 @@ export const getManagers = async (
   if (params?.role) queryParams.append('role', params.role);
 
   const queryString = queryParams.toString();
-  const endpoint = `users/role/user${queryString ? `?${queryString}` : ''}`;
+  const endpoint = `/users/role/user${queryString ? `?${queryString}` : ''}`;
 
   return get(endpoint, {
     headers: {

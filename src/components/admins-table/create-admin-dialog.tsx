@@ -19,12 +19,15 @@ export default function CreateAdminDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline'>Agregar administrador</Button>
+        <Button variant='outline' className="w-full sm:w-auto text-sm">
+          <span className="hidden sm:inline">Agregar Administrador</span>
+          <span className="sm:hidden">+ Admin</span>
+        </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-xl'>
+      <DialogContent className='w-[95vw] max-w-lg sm:max-w-xl lg:max-w-2xl'>
         <DialogHeader>
-          <DialogTitle className="uppercase">Crear Administrador</DialogTitle>
-          <DialogDescription className="uppercase">
+          <DialogTitle className="text-lg sm:text-xl">Crear Administrador</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             Formulario para crear un nuevo administrador
           </DialogDescription>
         </DialogHeader>

@@ -18,23 +18,9 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
-        // Modo desarrollo: usuario simulado
-        if (process.env.NODE_ENV === 'development') {
-          return {
-            id: '1234567890',
-            name: 'Usuario Test',
-            email: 'dev@example.com',
-            document: '1234567890',
-            lastName: 'Dev',
-            role: 'user', // Puedes cambiarlo a 'doctor', 'caregiver', etc.
-            token: 'fake-token-dev',
-            team: 'TeamFake',
-          };
-        }
-
-        // Modo producción: autenticación real
         try {
-          const res = await fetch('http://localhost:3000/api/auth/login', {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
+        const res = await fetch(`${backendUrl}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -69,8 +55,12 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: '/login',
+    error: '/login',
   },
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -128,8 +118,22 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    }
+  },
+  useSecureCookies: process.env.NODE_ENV === 'production'
 };
 
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+

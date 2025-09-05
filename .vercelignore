@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.prettierrc
+.eslintrc.json
+.env*.local
+.vercel
