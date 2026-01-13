@@ -49,10 +49,10 @@ El sistema tiene como objetivo proporcionar servicios de salud accesibles y efic
    ```
 
    ```env
-       NEXTAUTH_SECRET=12312312312312312312312312
-       NEXTAUTH_URL=http://localhost:8000
-       PORT=8000
-       NEXT_PUBLIC_BACKEND_URL=http://localhost:3000/api/
+   NEXTAUTH_SECRET=12312312312312312312312312
+   NEXTAUTH_URL=http://localhost:8000
+   PORT=8000
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
    ```
 
 4. Inicia el servidor de desarrollo:
@@ -118,3 +118,117 @@ Si deseas contribuir a este proyecto, por favor sigue estos pasos:
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT.
+
+## Despliegue en Producción (PM2 + Nginx)
+
+### Variables de entorno (producción)
+
+En producción, configura `.env.local` sin espacios ni backticks:
+
+```env
+NEXTAUTH_SECRET=12312312312312312312312312
+NEXTAUTH_URL=http://190.15.130.157
+NEXT_PUBLIC_BACKEND_URL=http://190.15.130.157
+PORT=8000
+```
+
+### Build y arranque con PM2
+
+```bash
+pnpm install
+pnpm build
+pm2 start "npm run start -- -p 8000 -H 0.0.0.0" --name salud-frontend --cwd /home/sistema-salud-fronted
+pm2 save
+sudo env PATH=$PATH:/home/pucem/.nvm/versions/node/v20.19.6/bin pm2 startup systemd -u pucem --hp /home/pucem
+```
+
+Comandos útiles:
+
+```bash
+pm2 status
+pm2 logs salud-frontend --lines 100
+pm2 restart salud-frontend
+```
+
+### Nginx (same-origin)
+
+Coloca este bloque en `/etc/nginx/sites-available/salud` y habilítalo con un symlink a `sites-enabled`:
+
+```
+server {
+  listen 80;
+  server_name 190.15.130.157;
+
+  location / {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }
+
+  location ^~ /api/auth/login {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+  }
+
+  location ^~ /api/auth/ {
+    proxy_pass http://127.0.0.1:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+  }
+
+  location ^~ /api/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+  }
+}
+```
+
+Recarga Nginx:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Notas de operación
+
+- Usa `http://190.15.130.157` para producción; evita llamar al backend desde `http://localhost:3000` para no activar CORS.
+- Las llamadas del frontend usan baseURL relativa `/api`, Nginx enruta al backend en `127.0.0.1:3000`.
+- Si cambias `.env.local`, reinicia el proceso del frontend:
+
+```bash
+pm2 restart salud-frontend
+```
+
+### Backend (.env)
+
+Archivo `.env` para el backend (colócalo en la raíz del backend, por ejemplo `/home/pucem-backend/.env`):
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=salud_db
+DB_USERNAME=app_user
+DB_USER=app_user
+DB_PASSWORD=AppPassword123
+DB_SSL_FILE=
+
+FRONTEND_URL=http://190.15.130.157
+
+CLIENT_ID=6edef41bc1d9851e5b1bd838521c0f4dc5a44774
+CLIENT_SECRET=9e0e91085ed6e7734d86d2a1fadd045b19f10a2a
+URL_API_BODY=https://apis.biodigital.com/oauth2/v2/token
+
+JWT_SECRET=secreto123
+```
